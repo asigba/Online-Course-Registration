@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cmsc495project"
+version = "0.0.2"
+description = "This is our CMSC495 Project: Online Course Registration"
+authors = [
+    { name = "Alex Sigba", email = "asigba@student.umgc.edu" },
+    { name = "Giavani Dickey", email = "gdickey2@student.umgc.edu" },
+    { name = "Samia Celi", email = "sceli@student.umgc.edu" },
+    { name = "Benjamin Rinehart", email = "brinehart1@student.umgc.edu" },
+    { name = "Maggie Ours", email = "mours@student.umgc.edu" }
+]
+dependencies = [
+    "Flask==3.0.3",             # Flask framework
+    "Flask-Bcrypt==1.0.1",      # For password hashing
+    "Flask-Login==0.6.3",       # For user session management
+    "Flask-SQLAlchemy==3.1.1",  # SQLAlchemy integration for Flask
+    "Flask-WTF==1.2.2",         # For form handling
+    "WTForms==3.2.1"            # For form validation
+]
+requires-python = ">=3.13"
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.setuptools.package-data]
+src = [
+    "templates/*",  # Include all template files
+    "static/*"      # Include all static files
+]
+
+[project.scripts]
+cmsc495 = "src.app:main"
