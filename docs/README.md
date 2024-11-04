@@ -14,36 +14,7 @@ sudo cmsc495
 
 
 # Package Directory Structure
-
-/cmsc495project  
-│  
-├── /database  
-│   └── database.db         # this file and parent directory will be created automatic if non-existent  
-│  
-├── /src  
-│   ├── app.py              # the main application  
-|   |  
-│   ├── /templates          # HTML templates  
-│   │   ├── index.html  
-│   │   ├── landing.html  
-│   │   ├── login.html  
-│   │   └── register.html  
-|   |  
-│   └── /static             # Static assets (CSS, JS, images)  
-│       ├── css  
-│       │   └── <style.css>  
-│       ├── js  
-│       │   └── <script.js>  
-│       └── images  
-│           └── <logo.png>  
-│  
-├── /tests  
-│   └── <test.py>  
-│  
-├── /docs  
-│   └── README.md  
-│      
-└── pyproject.toml          # for 'python -m build' when creating the wheel  
+![alt text](../images/directory_stucture.png)
 
 
 # Database Commands
