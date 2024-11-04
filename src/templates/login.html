@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base.html" %}
+
+{%block head%}
     <title>CMSC485 Online Course Registration Login</title>
-</head>
-<body>
+{% endblock %}
+
+{%block body%}
     <h1>Login</h1><br>
 
     {% with messages = get_flashed_messages(with_categories=True) %}
@@ -28,5 +27,4 @@
 
     <a href="{{url_for('register')}}">New User</a><br>
     <a href="{{url_for('index')}}">Home</a><br>
-</body>
-</html>
+{% endblock %}
