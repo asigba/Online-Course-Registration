@@ -1,5 +1,5 @@
 # Online Course Registration 
-![alt text](../images/banner.png)
+![alt text](../images/banner.png)  
 Our project will simplify the course registration process, allowing students to easily browse available courses, view detailed information, and register with just a few clicks. However, these features are accessible only after the student has successfully completed a secure login or registration process.  
 
 
