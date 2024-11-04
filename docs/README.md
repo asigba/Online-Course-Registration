@@ -55,23 +55,4 @@ select * from student;
 
 
 # Database Tables
-
-+--------------------------+  
-|          User            |  
-+--------------------------+  
-| id (PK)     | Integer    |  
-| username    | String(30) |  
-| password    | String(80) |  
-| created_at  | DateTime   |  
-| updated_at  | DateTime   |  
-+--------------------------+  
-
-+---------------------------+  
-|          Student          |  
-+---------------------------+  
-| id (PK, FK)  | Integer    |  
-| student_id   | Integer    |  
-| first_name   | String(30) |  
-| last_name    | String(30) |  
-| updated_at   | DateTime   |  
-+---------------------------+  
+![alt text](../images/db_images.png)
