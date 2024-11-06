@@ -8,7 +8,6 @@ python3 -m ensurepip --upgrade
 pip install cmsc495project*.whl
 sudo cmsc495
 
-
 # Package Directory Structure
 
 /cmsc495project
@@ -16,14 +15,19 @@ sudo cmsc495
 ├── /database
 │   └── database.db         # this file and parent directory will be created automatic if non-existent
 │
+├── /docs
+│   └── README.md
+|
 ├── /src
 │   ├── app.py              # the main application
 |   |
 │   ├── /templates          # HTML templates
+│   │   ├── course_details.html
 │   │   ├── index.html
 │   │   ├── landing.html
 │   │   ├── login.html
-│   │   └── register.html
+│   │   ├── register.html
+│   │   └── view_courses.html
 |   |
 │   └── /static             # Static assets (CSS, JS, images)
 │       ├── css
@@ -35,18 +39,19 @@ sudo cmsc495
 │
 ├── /tests
 │   └── <test.py>
-│
-├── /docs
-│   └── README.md
-│    
+│  
+├── initial_course_data.json
+|  
 └── pyproject.toml          # for 'python -m build' when creating the wheel
 
 
 # Database Commands
 sqlite3 ../database/database.db
 .tables
-select * from user;
-select * from student;
+select * from users;
+select * from students;
+select * from courses;
+select * from classes;
 .exit
 
 

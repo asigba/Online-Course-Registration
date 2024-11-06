@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMSC495 Online Course Registration User Landing</title>
+</head>
+<body>
+
+    <h2>
+        This is course {{ course.course_id }} - {{ course.course_name }}: 
+    </h2>
+    <ul>
+        <li><strong>Catalog:</strong> {{ course.catalog }}</li>
+        <li><strong>Course Number:</strong> {{ course.course_number }}</li>
+        <li><strong>Course Name:</strong> {{ course.course_name }}</li>
+        <li><strong>Description:</strong> {{ course.description }}</li>
+        <li><strong>Max Seats:</strong> {{ course.max_seats }}</li>
+        <li><strong>Credits Awarded:</strong> {{ course.credits_awarded }}</li>
+        <li><strong>Semesters Offered:</strong> {{ semester }}</li>
+        <li><strong>Locations Offered:</strong> {{ location }}</li>
+        <li><strong>Prerequisites:</strong> {{ prereq }}</li>
+        <li><strong>Faculty:</strong> {{ faculty_member }}</li>
+        <li><strong>Required Technology:</strong> {{ course.required_technology }}</li>
+        <li><strong>Reporting Instructions:</strong> {{ course.reporting_instructions }}</li>
+    </ul>
+
+    <h2>Available Classes</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Class ID</th>
+                <th>Course ID</th>
+                <th>Course Name</th>
+                <th>Current Enrollments</th>
+                <th>Location</th>
+                <th>Semester</th>
+                <th>Professor</th>
+                <th>Credits Awarded</th>
+                <th>Available Seats</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for class in all_classes %}
+                {% if class.course_id == course.course_id %}
+                    <tr>
+                        <td>{{ class.class_id }}</td>
+                        <td>{{ class.course_id }}</td>
+                        <td>{{ class.course_name }}</td>
+                        <td>{{ class.current_enrollments }}</td>
+                        <td>{{ class.location }}</td>
+                        <td>{{ class.semester }}</td>
+                        <td>{{ class.professor }}</td>
+                        <td>{{ class.credits_awarded }}</td>
+                        <td>{{ class.available_seats }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <a href="{{url_for('view_courses')}}">Back</a><br>
+</body>
+</html>
