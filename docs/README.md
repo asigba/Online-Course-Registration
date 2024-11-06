@@ -17,39 +17,39 @@ sudo cmsc495
 # Package Directory Structure
 ![alt text](../images/directory_stucture.png)
 
-/cmsc495project
-│
-├── /database
-│   └── database.db         # this file and parent directory will be created automatic if non-existent
-│
-├── /docs
-│   └── README.md
-|
-├── /src
-│   ├── app.py              # the main application
-|   |
-│   ├── /templates          # HTML templates
-│   │   ├── course_details.html
-│   │   ├── index.html
-│   │   ├── landing.html
-│   │   ├── login.html
-│   │   ├── register.html
-│   │   └── view_courses.html
-|   |
-│   └── /static             # Static assets (CSS, JS, images)
-│       ├── css
-│       │   └── <style.css>
-│       ├── js
-│       │   └── <script.js>
-│       └── images
-│           └── <logo.png>
-│
-├── /tests
-│   └── <test.py>
+/cmsc495project  
 │  
-├── initial_course_data.json
+├── /database  
+│   └── database.db         # this file and parent directory will be created automatic if non-existent  
+│  
+├── /docs  
+│   └── README.md  
 |  
-└── pyproject.toml          # for 'python -m build' when creating the wheel
+├── /src  
+│   ├── app.py              # the main application  
+|   |  
+│   ├── /templates          # HTML templates  
+│   │   ├── course_details.html  
+│   │   ├── index.html  
+│   │   ├── landing.html  
+│   │   ├── login.html  
+│   │   ├── register.html  
+│   │   └── view_courses.html  
+|   |  
+│   └── /static             # Static assets (CSS, JS, images)  
+│       ├── css  
+│       │   └── <style.css>  
+│       ├── js  
+│       │   └── <script.js>  
+│       └── images  
+│           └── <logo.png>  
+│  
+├── /tests  
+│   └── <test.py>  
+│  
+├── initial_course_data.json  
+|  
+└── pyproject.toml          # for 'python -m build' when creating the wheel  
 
 
 # Database Commands
