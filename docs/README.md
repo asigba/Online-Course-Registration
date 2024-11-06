@@ -1,14 +1,21 @@
+# Online Course Registration 
+![alt text](../images/banner.png)  
+Our project will simplify the course registration process, allowing students to easily browse available courses, view detailed information, and register with just a few clicks. However, these features are accessible only after the student has successfully completed a secure login or registration process.  
+
+
 # Installation Pasta
 
-apt install python3.13 python3.13-venv python3.13-dev
-sudo rm /usr/bin/python3; sudo ln -s /usr/bin/python3.13 /usr/bin/python3
-cd; python3 -m venv .venv495
-source ~/.venv495/bin/activate
-python3 -m ensurepip --upgrade
-pip install cmsc495project*.whl
-sudo cmsc495
+apt install python3.13 python3.13-venv python3.13-dev  
+sudo rm /usr/bin/python3; sudo ln -s /usr/bin/python3.13 /usr/bin/python3        
+cd; python3 -m venv .venv495     
+source ~/.venv495/bin/activate    
+python3 -m ensurepip --upgrade    
+pip install cmsc495project*.whl     
+sudo cmsc495    
+
 
 # Package Directory Structure
+![alt text](../images/directory_stucture.png)
 
 /cmsc495project
 │
@@ -46,33 +53,14 @@ sudo cmsc495
 
 
 # Database Commands
-sqlite3 ../database/database.db
-.tables
-select * from users;
-select * from students;
-select * from courses;
-select * from classes;
-.exit
+sqlite3 ../database/database.db  
+.tables  
+select * from users;  
+select * from students;  
+select * from courses; 
+select * from classes; 
+.exit  
 
 
 # Database Tables
-
-+--------------------------+
-|          User            |
-+--------------------------+
-| id (PK)     | Integer    |
-| username    | String(30) |
-| password    | String(80) |
-| created_at  | DateTime   |
-| updated_at  | DateTime   |
-+--------------------------+
-
-+---------------------------+
-|          Student          |
-+---------------------------+
-| id (PK, FK)  | Integer    |
-| student_id   | Integer    |
-| first_name   | String(30) |
-| last_name    | String(30) |
-| updated_at   | DateTime   |
-+---------------------------+
+![alt text](../images/db_images.png)
