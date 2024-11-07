@@ -96,6 +96,15 @@ class Student(db.Model):
             current object's credentials like full name and ID
         """
         return f'<Student {self.first_name} {self.last_name}, User ID: {self.student_id}>'
+    
+    @staticmethod
+    def generate_student_id():
+        while True:
+            # Generate a random 8-digit integer
+            unique_id = randint(10000000, 99999999)
+            # Check if it already exists in the database
+            if not Student.query.filter_by(student_id=unique_id).first():
+                return unique_id
 
 # Default Database Table : Courses
 class Course(db.Model):
