@@ -14,12 +14,12 @@ authors = [
     { name = "Maggie Ours", email = "mours@student.umgc.edu" }
 ]
 dependencies = [
-    "Flask==3.0.3",             # Flask framework
-    "Flask-Bcrypt==1.0.1",      # For password hashing
-    "Flask-Login==0.6.3",       # For user session management
-    "Flask-SQLAlchemy==3.1.1",  # SQLAlchemy integration for Flask
-    "Flask-WTF==1.2.2",         # For form handling
-    "WTForms==3.2.1"            # For form validation
+    "Flask==3.0.3",
+    "Flask-Bcrypt==1.0.1",
+    "Flask-Login==0.6.3",
+    "Flask-SQLAlchemy==3.1.1",
+    "Flask-WTF==1.2.2",
+    "WTForms==3.2.1"
 ]
 requires-python = ">=3.13"
 

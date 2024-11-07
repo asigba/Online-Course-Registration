@@ -1,11 +1,13 @@
-{% extends "base.html" %}
-
-{%block head%}
-<title>Welcome to the CMSC485 Online Course Registration Application</title>
-{% endblock %}
-
-{%block body%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to the CMSC495 Online Course Registration Application</title>
+</head>
+<body>
     <h1>Welcome to our Online Course Registration Site</h1><br>
-    <a href="{{url_for('login')}}">Login</a><br>
+    <a href="{{url_for('login')}}">Login</a><br><br>
     <a href="{{url_for('register')}}">Register</a><br>
-{% endblock %}
+</body>
+</html>

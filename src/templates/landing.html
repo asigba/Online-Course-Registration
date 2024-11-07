@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% extends "base.html" %}
 
 {%block head%}
@@ -5,6 +6,16 @@
 {% endblock %}
 
 {%block body%}
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMSC495 Online Course Registration User Landing</title>
+</head>
+<body>
+>>>>>>> main
     <h1>
         {% if user %}
             Welcome, {{ user }}!  Your Student ID is: {{ id }}.
@@ -12,5 +23,7 @@
             Welcome!
         {% endif %}
     </h1>
+
+    <h3><a href="{{url_for('view_courses')}}">View Courses</a></h3>
     <a href="{{url_for('logout')}}">Logout</a><br>
 {% endblock %}
