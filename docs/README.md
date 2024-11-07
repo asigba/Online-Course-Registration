@@ -4,7 +4,7 @@ Our project will simplify the course registration process, allowing students to 
 
 
 # Installation Pasta
-
+```
 apt install python3.13 python3.13-venv python3.13-dev  
 sudo rm /usr/bin/python3; sudo ln -s /usr/bin/python3.13 /usr/bin/python3        
 cd; python3 -m venv .venv495     
@@ -12,7 +12,7 @@ source ~/.venv495/bin/activate
 python3 -m ensurepip --upgrade    
 pip install cmsc495project*.whl     
 sudo cmsc495    
-
+```
 
 # Package Directory Structure
 
@@ -52,6 +52,7 @@ sudo cmsc495
 
 
 # Database Commands
+```
 sqlite3 ../database/database.db  
 .schema  
 .tables  
@@ -60,7 +61,7 @@ select * from students;
 select * from courses;  
 select * from classes;  
 .exit  
-
+```
 
 # Database Tables
 
