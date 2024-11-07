@@ -50,7 +50,7 @@ class User(db.Model, UserMixin):
     updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc), nullable=True)     
 
     def __repr__(self):
-        """ This function changes the default representation 
+        """ This function changes the default representation. 
         Args: 
             current object or class
         Returns:
@@ -75,15 +75,13 @@ class Student(db.Model):
     user = db.relationship('User', backref='student')
 
     def __init__(self, first_name, last_name, id):
-        """ This a constructor for the Student class
-
+        """ This a constructor for the Student class.
         Args: 
             first_name(str): text of student's first name
             last_name(str): text of student's last name
-            id(int): randomize sets of integers
-        
+            id(int): randomize sets of integers        
         Returns:
-            Null or None        
+            None        
         """
         self.id = id
         self.first_name = first_name.lower()
@@ -91,11 +89,11 @@ class Student(db.Model):
         self.student_id = self.generate_student_id()
 
     def __repr__(self):
-        """ This function changes the default representation 
+        """ This function changes the default representation. 
         Args: 
             current object or class
         Returns:
-            current object's username
+            current object's credentials like full name and ID
         """
         return f'<Student {self.first_name} {self.last_name}, User ID: {self.student_id}>'
 
@@ -121,16 +119,23 @@ class Course(db.Model):
 
         Args: 
             **kwargs takes multiple keyword argument
-        
+        Returns:
+            None
         """
         super().__init__(**kwargs)
         # Primary Key is a combination of two other attributes
         if not self.course_id and self.catalog and self.course_number:
             self.course_id = f"{self.catalog}{self.course_number}"
-
-    # This will alidate and update "course_id" if the catalog or course number ever changes
+    
     @validates('catalog', 'course_number')
     def validate_and_generate_course_id(self, key, value):
+        """ This will validate and update "course id" if the catalog or course number ever changes.
+        Args:
+            key(string):
+            value(int):            
+        Returns:
+            None
+        """
         if key == 'catalog':
             if not isinstance(value, str) or len(value) != 4:
                 raise ValueError("Catalog must be a 4-character string.")
