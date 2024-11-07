@@ -39,8 +39,9 @@ login_mgr.login_view = "login"
 def load_user(id):
     return User.query.get(int(id))
 
+
 # Default Database Table : Users
-class User(db.Model, UserMixin):
+class User(db.Model, UserMixin):   
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(30), nullable=False, unique=True)
@@ -48,13 +49,18 @@ class User(db.Model, UserMixin):
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc), nullable=True)     
 
-    # Changing the default representation
     def __repr__(self):
+        """ This function changes the default representation 
+        Args: 
+            current object or class
+        Returns:
+            current object's username
+        """
         return f'{self.username}'
 
 # Default Database Table : Students
-class Student(db.Model):
-    __tablename__ = 'students'
+class Student(db.Model):   
+    __tablename__ = 'students'        
     id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     student_id = db.Column(db.Integer, unique=True, nullable=False)
     first_name = db.Column(db.String(30), nullable=False)
@@ -69,22 +75,29 @@ class Student(db.Model):
     user = db.relationship('User', backref='student')
 
     def __init__(self, first_name, last_name, id):
+        """ This a constructor for the Student class
+
+        Args: 
+            first_name(str): text of student's first name
+            last_name(str): text of student's last name
+            id(int): randomize sets of integers
+        
+        Returns:
+            Null or None        
+        """
         self.id = id
         self.first_name = first_name.lower()
         self.last_name = last_name.lower()
         self.student_id = self.generate_student_id()
 
     def __repr__(self):
+        """ This function changes the default representation 
+        Args: 
+            current object or class
+        Returns:
+            current object's username
+        """
         return f'<Student {self.first_name} {self.last_name}, User ID: {self.student_id}>'
-    
-    @staticmethod
-    def generate_student_id():
-        while True:
-            # Generate a random 8-digit integer
-            unique_id = randint(10000000, 99999999)
-            # Check if it already exists in the database
-            if not Student.query.filter_by(student_id=unique_id).first():
-                return unique_id
 
 # Default Database Table : Courses
 class Course(db.Model):
@@ -104,6 +117,12 @@ class Course(db.Model):
     reporting_instructions = db.Column(db.String(250), nullable=True)
 
     def __init__(self, **kwargs):
+        """ This is a constructor for the Course class
+
+        Args: 
+            **kwargs takes multiple keyword argument
+        
+        """
         super().__init__(**kwargs)
         # Primary Key is a combination of two other attributes
         if not self.course_id and self.catalog and self.course_number:
@@ -299,8 +318,8 @@ def register():
         user = User(username=form.username.data, password=password_hash)
         db.session.add(user)
         db.session.commit()
-        student = Student(form.first_name.data, form.last_name.data, user.id)
-        db.session.add(student)
+        new_student = Student(form.first_name.data, form.last_name.data, user.id)
+        db.session.add(new_student)
         db.session.commit()
         flash('Registration successful! You may now login.', 'success')
         return redirect(url_for('login'))
