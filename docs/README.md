@@ -20,6 +20,7 @@ sudo cmsc495
 
 # Database Commands
 sqlite3 ../database/database.db  
+.schema  
 .tables  
 select * from users;  
 select * from students;  
