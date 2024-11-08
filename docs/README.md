@@ -3,10 +3,10 @@
 Our project will simplify the course registration process, allowing students to easily browse available courses, view detailed information, and register with just a few clicks. However, these features are accessible only after the student has successfully completed a secure login or registration process.  
 
 
-# Installation Pasta
+# Installation Commands - commented-out commands may not be necessary
 ```
 sudo apt install python3-pip python3-venv python3-dev
-sudo rm /usr/bin/python3; sudo ln -s /usr/bin/python3.13 /usr/bin/python3
+#sudo rm /usr/bin/python3; sudo ln -s /usr/bin/python3.<VERSION> /usr/bin/python3
 #sudo ln -s /usr/bin/python3 /usr/bin/python
 cd; python3 -m venv .venv495
 source ./.venv495/bin/activate
