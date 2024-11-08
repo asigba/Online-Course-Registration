@@ -4,10 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to the CMSC495 Online Course Registration Application</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
 </head>
 <body>
-    <h1>Welcome to our Online Course Registration Site</h1><br>
-    <a href="{{url_for('login')}}">Login</a><br><br>
-    <a href="{{url_for('register')}}">Register</a><br>
+    <div class="fixed top-60 h-80 w-1000 left-20">
+        <h1 class="text-3xl font-sans font-semibold">Online Course Registration</h1><br>
+        <div class="grid grid-cols-2">
+            <div>
+                <a href="{{url_for('login')}}" class="text-white hover:text-black bg-black hover:bg-white focus:ring-4 focus:ring-blue-300 font-medium text-sm px-14 py-3 border-2 border-black">Login</a><br><br>
+            </div>
+            <div>
+                <a href="{{url_for('register')}}" class="text-white hover:text-black bg-black hover:bg-white focus:ring-4 focus:ring-blue-300 font-medium text-sm px-14 py-3 border-2 border-black">Register</a><br>
+            </div>
+            <div class="flex gap-3 justify-center">
+                <h1 class="text-8xl font-sans font-semibold text-gray-500">.</h1>
+                <h1 class="text-8xl font-sans font-semibold text-gray-400">.</h1>
+                <h1 class="text-8xl font-sans font-semibold text-gray-300">.</h1>
+                <h1 class="text-8xl font-sans font-semibold text-gray-200">.</h1>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
