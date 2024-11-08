@@ -5,20 +5,28 @@ Our project will simplify the course registration process, allowing students to 
 
 # Installation Commands - commented-out commands may not be necessary
 ```
+# Step 1: Python Reqs
 sudo apt install python3-pip python3-venv python3-dev
 #sudo rm /usr/bin/python3; sudo ln -s /usr/bin/python3.<VERSION> /usr/bin/python3
 #sudo ln -s /usr/bin/python3 /usr/bin/python
+
+# Step 2: Virutal Environment Setup
 cd; python3 -m venv .venv495
 source ./.venv495/bin/activate
 python3 -m ensurepip --upgrade
+
+# Step 3: 'cd' into Project Package
 cd ./Online-Course-Registration
-# Option 1
+
+# Step 4 - Option 1:
 pip install -r requirements.txt
 python3 src/app.py
-# Option 2
+
+# Step 4 - Option 2:
 pip install Flask==3.0.3 Flask-Bcrypt==1.0.1 Flask-Login==0.6.3 Flask-SQLAlchemy==3.1.1 Flask-WTF==1.2.2 WTForms==3.2.1
 python3 src/app.py
-# Option 3
+
+# Step 4 - Option 3:
 #pip install build
 #python3 -m build
 pip install cmsc495project*.whl
