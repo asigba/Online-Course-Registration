@@ -8,7 +8,7 @@ from itertools import chain
 from json import load
 from pathlib import Path
 from random import randint
-from sqlalchemy import JSON
+from sqlalchemy import asc, JSON
 from sqlalchemy.orm import validates
 from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
@@ -300,7 +300,7 @@ def view_courses():
     selected_catalog = request.args.get('catalog', '')
 
     # Start with All Courses
-    all_courses = Course.query
+    all_courses = Course.query.order_by(asc(Course.course_id))
     filtered_courses = all_courses.all()
 
     # Convert List Options to Individual Options in Drop Down Menu
@@ -374,7 +374,7 @@ def course_details(course_id):
     course = Course.query.get_or_404(course_id)
 
     # Get All Classes of the Selected Course First
-    all_classes = Class.query.filter_by(course_id=course_id)
+    all_classes = Class.query.filter_by(course_id=course_id).order_by(asc(Class.class_id))
 
     # Filter Classes By Selections
     if selected_location:
