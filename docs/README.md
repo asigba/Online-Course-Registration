@@ -121,4 +121,4 @@ select * from classes;
     );
 
 # Tailwind Commands
-    npx tailwindcss -i ./static/src/input.css -o ./static/dist/css/output.css --watch
+    npx tailwindcss -i ./static/resource/input.css -o ./static/dist/css/output.css --watch

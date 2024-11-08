@@ -140,8 +140,8 @@ class Course(db.Model):
     def validate_and_generate_course_id(self, key, value):
         """ This will validate and update "course id" if the catalog or course number ever changes.
         Args:
-            key(string):
-            value(int):            
+            key(string): 4 string abbreviation of the course
+            value(int):  3-digit integer representing the level of the course        
         Returns:
             None
         """
