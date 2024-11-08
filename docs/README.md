@@ -50,8 +50,6 @@ sudo cmsc495
     │  
     └── pyproject.toml          # for 'python -m build' when creating the wheel
 
-![alt text](../images/directory_stucture.png)
-
 # Database Commands
 ```
 sqlite3 ../database/database.db  
