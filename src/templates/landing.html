@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
     <title>CMSC485 Online Course Registration User Landing</title>
 </head>
 <body>
+    <nav><br><br><br></nav>
+    <aside></aside>
+    <main>
     <h1>
         {% if user %}
             Welcome, {{ user }}!  Your Student ID is: {{ id }}.
@@ -14,5 +18,6 @@
         {% endif %}
     </h1>
     <a href="{{url_for('logout')}}">Logout</a><br>
+    </main>
 </body>
 </html>

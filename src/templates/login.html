@@ -3,10 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
     <title>CMSC485 Online Course Registration Login</title>
 </head>
 <body>
-    <h1>Login</h1><br>
+    <nav><br>
+        <a href="{{url_for('index')}}">Home</a>
+        <br></nav>
+    <aside></aside>
+    <main>
+
+    <h1>Login</h1>
 
     {% with messages = get_flashed_messages(with_categories=True) %}
         {% if messages %}
@@ -21,12 +28,13 @@
 
     <form method="POST" action=""> 
         {{ form.hidden_tag() }}
-        {{ form.username }}
-        {{ form.password }}
+        {{ form.username }}<br><br>
+        {{ form.password }}<br><br>
         {{ form.submit }}
     </form>
-
-    <a href="{{url_for('register')}}">New User</a><br>
-    <a href="{{url_for('index')}}">Home</a><br>
+    <br>
+    <a href="{{url_for('register')}}">New User</a>
+  
+    </main>
 </body>
 </html>

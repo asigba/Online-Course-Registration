@@ -3,11 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
     <title>Welcome to the CMSC495 Online Course Registration Application</title>
 </head>
 <body>
+    <nav><br><br><br></nav>
+    <aside></aside>
+    <main>
     <h1>Welcome to our Online Course Registration Site</h1><br>
-    <a href="{{url_for('login')}}">Login</a><br>
-    <a href="{{url_for('register')}}">Register</a><br>
+
+
+    <a href="{{url_for('login')}}">
+    <button type="button"> Login</button></a>
+
+    <a href="{{url_for('register')}}">
+    <button type="button"> Register </button></a>
+
+    </main>
+
 </body>
 </html>

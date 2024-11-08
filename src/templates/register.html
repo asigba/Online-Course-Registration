@@ -3,16 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/register.css')}}">
     <title>CMSC485 Online Course Registration New Account Registration</title>
 </head>
 <body>
-    <h1>Register</h1><br>
+    <nav><br>
+        
+        <a href="{{url_for('index')}}">Home</a>
+        <br></nav>
+    <aside></aside>
+    <main>
+    <h1>Create new Account</h1>
+    <label>Already Registered?</label>
+     <a href="{{url_for('login')}}">
+     <button type ="button">Login</button><br><br>
+     </a>
+
     <form method="POST" action=""> 
         {{ form.hidden_tag() }}
-        {{ form.username }}
-        {{ form.password }}
-        {{ form.first_name }}
-        {{ form.last_name }}
+        {{ form.username }}<br><br>
+        {{ form.password }}<br><br>
+        {{ form.first_name }}<br><br>
+        {{ form.last_name }}<br><br><br>
         {{ form.submit }}
     </form>
 
@@ -23,9 +35,8 @@
         {% endfor %}
         </ul>
     {% endif %}
+    
 
-
-    <a href="{{url_for('login')}}">Sign In</a><br>
-    <a href="{{url_for('index')}}">Home</a><br>
+    </main>
 </body>
 </html>
