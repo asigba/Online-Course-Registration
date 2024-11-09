@@ -7,6 +7,7 @@
 </head>
 <body>
 
+    <!-- This section provides all of the details for the course -->
     <h2>
         This is course {{ course.course_id }} - {{ course.course_name }}: 
     </h2>
@@ -17,15 +18,45 @@
         <li><strong>Description:</strong> {{ course.description }}</li>
         <li><strong>Max Seats:</strong> {{ course.max_seats }}</li>
         <li><strong>Credits Awarded:</strong> {{ course.credits_awarded }}</li>
-        <li><strong>Semesters Offered:</strong> {{ semester }}</li>
-        <li><strong>Locations Offered:</strong> {{ location }}</li>
-        <li><strong>Prerequisites:</strong> {{ prereq }}</li>
-        <li><strong>Faculty:</strong> {{ faculty_member }}</li>
+        <li><strong>Semesters Offered:</strong> {{ course.semesters_offered | join(', ') }}</li>
+        <li><strong>Locations Offered:</strong> {{ course.locations_offered | join(', ') }}</li>
+        <li><strong>Prerequisites:</strong> {{ course.prereq }}</li>
+        <li><strong>Faculty:</strong> {{ course.faculty | join(', ') }}</li>
         <li><strong>Required Technology:</strong> {{ course.required_technology }}</li>
         <li><strong>Reporting Instructions:</strong> {{ course.reporting_instructions }}</li>
     </ul>
 
+    <!-- This form is used to filter the available classes -->
+    <form method="GET" action="{{ url_for('course_details', course_id=course.course_id) }}">
+        <label for="location">Location:</label>
+        <select name="location" id="location">
+            <option value="">All</option>
+            {% for loc in locations %}
+                <option value="{{ loc }}" {% if request.args.get('location') == loc %}selected{% endif %}>{{ loc }}</option>
+            {% endfor %}
+        </select>
+    
+        <label for="semester">Semester:</label>
+        <select name="semester" id="semester">
+            <option value="">All</option>
+            {% for sem in semesters %}
+                <option value="{{ sem }}" {% if request.args.get('semester') == sem %}selected{% endif %}>{{ sem }}</option>
+            {% endfor %}
+        </select>
+    
+        <label for="professor">Professor:</label>
+        <select name="professor" id="professor">
+            <option value="">All</option>
+            {% for prof in professors %}
+                <option value="{{ prof }}" {% if request.args.get('professor') == prof %}selected{% endif %}>{{ prof }}</option>
+            {% endfor %}
+        </select>
+    
+        <button type="submit">Filter</button>
+    </form>
+
     <h2>Available Classes</h2>
+    <!-- This table displays the filtered classes -->
     <table border="1">
         <thead>
             <tr>

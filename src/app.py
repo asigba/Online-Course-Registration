@@ -4,10 +4,11 @@ from flask_bcrypt import Bcrypt
 from flask_login import login_required, login_user, logout_user, LoginManager, UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
+from itertools import chain
 from json import load
 from pathlib import Path
-from random import choice, randint
-from sqlalchemy import JSON
+from random import randint
+from sqlalchemy import asc, JSON
 from sqlalchemy.orm import validates
 from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
@@ -39,8 +40,10 @@ login_mgr.login_view = "login"
 def load_user(id):
     return User.query.get(int(id))
 
+# DATABASE TABLE CLASSES...
+
 # Default Database Table : Users
-class User(db.Model, UserMixin):
+class User(db.Model, UserMixin):   
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(30), nullable=False, unique=True)
@@ -48,13 +51,18 @@ class User(db.Model, UserMixin):
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc), nullable=True)     
 
-    # Changing the default representation
     def __repr__(self):
+        """ This function changes the default representation. 
+        Args: 
+            current object or class
+        Returns:
+            current object's username
+        """
         return f'{self.username}'
 
 # Default Database Table : Students
-class Student(db.Model):
-    __tablename__ = 'students'
+class Student(db.Model):   
+    __tablename__ = 'students'        
     id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     student_id = db.Column(db.Integer, unique=True, nullable=False)
     first_name = db.Column(db.String(30), nullable=False)
@@ -69,12 +77,26 @@ class Student(db.Model):
     user = db.relationship('User', backref='student')
 
     def __init__(self, first_name, last_name, id):
+        """ This a constructor for the Student class.
+        Args: 
+            first_name(str): text of student's first name
+            last_name(str): text of student's last name
+            id(int): randomize sets of integers        
+        Returns:
+            None        
+        """
         self.id = id
         self.first_name = first_name.lower()
         self.last_name = last_name.lower()
         self.student_id = self.generate_student_id()
 
     def __repr__(self):
+        """ This function changes the default representation. 
+        Args: 
+            current object or class
+        Returns:
+            current object's credentials like full name and ID
+        """
         return f'<Student {self.first_name} {self.last_name}, User ID: {self.student_id}>'
     
     @staticmethod
@@ -104,14 +126,27 @@ class Course(db.Model):
     reporting_instructions = db.Column(db.String(250), nullable=True)
 
     def __init__(self, **kwargs):
+        """ This is a constructor for the Course class
+
+        Args: 
+            **kwargs takes multiple keyword argument
+        Returns:
+            None
+        """
         super().__init__(**kwargs)
         # Primary Key is a combination of two other attributes
         if not self.course_id and self.catalog and self.course_number:
             self.course_id = f"{self.catalog}{self.course_number}"
-
-    # This will alidate and update "course_id" if the catalog or course number ever changes
+    
     @validates('catalog', 'course_number')
     def validate_and_generate_course_id(self, key, value):
+        """ This will validate and update "course id" if the catalog or course number ever changes.
+        Args:
+            key(string):
+            value(int):            
+        Returns:
+            None
+        """
         if key == 'catalog':
             if not isinstance(value, str) or len(value) != 4:
                 raise ValueError("Catalog must be a 4-character string.")
@@ -257,15 +292,115 @@ def landing():
 @app.route('/courses', methods=['GET', 'POST'])
 @login_required
 def view_courses():
-    all_courses = Course.query.all()
-    return render_template('view_courses.html', courses=all_courses)
+
+    # Set Filter Values Selected
+    selected_location = request.args.get('location', '')
+    selected_semester = request.args.get('semester', '')
+    selected_professor = request.args.get('professor', '')
+    selected_catalog = request.args.get('catalog', '')
+
+    # Start with All Courses
+    all_courses = Course.query.order_by(asc(Course.course_id))
+    filtered_courses = all_courses.all()
+
+    # Convert List Options to Individual Options in Drop Down Menu
+    semesters = list(set(chain.from_iterable(course.semesters_offered for course in all_courses)))
+    locations = list(set(chain.from_iterable(course.locations_offered for course in all_courses)))
+    professors = list(set(chain.from_iterable(course.faculty for course in all_courses)))
+    catalogs = Course.query.with_entities(Course.catalog).distinct().all()
+    
+    # Sort Options
+    semesters.sort()
+    locations.sort()
+    professors.sort()
+    catalogs.sort()
+
+    # Filter Selections
+    for course in all_courses:
+        if selected_semester:
+            # Remove any courses not filtered for
+            if not selected_semester in course.semesters_offered:
+                try:
+                    filtered_courses.remove(course)
+                except:
+                    pass
+            # Saving remaining courses
+            all_courses = filtered_courses
+        if selected_location:
+            # Remove any courses not filtered for
+            if not selected_location in course.locations_offered:
+                try:
+                    filtered_courses.remove(course)
+                except:
+                    pass
+            all_courses = filtered_courses
+        if selected_professor:
+            # Remove any courses not filtered for
+            if not selected_professor in course.faculty:
+                try:
+                    filtered_courses.remove(course)
+                except:
+                    pass
+            all_courses = filtered_courses
+        if selected_catalog:
+            # Remove any courses not filtered for
+            if selected_catalog != course.catalog:
+                try:
+                    filtered_courses.remove(course)
+                except:
+                    pass
+            all_courses = filtered_courses
+
+    # Render
+    return render_template(
+        'view_courses.html', 
+        courses=all_courses, 
+        semesters=semesters, 
+        locations=locations, 
+        catalogs=[cat[0] for cat in catalogs],
+        professors=professors
+    )
 
 @app.route('/course/<course_id>')
 @login_required
 def course_details(course_id):
+    
+    # Set Filter Values Selected
+    selected_location = request.args.get('location', '')
+    selected_semester = request.args.get('semester', '')
+    selected_professor = request.args.get('professor', '')
+
+    # Course Selected
     course = Course.query.get_or_404(course_id)
-    all_classes = Class.query.all()
-    return render_template('course_details.html', course=course, all_classes=all_classes)
+
+    # Get All Classes of the Selected Course First
+    all_classes = Class.query.filter_by(course_id=course_id).order_by(asc(Class.class_id))
+
+    # Filter Classes By Selections
+    if selected_location:
+        all_classes = all_classes.filter_by(location=selected_location)
+    if selected_semester:
+        all_classes = all_classes.filter_by(semester=selected_semester)
+    if selected_professor:
+        all_classes = all_classes.filter_by(professor=selected_professor)
+
+    # Drop Down Selection Options
+    locations = Class.query.with_entities(Class.location).distinct().all()
+    semesters = Class.query.with_entities(Class.semester).distinct().all()
+    professors = Class.query.with_entities(Class.professor).distinct().all()
+
+    # Sort Options
+    semesters.sort()
+    locations.sort()
+    professors.sort()
+
+    # Render
+    return render_template('course_details.html',
+                           course=course,
+                           all_classes=all_classes,
+                           locations=[loc[0] for loc in locations],
+                           semesters=[sem[0] for sem in semesters],
+                           professors=[prof[0] for prof in professors])
 
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required
@@ -299,8 +434,8 @@ def register():
         user = User(username=form.username.data, password=password_hash)
         db.session.add(user)
         db.session.commit()
-        student = Student(form.first_name.data, form.last_name.data, user.id)
-        db.session.add(student)
+        new_student = Student(form.first_name.data, form.last_name.data, user.id)
+        db.session.add(new_student)
         db.session.commit()
         flash('Registration successful! You may now login.', 'success')
         return redirect(url_for('login'))
