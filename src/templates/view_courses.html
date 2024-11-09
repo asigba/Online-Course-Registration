@@ -76,12 +76,16 @@
                         <td>{{ course.semesters_offered | join(', ') }}</td> 
                         <td>{{ course.faculty | join(', ') }}</td> 
                         <td>{{ course.locations_offered | join(', ') }}</td> 
+                        <td>
+                            <!-- Add to Cart Button -->
+                            <button type="submit" name="course_id" value="{{ course.course_id }}">Add to Cart</button>
+                        </td>
                     </tr>
             {% endfor %}
         </tbody>
     </table>
     <br>
-
+    <a href="{{ url_for('view_cart') }}">View Cart</a><br>
     <a href="{{url_for('landing')}}">Return to Landing</a><br>
 
 </body>
