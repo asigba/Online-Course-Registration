@@ -13,6 +13,8 @@ from sqlalchemy.orm import validates
 from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from sqlalchemy.orm.attributes import flag_modified
+from sqlalchemy.ext.mutable import MutableList
+from sqlalchemy.types import JSON
 
 # paths to account for package directory structure (see README)
 parent_directory = Path(__file__).resolve().parent.parent
@@ -67,7 +69,7 @@ class Student(db.Model):
     phone_number = db.Column(db.String(12), nullable=True)
     current_enrollments = db.Column(JSON, nullable=True)
     past_enrollments = db.Column(JSON, nullable=True)
-    cart = db.Column(JSON, default=[])
+    cart = db.Column(MutableList.as_mutable(JSON), default=[])
     registered_courses = db.Column(JSON, default=[])
     
 
@@ -109,9 +111,13 @@ class Student(db.Model):
         print(f"Updated cart contents (Student ID: {self.student_id}): {self.cart}")
             
 
-    def clear_cart(self):
-        self.cart = []
-        db.session.commit()
+    def remove_course_from_cart(self, course_id):
+        if course_id in self.cart:
+            self.cart.remove(course_id)
+            db.session.commit()
+            flash(f"Course {course_id} removed from cart.", "success")
+        else:
+            flash(f"Course {course_id} is not in the cart.", "info")
 
     def register_cart_courses(self):
         if not self.cart:
@@ -478,6 +484,21 @@ def view_cart():
     cart_courses = Course.query.filter(Course.course_id.in_(student.cart)).all()
     print(f"Cart Courses Retrieved: {[course.course_id for course in cart_courses]}")
     return render_template('view_cart.html', cart_courses=cart_courses)
+
+@app.route('/remove_from_cart', methods=['POST'])
+@login_required
+def remove_from_cart():
+    course_id = request.form.get('course_id')
+    student = current_user.student
+
+    if course_id in student.cart:
+        student.cart.remove(course_id)
+        db.session.commit()
+        flash(f"Course {course_id} removed from cart.", "success")
+    else:
+        flash(f"Course {course_id} not found in cart.", "info")
+
+    return redirect(url_for('view_cart'))
 
 @app.route('/registercourse', methods=['POST'])
 @login_required
