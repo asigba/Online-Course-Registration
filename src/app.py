@@ -275,7 +275,7 @@ class DatabaseInitializer():
             if database_file_path.is_file():
                 with app.app_context():
                     # Creating Default Database Tables
-                    db.drop_all()
+                    #db.drop_all()
                     db.create_all()
                     # Populate Courses
                     Course.init_database_courses()
@@ -428,8 +428,8 @@ def login():
             # Password hashing for storing in the database
             if bcrypt.check_password_hash(user.password, form.password.data):
                 login_user(user)
-                full_name = f"{user.student[0].first_name} {user.student[0].last_name}".title()
-                return redirect(url_for('landing', user=full_name, id=user.student[0].student_id))
+                full_name = f"{user.student.first_name} {user.student.last_name}".title()
+                return redirect(url_for('landing', user=full_name, id=user.student.student_id))
     return render_template('login.html', form=form)
 
 @app.route('/register', methods=['GET', 'POST'])
