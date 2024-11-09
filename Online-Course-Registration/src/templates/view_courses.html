@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMSC495 Online Course Registration User Landing</title>
+</head>
+<body>
+
+    <h2>Available Courses:</h2>
+
+    <form action="{{ url_for('add_to_cart') }}" method="post">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Course ID</th>
+                    <th>Catalog</th>
+                    <th>Course Number</th>
+                    <th>Course Name</th>
+                    <th>Max Seats</th>
+                    <th>Credits</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <td><a href="{{ url_for('course_details', course_id=course.course_id) }}">{{ course.course_id }}</a></td>
+                    <td>{{ course.catalog }}</td>
+                    <td>{{ course.course_number }}</td>
+                    <td>{{ course.course_name }}</td>
+                    <td>{{ course.max_seats }}</td>
+                    <td>{{ course.credits_awarded }}</td> 
+                    <td>
+                        <!-- Add to Cart Button -->
+                        <button type="submit" name="course_id" value="{{ course.course_id }}">Add to Cart</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+
+    <br>
+    <a href="{{ url_for('view_cart') }}">View Cart</a><br>
+    <a href="{{url_for('landing')}}">Return to Landing</a><br>
+
+</body>
+</html>
