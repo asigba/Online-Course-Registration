@@ -12,6 +12,7 @@ from sqlalchemy import asc, JSON
 from sqlalchemy.orm import validates
 from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
+from sqlalchemy.orm.attributes import flag_modified
 
 # paths to account for package directory structure (see README)
 parent_directory = Path(__file__).resolve().parent.parent
@@ -93,12 +94,20 @@ class Student(db.Model):
                 return unique_id
     
     def add_course_to_cart(self, course):
-        if course.course_id not in self.cart:
-            self.cart.append(course.course_id)
-            db.session.commit()
-            print(f"Course {course.course_id} added to cart.")
+        if not self.cart:
+            self.cart = []
+    
+        if course.course_id in self.cart:
+            flash(f"Course {course.course_id} is already in the cart.", "info")
         else:
-            print(f"Course {course.course_id} is already in the cart.")
+            self.cart.append(course.course_id)
+            # Mark the JSON column as modified so SQLAlchemy detects the change
+            flag_modified(self, "cart")
+            db.session.commit()
+            flash(f"Course {course.course_id} added to cart!", "success")
+
+        print(f"Updated cart contents (Student ID: {self.student_id}): {self.cart}")
+            
 
     def clear_cart(self):
         self.cart = []
@@ -452,16 +461,22 @@ def register():
 def add_to_cart():
     course_id = request.form.get('course_id')
     course = Course.query.filter_by(course_id=course_id).first()
+
     if course:
-        current_user.student.add_course_to_cart(course)
+        student = current_user.student
+        student.add_course_to_cart(course)
+    else:
+        flash(f"Course ID {course_id} not found!", 'error')
+
     return redirect(url_for('view_courses'))
 
 @app.route('/cart')
 @login_required
 def view_cart():
     student = current_user.student
-    # Fetch course objects for all course IDs in the cart
+    print(f"Current cart from DB for {student.first_name} {student.last_name}: {student.cart}")
     cart_courses = Course.query.filter(Course.course_id.in_(student.cart)).all()
+    print(f"Cart Courses Retrieved: {[course.course_id for course in cart_courses]}")
     return render_template('view_cart.html', cart_courses=cart_courses)
 
 @app.route('/registercourse', methods=['POST'])
