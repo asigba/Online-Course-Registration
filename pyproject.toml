@@ -21,7 +21,7 @@ dependencies = [
     "Flask-WTF==1.2.2",
     "WTForms==3.2.1"
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 
 [tool.setuptools]
 packages = ["src"]

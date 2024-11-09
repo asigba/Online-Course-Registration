@@ -1,13 +1,14 @@
 from datetime import datetime, timezone
 from flask import flash, Flask, redirect, render_template, request, url_for
 from flask_bcrypt import Bcrypt
-from flask_login import login_required, login_user, logout_user, LoginManager, UserMixin, current_user
+from flask_login import current_user, login_required, login_user, logout_user, LoginManager, UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
+from itertools import chain
 from json import load
 from pathlib import Path
-from random import choice, randint
-from sqlalchemy import JSON
+from random import randint
+from sqlalchemy import asc, JSON
 from sqlalchemy.orm import validates
 from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
@@ -274,7 +275,7 @@ class DatabaseInitializer():
             if database_file_path.is_file():
                 with app.app_context():
                     # Creating Default Database Tables
-                    db.drop_all()
+                    #db.drop_all()
                     db.create_all()
                     # Populate Courses
                     Course.init_database_courses()
@@ -297,15 +298,115 @@ def landing():
 @app.route('/courses', methods=['GET', 'POST'])
 @login_required
 def view_courses():
-    all_courses = Course.query.all()
-    return render_template('view_courses.html', courses=all_courses)
+
+    # Set Filter Values Selected
+    selected_location = request.args.get('location', '')
+    selected_semester = request.args.get('semester', '')
+    selected_professor = request.args.get('professor', '')
+    selected_catalog = request.args.get('catalog', '')
+
+    # Start with All Courses
+    all_courses = Course.query.order_by(asc(Course.course_id))
+    filtered_courses = all_courses.all()
+
+    # Convert List Options to Individual Options in Drop Down Menu
+    semesters = list(set(chain.from_iterable(course.semesters_offered for course in all_courses)))
+    locations = list(set(chain.from_iterable(course.locations_offered for course in all_courses)))
+    professors = list(set(chain.from_iterable(course.faculty for course in all_courses)))
+    catalogs = Course.query.with_entities(Course.catalog).distinct().all()
+    
+    # Sort Options
+    semesters.sort()
+    locations.sort()
+    professors.sort()
+    catalogs.sort()
+
+    # Filter Selections
+    for course in all_courses:
+        if selected_semester:
+            # Remove any courses not filtered for
+            if not selected_semester in course.semesters_offered:
+                try:
+                    filtered_courses.remove(course)
+                except:
+                    pass
+            # Saving remaining courses
+            all_courses = filtered_courses
+        if selected_location:
+            # Remove any courses not filtered for
+            if not selected_location in course.locations_offered:
+                try:
+                    filtered_courses.remove(course)
+                except:
+                    pass
+            all_courses = filtered_courses
+        if selected_professor:
+            # Remove any courses not filtered for
+            if not selected_professor in course.faculty:
+                try:
+                    filtered_courses.remove(course)
+                except:
+                    pass
+            all_courses = filtered_courses
+        if selected_catalog:
+            # Remove any courses not filtered for
+            if selected_catalog != course.catalog:
+                try:
+                    filtered_courses.remove(course)
+                except:
+                    pass
+            all_courses = filtered_courses
+
+    # Render
+    return render_template(
+        'view_courses.html', 
+        courses=all_courses, 
+        semesters=semesters, 
+        locations=locations, 
+        catalogs=[cat[0] for cat in catalogs],
+        professors=professors
+    )
 
 @app.route('/course/<course_id>')
 @login_required
 def course_details(course_id):
+    
+    # Set Filter Values Selected
+    selected_location = request.args.get('location', '')
+    selected_semester = request.args.get('semester', '')
+    selected_professor = request.args.get('professor', '')
+
+    # Course Selected
     course = Course.query.get_or_404(course_id)
-    all_classes = Class.query.all()
-    return render_template('course_details.html', course=course, all_classes=all_classes)
+
+    # Get All Classes of the Selected Course First
+    all_classes = Class.query.filter_by(course_id=course_id).order_by(asc(Class.class_id))
+
+    # Filter Classes By Selections
+    if selected_location:
+        all_classes = all_classes.filter_by(location=selected_location)
+    if selected_semester:
+        all_classes = all_classes.filter_by(semester=selected_semester)
+    if selected_professor:
+        all_classes = all_classes.filter_by(professor=selected_professor)
+
+    # Drop Down Selection Options
+    locations = Class.query.with_entities(Class.location).distinct().all()
+    semesters = Class.query.with_entities(Class.semester).distinct().all()
+    professors = Class.query.with_entities(Class.professor).distinct().all()
+
+    # Sort Options
+    semesters.sort()
+    locations.sort()
+    professors.sort()
+
+    # Render
+    return render_template('course_details.html',
+                           course=course,
+                           all_classes=all_classes,
+                           locations=[loc[0] for loc in locations],
+                           semesters=[sem[0] for sem in semesters],
+                           professors=[prof[0] for prof in professors])
 
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required
