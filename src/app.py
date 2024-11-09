@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from flask import flash, Flask, redirect, render_template, request, url_for
 from flask_bcrypt import Bcrypt
-from flask_login import login_required, login_user, logout_user, LoginManager, UserMixin
+from flask_login import current_user, login_required, login_user, logout_user, LoginManager, UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from itertools import chain
@@ -40,29 +40,23 @@ login_mgr.login_view = "login"
 def load_user(id):
     return User.query.get(int(id))
 
-# DATABASE TABLE CLASSES...
-
 # Default Database Table : Users
-class User(db.Model, UserMixin):   
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(30), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc), nullable=True)     
+    student = db.relationship('Student', back_populates='user', uselist=False)
 
+    # Changing the default representation
     def __repr__(self):
-        """ This function changes the default representation. 
-        Args: 
-            current object or class
-        Returns:
-            current object's username
-        """
         return f'{self.username}'
 
 # Default Database Table : Students
-class Student(db.Model):   
-    __tablename__ = 'students'        
+class Student(db.Model):
+    __tablename__ = 'students'
     id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     student_id = db.Column(db.Integer, unique=True, nullable=False)
     first_name = db.Column(db.String(30), nullable=False)
@@ -72,31 +66,21 @@ class Student(db.Model):
     phone_number = db.Column(db.String(12), nullable=True)
     current_enrollments = db.Column(JSON, nullable=True)
     past_enrollments = db.Column(JSON, nullable=True)
+    cart = db.Column(JSON, default=[])
+    registered_courses = db.Column(JSON, default=[])
+    
 
     # Establishing a relationship to the User class
-    user = db.relationship('User', backref='student')
+    user = db.relationship('User', back_populates='student')
 
     def __init__(self, first_name, last_name, id):
-        """ This a constructor for the Student class.
-        Args: 
-            first_name(str): text of student's first name
-            last_name(str): text of student's last name
-            id(int): randomize sets of integers        
-        Returns:
-            None        
-        """
         self.id = id
         self.first_name = first_name.lower()
         self.last_name = last_name.lower()
         self.student_id = self.generate_student_id()
 
+
     def __repr__(self):
-        """ This function changes the default representation. 
-        Args: 
-            current object or class
-        Returns:
-            current object's credentials like full name and ID
-        """
         return f'<Student {self.first_name} {self.last_name}, User ID: {self.student_id}>'
     
     @staticmethod
@@ -107,6 +91,40 @@ class Student(db.Model):
             # Check if it already exists in the database
             if not Student.query.filter_by(student_id=unique_id).first():
                 return unique_id
+    
+    def add_course_to_cart(self, course):
+        if course.course_id not in self.cart:
+            self.cart.append(course.course_id)
+            db.session.commit()
+            print(f"Course {course.course_id} added to cart.")
+        else:
+            print(f"Course {course.course_id} is already in the cart.")
+
+    def clear_cart(self):
+        self.cart = []
+        db.session.commit()
+
+    def register_cart_courses(self):
+        if not self.cart:
+            print("Your cart is empty. No courses to register.")
+        else:
+            for course_id in self.cart:
+                if course_id not in self.registered_courses:
+                    self.registered_courses.append(course_id)
+                    print(f"Successfully registered for {course_id}")
+                else:
+                    print(f"Already registered for {course_id}")
+            self.clear_cart()
+            db.session.commit()
+
+    def view_registered_courses(self):
+        if not self.registered_courses:
+            print("No registered courses.")
+        else:
+            print("Registered Courses:")
+            for course_id in self.registered_courses:
+                print(f"{course_id}")
+            
 
 # Default Database Table : Courses
 class Course(db.Model):
@@ -126,27 +144,14 @@ class Course(db.Model):
     reporting_instructions = db.Column(db.String(250), nullable=True)
 
     def __init__(self, **kwargs):
-        """ This is a constructor for the Course class
-
-        Args: 
-            **kwargs takes multiple keyword argument
-        Returns:
-            None
-        """
         super().__init__(**kwargs)
         # Primary Key is a combination of two other attributes
         if not self.course_id and self.catalog and self.course_number:
             self.course_id = f"{self.catalog}{self.course_number}"
-    
+
+    # This will alidate and update "course_id" if the catalog or course number ever changes
     @validates('catalog', 'course_number')
     def validate_and_generate_course_id(self, key, value):
-        """ This will validate and update "course id" if the catalog or course number ever changes.
-        Args:
-            key(string):
-            value(int):            
-        Returns:
-            None
-        """
         if key == 'catalog':
             if not isinstance(value, str) or len(value) != 4:
                 raise ValueError("Catalog must be a 4-character string.")
@@ -270,6 +275,7 @@ class DatabaseInitializer():
             if database_file_path.is_file():
                 with app.app_context():
                     # Creating Default Database Tables
+                    db.drop_all()
                     db.create_all()
                     # Populate Courses
                     Course.init_database_courses()
@@ -440,6 +446,37 @@ def register():
         flash('Registration successful! You may now login.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
+
+@app.route('/add_to_cart', methods=['POST'])
+@login_required
+def add_to_cart():
+    course_id = request.form.get('course_id')
+    course = Course.query.filter_by(course_id=course_id).first()
+    if course:
+        current_user.student.add_course_to_cart(course)
+    return redirect(url_for('view_courses'))
+
+@app.route('/cart')
+@login_required
+def view_cart():
+    student = current_user.student
+    # Fetch course objects for all course IDs in the cart
+    cart_courses = Course.query.filter(Course.course_id.in_(student.cart)).all()
+    return render_template('view_cart.html', cart_courses=cart_courses)
+
+@app.route('/registercourse', methods=['POST'])
+@login_required
+def register_courses():
+    current_user.student.register_cart_courses()
+    return redirect(url_for('registered_courses'))
+
+@app.route('/registered')
+@login_required
+def registered_courses():
+    student = current_user.student
+    # Fetch course objects for all course IDs in registered_courses
+    registered_courses = Course.query.filter(Course.course_id.in_(student.registered_courses)).all()
+    return render_template('registered_courses.html', registered_courses=registered_courses)
 
 def main():
     # Will check for database each app execution. If not found, creates a new blank database with User table
