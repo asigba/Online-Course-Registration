@@ -11,6 +11,45 @@
         Available courses: 
     </h2>
 
+    <!-- This form is used to filter the available courses -->
+    <form method="GET" action="{{ url_for('view_courses') }}">
+        <label for="semester">Semester:</label>
+        <select name="semester" id="semester">
+            <option value="">All</option>
+            {% for sem in semesters %}
+                <option value="{{ sem }}" {% if request.args.get('semester') == sem %}selected{% endif %}>{{ sem }}</option>
+            {% endfor %}
+        </select>
+    
+        <label for="location">Location:</label>
+        <select name="location" id="location">
+            <option value="">All</option>
+            {% for loc in locations %}
+                <option value="{{ loc }}" {% if request.args.get('location') == loc %}selected{% endif %}>{{ loc }}</option>
+            {% endfor %}
+        </select>
+    
+        <label for="catalog">Catalog:</label>
+        <select name="catalog" id="catalog">
+            <option value="">All</option>
+            {% for cat in catalogs %}
+                <option value="{{ cat }}" {% if request.args.get('catalog') == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+    
+        <label for="professor">Professor:</label>
+        <select name="professor" id="professor">
+            <option value="">All</option>
+            {% for prof in professors %}
+                <option value="{{ prof }}" {% if request.args.get('professor') == prof %}selected{% endif %}>{{ prof }}</option>
+            {% endfor %}
+        </select>
+    
+        <button type="submit">Filter</button>
+    </form>
+    <br>
+
+    <!-- This table displays the filtered courses -->
     <table border="1">
         <thead>
             <tr>
@@ -20,23 +59,33 @@
                 <th>Course Name</th>
                 <th>Max Seats</th>
                 <th>Credits</th>
+                <th>Semseters Offered</th>
+                <th>Professors</th>
+                <th>Locations</th>
             </tr>
         </thead>
         <tbody>
             {% for course in courses %}
-            <tr>
-                <td><a href="{{ url_for('course_details', course_id=course.course_id) }}">{{ course.course_id }}</a></td>
-                <td>{{ course.catalog }}</td>
-                <td>{{ course.course_number }}</td>
-                <td>{{ course.course_name }}</td>
-                <td>{{ course.max_seats }}</td>
-                <td>{{ course.credits_awarded }}</td> 
-            </tr>
+                    <tr>
+                        <td><a href="{{ url_for('course_details', course_id=course.course_id) }}">{{ course.course_id }}</a></td>
+                        <td>{{ course.catalog }}</td>
+                        <td>{{ course.course_number }}</td>
+                        <td>{{ course.course_name }}</td>
+                        <td>{{ course.max_seats }}</td>
+                        <td>{{ course.credits_awarded }}</td>
+                        <td>{{ course.semesters_offered | join(', ') }}</td> 
+                        <td>{{ course.faculty | join(', ') }}</td> 
+                        <td>{{ course.locations_offered | join(', ') }}</td> 
+                        <td>
+                            <!-- Add to Cart Button -->
+                            <button type="submit" name="course_id" value="{{ course.course_id }}">Add to Cart</button>
+                        </td>
+                    </tr>
             {% endfor %}
         </tbody>
     </table>
     <br>
-
+    <a href="{{ url_for('view_cart') }}">View Cart</a><br>
     <a href="{{url_for('landing')}}">Return to Landing</a><br>
 
 </body>
