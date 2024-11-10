@@ -52,6 +52,12 @@ class User(db.Model, UserMixin):
 
     # Changing the default representation
     def __repr__(self):
+        """ Changees the default representation 
+        Args:
+            None
+        Returns:
+            None
+        """
         return f'{self.username}'
 
 # Default Database Table : Students
@@ -74,6 +80,13 @@ class Student(db.Model):
     user = db.relationship('User', back_populates='student')
 
     def __init__(self, first_name, last_name, id):
+        """ Initializes the Student model 
+        Args:
+            first_name(string): a text representing first name 
+            last_name(string): a text representing last name
+        Returns:
+            None
+        """
         self.id = id
         self.first_name = first_name.lower()
         self.last_name = last_name.lower()
@@ -81,10 +94,22 @@ class Student(db.Model):
 
 
     def __repr__(self):
+        """Provides a string represention of an object
+        Args: 
+            None
+        Returns:
+            string 
+        """
         return f'<Student {self.first_name} {self.last_name}, User ID: {self.student_id}>'
     
     @staticmethod
     def generate_student_id():
+        """Generates an identifaction for students
+        Args:
+            None
+        Returns:
+            None
+        """
         while True:
             # Generate a random 8-digit integer
             unique_id = randint(10000000, 99999999)
@@ -93,6 +118,12 @@ class Student(db.Model):
                 return unique_id
     
     def add_course_to_cart(self, course):
+        """Gives students ability to add a course to their cart
+        Args:
+            course(Course):
+        Returns:
+            None
+        """
         if course.course_id not in self.cart:
             self.cart.append(course.course_id)
             db.session.commit()
