@@ -7,21 +7,17 @@
     <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
 </head>
 <body>
-    <nav class="bg-blue-300 ">  
-        <div class="grid grid-cols-4">
+    <nav class="bg-blue-300 w-full">  
+        <div class="flex justify-between">
             <div>
                 <button data-collapse-toggle="navbar-hamburger" type="button" class="inline-flex items-center justify-center p-2 w-10 h-10 text-sm text-black rounded-lg aria-controls="navbar-hamburger" aria-expanded="false">
                     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
                     </svg>
                 </button> 
-            </div>   
-            <div>
-            </div>
-            <div>
-            </div>
-            <div class="grid grid-cols-2 ">
-                <div class="relative mx-auto text-gray-600 lg:block hidden">
+            </div>            
+            <div class="relative flex justify-between right-10">
+                <div class="relative right-8">
                     <input
                         class="border-2 border-gray-300 bg-white h-10 pl-2 pr-8 rounded-lg text-sm focus:outline-none"
                         type="search" name="search" placeholder="Search">
@@ -35,7 +31,7 @@
                         </svg>
                     </button>
                 </div>
-                <a class="flex items-center " href="#">
+                <a class="relative flex items-center" href="#">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -52,20 +48,20 @@
             <div class="mb-6">
                 {{ form.hidden_tag() }}
                 <div class="mb-6">
-                    <label class="block mb-2 font-extrabold" for="">{{ form.username }}</label>
-                    <input class="inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-900 bg-white shadow border-2 border-indigo-900 rounded" type="email" placeholder="Username">
+                    <label class="block mb-2 font-extrabold">Username</label>
+                    {{ form.username(class="inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-200 bg-white shadow border-2 border-indigo-900 rounded")}}
                 </div>
                 <div class="mb-6">
-                    <label class="block mb-2 font-extrabold">{{ form.password }}</label>
-                    <input class="inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-900 bg-white shadow border-2 border-indigo-900 rounded" type="password" placeholder="Password">
+                    <label class="block mb-2 font-extrabold">Password</label>
+                    {{ form.password(class="inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-200 bg-white shadow border-2 border-indigo-900 rounded")}}
                 </div>
                 <div class="mb-6">
-                    <label class="block mb-2 font-extrabold">{{ form.first_name }}</label>
-                    <input class="inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-900 bg-white shadow border-2 border-indigo-900 rounded" placeholder="First Name">
+                    <label class="block mb-2 font-extrabold">First Name</label>
+                    {{ form.first_name(class="inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-200 bg-white shadow border-2 border-indigo-900 rounded")}}
                 </div>
                 <div class="mb-6">
-                    <label class="block mb-2 font-extrabold">{{ form.last_name }}</label>
-                    <input class="inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-900 bg-white shadow border-2 border-indigo-900 rounded"  placeholder="Last Name">
+                    <label class="block mb-2 font-extrabold">Last Name</label>
+                   {{ form.last_name(class="inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-200 bg-white shadow border-2 border-indigo-900 rounded")}}
                 </div>
                 <button class="inline-block w-full py-4 px-6 mb-6 text-center text-lg leading-6 text-white font-extrabold bg-black hover:bg-white border-2 hover:border-black hover:text-black shadow rounded transition duration-200">{{ form.submit }}</button>
             </div>
