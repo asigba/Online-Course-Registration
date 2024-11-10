@@ -114,6 +114,7 @@ class Student(db.Model):
     def remove_course_from_cart(self, course_id):
         if course_id in self.cart:
             self.cart.remove(course_id)
+            flag_modified(self, "cart")
             db.session.commit()
             flash(f"Course {course_id} removed from cart.", "success")
         else:
@@ -121,16 +122,22 @@ class Student(db.Model):
 
     def register_cart_courses(self):
         if not self.cart:
-            print("Your cart is empty. No courses to register.")
-        else:
-            for course_id in self.cart:
-                if course_id not in self.registered_courses:
-                    self.registered_courses.append(course_id)
-                    print(f"Successfully registered for {course_id}")
-                else:
-                    print(f"Already registered for {course_id}")
-            self.clear_cart()
-            db.session.commit()
+            flash("Your cart is empty. No courses to register.", "warning")
+            return
+
+        for course_id in self.cart[:]:
+            if course_id not in self.registered_courses:
+                self.registered_courses.append(course_id)
+                flash(f"Successfully registered for {course_id}!", "success")
+            else:
+                flash(f"Course {course_id} is already registered.", "info")
+            
+            
+        self.cart.clear()
+        flag_modified(self, "cart")
+        flag_modified(self, "registered_courses")    
+        db.session.commit()
+        flash("All selected courses have been registered successfully.", "success")
 
     def view_registered_courses(self):
         if not self.registered_courses:
@@ -504,7 +511,7 @@ def remove_from_cart():
 @login_required
 def register_courses():
     current_user.student.register_cart_courses()
-    return redirect(url_for('registered_courses'))
+    return redirect(url_for('view_cart'))
 
 @app.route('/registered')
 @login_required
