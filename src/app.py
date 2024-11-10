@@ -52,6 +52,12 @@ class User(db.Model, UserMixin):
 
     # Changing the default representation
     def __repr__(self):
+        """ Changees the default representation 
+        Args:
+            None
+        Returns:
+            None
+        """
         return f'{self.username}'
 
 # Default Database Table : Students
@@ -74,6 +80,13 @@ class Student(db.Model):
     user = db.relationship('User', back_populates='student')
 
     def __init__(self, first_name, last_name, id):
+        """ Initializes the Student model 
+        Args:
+            first_name(string): a text representing first name 
+            last_name(string): a text representing last name
+        Returns:
+            None
+        """
         self.id = id
         self.first_name = first_name.lower()
         self.last_name = last_name.lower()
@@ -81,10 +94,22 @@ class Student(db.Model):
 
 
     def __repr__(self):
+        """Provides a string represention of an object
+        Args: 
+            None
+        Returns:
+            string 
+        """
         return f'<Student {self.first_name} {self.last_name}, User ID: {self.student_id}>'
     
     @staticmethod
     def generate_student_id():
+        """Generates an identifaction for students
+        Args:
+            None
+        Returns:
+            None
+        """
         while True:
             # Generate a random 8-digit integer
             unique_id = randint(10000000, 99999999)
@@ -93,6 +118,12 @@ class Student(db.Model):
                 return unique_id
     
     def add_course_to_cart(self, course):
+        """Gives students ability to add a course to their cart
+        Args:
+            course(Course):
+        Returns:
+            None
+        """
         if course.course_id not in self.cart:
             self.cart.append(course.course_id)
             db.session.commit()
@@ -101,10 +132,22 @@ class Student(db.Model):
             print(f"Course {course.course_id} is already in the cart.")
 
     def clear_cart(self):
+        """Empties the cart or list of course
+        Args:
+            None
+        Returns:
+            None
+        """
         self.cart = []
         db.session.commit()
 
     def register_cart_courses(self):
+        """Adds courses to the cart or list
+        Args:
+            None
+        Returns:
+            None
+        """
         if not self.cart:
             print("Your cart is empty. No courses to register.")
         else:
@@ -118,6 +161,12 @@ class Student(db.Model):
             db.session.commit()
 
     def view_registered_courses(self):
+        """Shows list of selected courses
+        Args:
+            None
+        Returns:
+            None
+        """
         if not self.registered_courses:
             print("No registered courses.")
         else:
@@ -144,14 +193,25 @@ class Course(db.Model):
     reporting_instructions = db.Column(db.String(250), nullable=True)
 
     def __init__(self, **kwargs):
+        """Initializes the Course model
+        Args:
+            Multiple keyword variables
+        Returns:
+            None
+        """
         super().__init__(**kwargs)
         # Primary Key is a combination of two other attributes
         if not self.course_id and self.catalog and self.course_number:
             self.course_id = f"{self.catalog}{self.course_number}"
 
-    # This will alidate and update "course_id" if the catalog or course number ever changes
+    # This will validate and update "course_id" if the catalog or course number ever changes
     @validates('catalog', 'course_number')
     def validate_and_generate_course_id(self, key, value):
+        """Checks if the inputted are answer are valid and generates an id
+        Args:
+            key(string): a text representation of catalog
+            value(int): a set of integers for id
+        """
         if key == 'catalog':
             if not isinstance(value, str) or len(value) != 4:
                 raise ValueError("Catalog must be a 4-character string.")
@@ -167,6 +227,12 @@ class Course(db.Model):
 
     @staticmethod
     def init_database_courses():
+        """Initializes the Course database
+        Args:
+            None
+        Returns:
+            None
+        """
         json_file_path = 'initial_course_data.json'
         with open(json_file_path, 'r') as course_data_file:
             courses_data = load(course_data_file)
@@ -198,6 +264,12 @@ class Course(db.Model):
             db.session.rollback()
 
     def create_classes():
+        """Creates a class entry in the database
+        Args:
+            None
+        Return:
+            None
+        """
         all_courses = Course.query.all()
 
         # This would change if new feature is added to create new courses - works off initial_course_data.json

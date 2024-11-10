@@ -138,3 +138,6 @@ select * from classes;
             PRIMARY KEY (class_id),
             FOREIGN KEY(course_id) REFERENCES courses (course_id)
     );
+
+# Tailwindcss command
+        npx tailwindcss -i ./static/resource/input.css -o ./static/dist/css/output.css --watch
