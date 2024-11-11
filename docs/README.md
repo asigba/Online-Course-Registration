@@ -57,6 +57,8 @@ sudo -s "PATH=$PATH" cmsc495 || sudo -s "PATH=$PATH" python src/app.py
     │   │   ├── landing.html
     │   │   ├── login.html
     │   │   ├── register.html
+    │   │   ├── registered_courses.html    
+    │   │   ├── view_cart.html    
     │   │   └── view_courses.html
     │   │
     │   └── /static             # Static assets (CSS, JS, images)
