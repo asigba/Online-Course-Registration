@@ -12,6 +12,9 @@ from sqlalchemy import asc, JSON
 from sqlalchemy.orm import validates
 from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
+from sqlalchemy.orm.attributes import flag_modified
+from sqlalchemy.ext.mutable import MutableList
+from sqlalchemy.types import JSON
 
 # paths to account for package directory structure (see README)
 parent_directory = Path(__file__).resolve().parent.parent
@@ -66,7 +69,7 @@ class Student(db.Model):
     phone_number = db.Column(db.String(12), nullable=True)
     current_enrollments = db.Column(JSON, nullable=True)
     past_enrollments = db.Column(JSON, nullable=True)
-    cart = db.Column(JSON, default=[])
+    cart = db.Column(MutableList.as_mutable(JSON), default=[])
     registered_courses = db.Column(JSON, default=[])
     
 
@@ -93,29 +96,48 @@ class Student(db.Model):
                 return unique_id
     
     def add_course_to_cart(self, course):
-        if course.course_id not in self.cart:
-            self.cart.append(course.course_id)
-            db.session.commit()
-            print(f"Course {course.course_id} added to cart.")
+        if not self.cart:
+            self.cart = []
+    
+        if course.course_id in self.cart:
+            flash(f"Course {course.course_id} is already in the cart.", "info")
         else:
-            print(f"Course {course.course_id} is already in the cart.")
+            self.cart.append(course.course_id)
+            # Mark the JSON column as modified so SQLAlchemy detects the change
+            flag_modified(self, "cart")
+            db.session.commit()
+            flash(f"Course {course.course_id} added to cart!", "success")
 
-    def clear_cart(self):
-        self.cart = []
-        db.session.commit()
+        print(f"Updated cart contents (Student ID: {self.student_id}): {self.cart}")
+            
+
+    def remove_course_from_cart(self, course_id):
+        if course_id in self.cart:
+            self.cart.remove(course_id)
+            flag_modified(self, "cart")
+            db.session.commit()
+            flash(f"Course {course_id} removed from cart.", "success")
+        else:
+            flash(f"Course {course_id} is not in the cart.", "info")
 
     def register_cart_courses(self):
         if not self.cart:
-            print("Your cart is empty. No courses to register.")
-        else:
-            for course_id in self.cart:
-                if course_id not in self.registered_courses:
-                    self.registered_courses.append(course_id)
-                    print(f"Successfully registered for {course_id}")
-                else:
-                    print(f"Already registered for {course_id}")
-            self.clear_cart()
-            db.session.commit()
+            flash("Your cart is empty. No courses to register.", "warning")
+            return
+
+        for course_id in self.cart[:]:
+            if course_id not in self.registered_courses:
+                self.registered_courses.append(course_id)
+                flash(f"Successfully registered for {course_id}!", "success")
+            else:
+                flash(f"Course {course_id} is already registered.", "info")
+            
+            
+        self.cart.clear()
+        flag_modified(self, "cart")
+        flag_modified(self, "registered_courses")    
+        db.session.commit()
+        flash("All selected courses have been registered successfully.", "success")
 
     def view_registered_courses(self):
         if not self.registered_courses:
@@ -452,23 +474,44 @@ def register():
 def add_to_cart():
     course_id = request.form.get('course_id')
     course = Course.query.filter_by(course_id=course_id).first()
+
     if course:
-        current_user.student.add_course_to_cart(course)
+        student = current_user.student
+        student.add_course_to_cart(course)
+    else:
+        flash(f"Course ID {course_id} not found!", 'error')
+
     return redirect(url_for('view_courses'))
 
 @app.route('/cart')
 @login_required
 def view_cart():
     student = current_user.student
-    # Fetch course objects for all course IDs in the cart
+    print(f"Current cart from DB for {student.first_name} {student.last_name}: {student.cart}")
     cart_courses = Course.query.filter(Course.course_id.in_(student.cart)).all()
+    print(f"Cart Courses Retrieved: {[course.course_id for course in cart_courses]}")
     return render_template('view_cart.html', cart_courses=cart_courses)
+
+@app.route('/remove_from_cart', methods=['POST'])
+@login_required
+def remove_from_cart():
+    course_id = request.form.get('course_id')
+    student = current_user.student
+
+    if course_id in student.cart:
+        student.cart.remove(course_id)
+        db.session.commit()
+        flash(f"Course {course_id} removed from cart.", "success")
+    else:
+        flash(f"Course {course_id} not found in cart.", "info")
+
+    return redirect(url_for('view_cart'))
 
 @app.route('/registercourse', methods=['POST'])
 @login_required
 def register_courses():
     current_user.student.register_cart_courses()
-    return redirect(url_for('registered_courses'))
+    return redirect(url_for('view_cart'))
 
 @app.route('/registered')
 @login_required
