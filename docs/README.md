@@ -6,7 +6,7 @@ Our project will simplify the course registration process, allowing students to 
 # Installation Commands - commented-out commands may not be necessary
 ```
 # Step 1: Python Reqs & Symlinks
-sudo apt install python3-pip python3-venv python3-dev
+sudo apt install -y python3-pip python3-venv python3-dev sqlite3
 sudo ln -s /usr/bin/python3 /usr/bin/python
 #sudo rm /usr/bin/python3; sudo ln -s /usr/bin/python3.<VERSION> /usr/bin/python3
 
@@ -45,6 +45,9 @@ sudo -s "PATH=$PATH" cmsc495 || sudo -s "PATH=$PATH" python src/app.py
     ├── /docs
     │   └── README.md
     │
+    ├── /images
+    │   └── banner.png
+    │
     ├── /src
     │   ├── app.py              # the main application
     │   │
@@ -69,7 +72,9 @@ sudo -s "PATH=$PATH" cmsc495 || sudo -s "PATH=$PATH" python src/app.py
     │  
     ├── initial_course_data.json
     │  
-    └── pyproject.toml          # for 'python -m build' when creating the wheel
+    ├── pyproject.toml                  # for 'python -m build' when creating the wheel
+    │  
+    └── requirements.txt        
 
 # Database Commands
 ```
@@ -121,6 +126,8 @@ select * from classes;
             phone_number VARCHAR(12),
             current_enrollments JSON,
             past_enrollments JSON,
+            cart JSON,
+            registered_courses JSON,
             PRIMARY KEY (id),
             FOREIGN KEY(id) REFERENCES users (id),
             UNIQUE (student_id)
