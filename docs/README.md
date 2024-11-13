@@ -58,8 +58,9 @@ sudo cmsc495
     │   │   ├── landing.html
     │   │   ├── login.html
     │   │   ├── register.html
-    │   │   ├── view_carth.html
+    │   │   ├── view_cart.html
     │   │   └── view_courses.html
+    │   │    
     │   └── /static             # Static assets (CSS, JS, images)
     │       ├── dist
     │       │   └── css
