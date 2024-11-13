@@ -5,34 +5,32 @@ Our project will simplify the course registration process, allowing students to 
 
 # Installation Commands - commented-out commands may not be necessary
 ```
-# Step 1: Python Reqs & Symlinks
-sudo apt install -y python3-pip python3-venv python3-dev sqlite3
-sudo ln -s /usr/bin/python3 /usr/bin/python
+# Step 1: Python Reqs
+sudo apt install python3-pip python3-venv python3-dev
 #sudo rm /usr/bin/python3; sudo ln -s /usr/bin/python3.<VERSION> /usr/bin/python3
+#sudo ln -s /usr/bin/python3 /usr/bin/python
 
-# Step 2: Virutal Environment Setup Outside of the Git Directory
-cd ./Online-Course-Registration/../; python -m venv .venv495
+# Step 2: Virutal Environment Setup
+cd; python3 -m venv .venv495
 source ./.venv495/bin/activate
-python -m ensurepip --upgrade
+python3 -m ensurepip --upgrade
 
 # Step 3: 'cd' into Project Package
 cd ./Online-Course-Registration
 
-# Step 4 - Installation Option 1:
+# Step 4 - Option 1:
 pip install -r requirements.txt
+python3 src/app.py
 
-# Step 4 - Installation Option 2:
+# Step 4 - Option 2:
 pip install Flask==3.0.3 Flask-Bcrypt==1.0.1 Flask-Login==0.6.3 Flask-SQLAlchemy==3.1.1 Flask-WTF==1.2.2 WTForms==3.2.1
+python3 src/app.py
 
-# Step 4 - Installation Option 3:
-# made with 'pip install build; python -m build'
+# Step 4 - Option 3:
+#pip install build
+#python3 -m build
 pip install cmsc495project*.whl
-
-# Step 5 - Execute one of the commands below
-# Note: 'cmsc495' will only work if installed via the *.whl
-# Note: root is only needed if the port is set below 1024 - right now we have it at 8080, so sudo isn't necessary [[ app.run(host='0.0.0.0', port=8080, debug=True) ]]
-cmsc495 || python src/app.py
-sudo -s "PATH=$PATH" cmsc495 || sudo -s "PATH=$PATH" python src/app.py
+sudo cmsc495
 ```
 
 # Package Directory Structure
@@ -45,11 +43,14 @@ sudo -s "PATH=$PATH" cmsc495 || sudo -s "PATH=$PATH" python src/app.py
     ├── /docs
     │   └── README.md
     │
-    ├── /images
-    │   └── banner.png
-    │
     ├── /src
     │   ├── app.py              # the main application
+    |   |
+    │   ├── package.json
+    |   |
+    │   ├── package-lock.json
+    |   |
+    │   ├── tailwind.config.js      # tailwind configuration
     │   │
     │   ├── /templates          # HTML templates
     │   │   ├── course_details.html
@@ -57,26 +58,23 @@ sudo -s "PATH=$PATH" cmsc495 || sudo -s "PATH=$PATH" python src/app.py
     │   │   ├── landing.html
     │   │   ├── login.html
     │   │   ├── register.html
-    │   │   ├── registered_courses.html    
-    │   │   ├── view_cart.html    
+    │   │   ├── view_carth.html
     │   │   └── view_courses.html
-    │   │
     │   └── /static             # Static assets (CSS, JS, images)
-    │       ├── css
-    │       │   └── <style.css>
-    │       ├── js
-    │       │   └── <script.js>
-    │       └── images
-    │           └── <logo.png>
+    │       ├── dist
+    │       │   └── css
+    |       |        └── <output.css>   
+    │       ├── resources
+    │           └── <input.css>
     │
     ├── /tests
     │   └── <test.py>
     │  
     ├── initial_course_data.json
+    |
+    ├── requirements.txt
     │  
-    ├── pyproject.toml                  # for 'python -m build' when creating the wheel
-    │  
-    └── requirements.txt        
+    └── pyproject.toml          # for 'python -m build' when creating the wheel
 
 # Database Commands
 ```
@@ -128,8 +126,6 @@ select * from classes;
             phone_number VARCHAR(12),
             current_enrollments JSON,
             past_enrollments JSON,
-            cart JSON,
-            registered_courses JSON,
             PRIMARY KEY (id),
             FOREIGN KEY(id) REFERENCES users (id),
             UNIQUE (student_id)
