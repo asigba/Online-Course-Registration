@@ -3,94 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename='dist/css/table.css')}}">
     <title>CMSC495 Online Course Registration User Landing</title>
 </head>
 <body>
+    <nav class="bg-blue-300 w-full">  
+        <div class="flex justify-between">
+            <div>
+                <button data-collapse-toggle="navbar-hamburger" type="button" class="inline-flex items-center justify-center p-2 w-10 h-10 text-sm text-black rounded-lg aria-controls="navbar-hamburger" aria-expanded="false">
+                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+                    </svg>
+                </button> 
+            </div>            
+            <div class="relative flex justify-between right-10">
+                <div class="relative right-8">
+                    <input
+                        class="border-2 border-gray-300 bg-white h-10 pl-2 pr-8 rounded-lg text-sm focus:outline-none"
+                        type="search" name="search" placeholder="Search">
+                    <button type="submit" class="absolute right-0 top-0 mt-3 mr-2">
+                        <svg class="text-gray-600 h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 56.966 56.966" style="enable-background:new 0 0 56.966 56.966;"
+                            width="512px" height="512px">
+                            <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z"/>
+                        </svg>
+                    </button>
+                </div>
+                <a class="relative flex items-center" href="#">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </a>
+            </div>
+        </div> 
+    </nav>
+    <aside class="bg-gray-100 w-64 h-full fixed top-0 left-0 p-4">
+        <ul>
+            <li><a href="{{url_for('logout')}}" class="block text-black hover:text-blue-600">Logout</a></li>
+        </ul>
+    </aside>
+    <main class="ml-64 p-8 text-center">
+        
+        <!-- This section provides all of the details for the course -->
+        <h2 class="text-3xl md:text-3xl font-extrabold;" style=" font-weight: bold; font-size: x-large;">
+            This is course  {{ course.course_id }} - {{ course.course_name }}: 
+        </h2>
+        <ul>
+            <li style="text-align: center;"><strong>Catalog:</strong> {{ course.catalog }}</li>
+            <li style="text-align: center;"><strong>Course Number:</strong> {{ course.course_number }}</li>
+            <li style="text-align: center;"><strong>Course Name:</strong> {{ course.course_name }}</li>
+            <li style="text-align: center;"><strong>Description:</strong> {{ course.description }}</li>
+            <li style="text-align: center;"><strong>Max Seats:</strong> {{ course.max_seats }}</li>
+            <li style="text-align: center;"><strong>Credits Awarded:</strong> {{ course.credits_awarded }}</li>
+            <li style="text-align: center;"><strong>Semesters Offered:</strong> {{ course.semesters_offered | join(', ') }}</li>
+            <li style="text-align: center;"><strong>Locations Offered:</strong> {{ course.locations_offered | join(', ') }}</li>
+            <li style="text-align: center;"><strong>Prerequisites:</strong> {{ course.prereq }}</li>
+            <li style="text-align: center;"><strong>Faculty:</strong> {{ course.faculty | join(', ') }}</li>
+            <li style="text-align: center;"><strong>Required Technology:</strong> {{ course.required_technology }}</li>
+            <li style="text-align: center;"><strong>Reporting Instructions:</strong> {{ course.reporting_instructions }}</li>
+            <br>
+        </ul>
 
-    <!-- This section provides all of the details for the course -->
-    <h2>
-        This is course {{ course.course_id }} - {{ course.course_name }}: 
-    </h2>
-    <ul>
-        <li><strong>Catalog:</strong> {{ course.catalog }}</li>
-        <li><strong>Course Number:</strong> {{ course.course_number }}</li>
-        <li><strong>Course Name:</strong> {{ course.course_name }}</li>
-        <li><strong>Description:</strong> {{ course.description }}</li>
-        <li><strong>Max Seats:</strong> {{ course.max_seats }}</li>
-        <li><strong>Credits Awarded:</strong> {{ course.credits_awarded }}</li>
-        <li><strong>Semesters Offered:</strong> {{ course.semesters_offered | join(', ') }}</li>
-        <li><strong>Locations Offered:</strong> {{ course.locations_offered | join(', ') }}</li>
-        <li><strong>Prerequisites:</strong> {{ course.prereq }}</li>
-        <li><strong>Faculty:</strong> {{ course.faculty | join(', ') }}</li>
-        <li><strong>Required Technology:</strong> {{ course.required_technology }}</li>
-        <li><strong>Reporting Instructions:</strong> {{ course.reporting_instructions }}</li>
-    </ul>
-
-    <!-- This form is used to filter the available classes -->
-    <form method="GET" action="{{ url_for('course_details', course_id=course.course_id) }}">
-        <label for="location">Location:</label>
-        <select name="location" id="location">
-            <option value="">All</option>
-            {% for loc in locations %}
-                <option value="{{ loc }}" {% if request.args.get('location') == loc %}selected{% endif %}>{{ loc }}</option>
-            {% endfor %}
-        </select>
-    
-        <label for="semester">Semester:</label>
-        <select name="semester" id="semester">
-            <option value="">All</option>
-            {% for sem in semesters %}
-                <option value="{{ sem }}" {% if request.args.get('semester') == sem %}selected{% endif %}>{{ sem }}</option>
-            {% endfor %}
-        </select>
-    
-        <label for="professor">Professor:</label>
-        <select name="professor" id="professor">
-            <option value="">All</option>
-            {% for prof in professors %}
-                <option value="{{ prof }}" {% if request.args.get('professor') == prof %}selected{% endif %}>{{ prof }}</option>
-            {% endfor %}
-        </select>
-    
-        <button type="submit">Filter</button>
-    </form>
-
-    <h2>Available Classes</h2>
-    <!-- This table displays the filtered classes -->
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Class ID</th>
-                <th>Course ID</th>
-                <th>Course Name</th>
-                <th>Current Enrollments</th>
-                <th>Location</th>
-                <th>Semester</th>
-                <th>Professor</th>
-                <th>Credits Awarded</th>
-                <th>Available Seats</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for class in all_classes %}
-                {% if class.course_id == course.course_id %}
-                    <tr>
-                        <td>{{ class.class_id }}</td>
-                        <td>{{ class.course_id }}</td>
-                        <td>{{ class.course_name }}</td>
-                        <td>{{ class.current_enrollments }}</td>
-                        <td>{{ class.location }}</td>
-                        <td>{{ class.semester }}</td>
-                        <td>{{ class.professor }}</td>
-                        <td>{{ class.credits_awarded }}</td>
-                        <td>{{ class.available_seats }}</td>
-                    </tr>
-                {% endif %}
-            {% endfor %}
-        </tbody>
-    </table>
+        <!-- This form is used to filter the available classes -->
+        <form method="GET" action="{{ url_for('course_details', course_id=course.course_id) }}">
+            <label for="location">Location:</label>
+            <select name="location" id="location">
+                <option value="">All</option>
+                {% for loc in locations %}
+                    <option value="{{ loc }}" {% if request.args.get('location') == loc %}selected{% endif %}>{{ loc }}</option>
+                {% endfor %}
+            </select>
+        
+            <label for="semester">Semester:</label>
+            <select name="semester" id="semester">
+                <option value="">All</option>
+                {% for sem in semesters %}
+                    <option value="{{ sem }}" {% if request.args.get('semester') == sem %}selected{% endif %}>{{ sem }}</option>
+                {% endfor %}
+            </select>
+        
+            <label for="professor">Professor:</label>
+            <select name="professor" id="professor">
+                <option value="">All</option>
+                {% for prof in professors %}
+                    <option value="{{ prof }}" {% if request.args.get('professor') == prof %}selected{% endif %}>{{ prof }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
+            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Filter</button>
+        </form>
+        <br>
+        <h2 style="font-weight: bold; font-size: large; ">Available Classes</h2>
+        <!-- This table displays the filtered classes -->
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="px-2 py-2 w-full text-sm text-left rtl:text-right text-black-500 dark:text-gray-400 border border-gray-400">
+            <thead class="text-xs text-gray-700 uppercase dark:text-gray-400 border border-gray-400">
+                <tr>
+                    <th scope="col" class="px-1 py-2 border border-gray-400">Class ID</th>
+                    <th scope="col" class="px-1 py-2 border border-gray-400">Course ID</th>
+                    <th scope="col" class="px-1 py-2 border border-gray-400">Course Name</th>
+                    <th scope="col" class="px-1 py-2 border border-gray-400">Current Enrollments</th>
+                    <th scope="col" class="px-1 py-2 border border-gray-400">Location</th>
+                    <th scope="col" class="px-1 py-2 border border-gray-400">Semester</th>
+                    <th scope="col" class="px-1 py-2 border border-gray-400">Professor</th>
+                    <th scope="col" class="px-1 py-2 border border-gray-400">Credits Awarded</th>
+                    <th scope="col" class="px-1 py-2 border border-gray-400">Available Seats</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for class in all_classes %}
+                    {% if class.course_id == course.course_id %}
+                        <tr>
+                            <td class="px-4 py-2 border border-gray-400">{{ class.class_id }}</td>
+                            <td class="px-4 py-2 border border-gray-400">{{ class.course_id }}</td>
+                            <td class="px-4 py-2 border border-gray-400">{{ class.course_name }}</td>
+                            <td class="px-4 py-2 border border-gray-400">{{ class.current_enrollments }}</td>
+                            <td class="px-4 py-2 border border-gray-400">{{ class.location }}</td>
+                            <td class="px-4 py-2 border border-gray-400">{{ class.semester }}</td>
+                            <td class="px-4 py-2 border border-gray-400">{{ class.professor }}</td>
+                            <td class="px-4 py-2 border border-gray-400">{{ class.credits_awarded }}</td>
+                            <td class="px-4 py-2 border border-gray-400">{{ class.available_seats }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
 
     <br>
-    <a href="{{url_for('view_courses')}}">Back</a><br>
+    <div style="text-align: center;">
+        <a href="{{url_for('view_courses')}}" >
+            <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
+            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">View Course List</button>
+        </a><br>
 </body>
 </html>
