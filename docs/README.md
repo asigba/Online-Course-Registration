@@ -45,6 +45,12 @@ sudo cmsc495
     │
     ├── /src
     │   ├── app.py              # the main application
+    |   |
+    │   ├── package.json
+    |   |
+    │   ├── package-lock.json
+    |   |
+    │   ├── tailwind.config.js      # tailwind configuration
     │   │
     │   ├── /templates          # HTML templates
     │   │   ├── course_details.html
@@ -52,20 +58,21 @@ sudo cmsc495
     │   │   ├── landing.html
     │   │   ├── login.html
     │   │   ├── register.html
+    │   │   ├── view_carth.html
     │   │   └── view_courses.html
-    │   │
     │   └── /static             # Static assets (CSS, JS, images)
-    │       ├── css
-    │       │   └── <style.css>
-    │       ├── js
-    │       │   └── <script.js>
-    │       └── images
-    │           └── <logo.png>
+    │       ├── dist
+    │       │   └── css
+    |       |        └── <output.css>   
+    │       ├── resources
+    │           └── <input.css>
     │
     ├── /tests
     │   └── <test.py>
     │  
     ├── initial_course_data.json
+    |
+    ├── requirements.txt
     │  
     └── pyproject.toml          # for 'python -m build' when creating the wheel
 

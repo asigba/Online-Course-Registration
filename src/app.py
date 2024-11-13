@@ -52,7 +52,7 @@ class User(db.Model, UserMixin):
 
     # Changing the default representation
     def __repr__(self):
-        """ Changees the default representation 
+        """ Changes the default representation 
         Args:
             None
         Returns:
