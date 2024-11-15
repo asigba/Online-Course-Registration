@@ -55,6 +55,12 @@ class User(db.Model, UserMixin):
 
     # Changing the default representation
     def __repr__(self):
+        """ Changes the default representation 
+        Args:
+            None
+        Returns:
+            None
+        """
         return f'{self.username}'
 
 # Default Database Table : Students
@@ -96,6 +102,12 @@ class Student(db.Model):
                 return unique_id
     
     def add_course_to_cart(self, course):
+        """Gives students ability to add a course to their cart
+        Args:
+            course(Course):
+        Returns:
+            None
+        """
         if not self.cart:
             self.cart = []
     
@@ -110,8 +122,13 @@ class Student(db.Model):
 
         print(f"Updated cart contents (Student ID: {self.student_id}): {self.cart}")
             
-
     def remove_course_from_cart(self, course_id):
+        """Removes a class from the cart
+        Args:
+            None
+        Returns:
+            None
+        """
         if course_id in self.cart:
             self.cart.remove(course_id)
             flag_modified(self, "cart")
@@ -119,6 +136,16 @@ class Student(db.Model):
             flash(f"Course {course_id} removed from cart.", "success")
         else:
             flash(f"Course {course_id} is not in the cart.", "info")
+    
+    def clear_cart(self):
+        """Empties the cart or list of course
+        Args:
+            None
+        Returns:
+            None
+        """
+        self.cart = []
+        db.session.commit()
 
     def register_cart_courses(self):
         if not self.cart:
@@ -131,7 +158,6 @@ class Student(db.Model):
                 flash(f"Successfully registered for {course_id}!", "success")
             else:
                 flash(f"Course {course_id} is already registered.", "info")
-            
             
         self.cart.clear()
         flag_modified(self, "cart")
