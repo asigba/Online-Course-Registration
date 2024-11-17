@@ -40,7 +40,11 @@ database_file_path, database_path, app, db, bcrypt, login_mgr = init_application
 
 @login_mgr.user_loader
 def load_user(id):
-    return User.query.get(int(id))
+    #user_loaded = User.query.get(int(id))
+    # Replaced deprecated User.query with db.session.get
+    user_loaded = db.session.get(User, int(id))
+    #print(user_loaded)
+    return user_loaded
 
 # Default Database Table : Users
 class User(db.Model, UserMixin):
