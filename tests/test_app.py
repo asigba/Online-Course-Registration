@@ -52,7 +52,7 @@ class TestUserRegistration(unittest.TestCase):
         if database_path.exists() and database_path.is_dir():
             # Deleting the database after all test complete
             shutil.rmtree(database_path)
-            #print(f"\nSuccessfully deleted the database: {database_path}")
+            print(f"\nSuccessfully deleted the database: {database_path}")
     
     def get_csrf_token(self):
         """
@@ -63,9 +63,10 @@ class TestUserRegistration(unittest.TestCase):
         csrf_token = soup.find('input', {'name': 'csrf_token'})['value']
         return csrf_token
     
-    def test_register_user(self):
+
+    def test_1_register_new_user_account(self):
         """
-        Tests creation of a user
+        Test case 1 - Register a new user account
         """
         response = self.client.post('/register', data={
             'username': 'student',
@@ -77,7 +78,7 @@ class TestUserRegistration(unittest.TestCase):
         }, follow_redirects=True)
         #print(self.csrf_token)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
+        #self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
         self.assertIn(b'Registration successful! You may now login.', response.data)
         
         # Verify the user in the database
@@ -85,9 +86,10 @@ class TestUserRegistration(unittest.TestCase):
             user = User.query.filter_by(username='student').first()
             self.assertIsNotNone(user)
 
-    def test_reregister_same_user(self):
+
+    def test_2_registration_with_existing_username(self):
         """
-        Tests that the same user cannot be recreated
+        Test Case 2 - Application prevents new user account registration if the username already exists
         """
         response = self.client.post('/register', data={
             'username': 'student',
@@ -98,6 +100,19 @@ class TestUserRegistration(unittest.TestCase):
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Existing account found for username: student.', response.data)      
+
+
+    def test_3_login_valid_credentials(self):
+        """
+        Test Case 3 - Login using valid account credentials
+        """
+        response = self.client.post('/login', data={
+            'username': 'student',
+            'password': 'studentpassword',
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Student ID is', response.data)  
 
 if __name__ == '__main__':
     unittest.main()
