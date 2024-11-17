@@ -78,14 +78,13 @@ class TestUserRegistration(unittest.TestCase):
         }, follow_redirects=True)
         #print(self.csrf_token)
         self.assertEqual(response.status_code, 200)
-        #self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
+        self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
         self.assertIn(b'Registration successful! You may now login.', response.data)
         
         # Verify the user in the database
         with app.app_context():
             user = User.query.filter_by(username='student').first()
             self.assertIsNotNone(user)
-
 
     def test_2_registration_with_existing_username(self):
         """
@@ -101,7 +100,6 @@ class TestUserRegistration(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Existing account found for username: student.', response.data)      
 
-
     def test_3_login_valid_credentials(self):
         """
         Test Case 3 - Login using valid account credentials
@@ -113,6 +111,87 @@ class TestUserRegistration(unittest.TestCase):
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Student ID is', response.data)  
+
+    def test_4_logout(self):
+        """
+        Test Case 3 - Logout of a user session
+        """
+        # Login first to logout
+        self.test_3_login_valid_credentials()
+        response = self.client.post('/logout', data={
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'You have been successfully logged out', response.data)  
+
+    def test_5_unauthenticated_access(self):
+        """
+        Test Case 3 - Attempt to visit @login_required pages
+        """
+        # Landing
+        response = self.client.get('/landing', data={
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Please log in to access this page', response.data)
+        self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
+        # Courses
+        response = self.client.get('/courses', data={
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Please log in to access this page', response.data)
+        self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
+        # Classes
+        response = self.client.get('/course/ARTS101', data={
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Please log in to access this page', response.data)
+        self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
+        # Registered Courses
+        response = self.client.get('/registered', data={
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Please log in to access this page', response.data)
+        self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
+        # Cart
+        response = self.client.get('/cart', data={
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Please log in to access this page', response.data)
+        self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
+
+        '''
+        # THESE ARE NOT YET IMPLEMENTED FOR TESTING...
+        
+        # Register Course
+        response = self.client.get('/registercourse', data={
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Please log in to access this page', response.data)
+        self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
+        
+        # Remove from Cart
+        response = self.client.get('/remove_from_cart', data={
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Please log in to access this page', response.data)
+        self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
+        
+        # Add to Cart
+        response = self.client.get('/add_to_cart', data={
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Please log in to access this page', response.data)
+        self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
+
+        '''
 
 if __name__ == '__main__':
     unittest.main()
