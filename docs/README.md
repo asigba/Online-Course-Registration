@@ -69,7 +69,7 @@ sudo cmsc495
     │           └── <input.css>
     │
     ├── /tests
-    │   └── <test.py>
+    │   └── test_app.py         # 'python -m unittest discover tests'
     │  
     ├── initial_course_data.json
     |

@@ -16,29 +16,28 @@ from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.types import JSON
 
-# paths to account for package directory structure (see README)
-parent_directory = Path(__file__).resolve().parent.parent
-database_path = parent_directory / 'database'
-database_file_path = Path(f"{database_path}/database.db")
-templates_path = 'templates'
+def init_application():
+    # paths to account for package directory structure (see README)
+    parent_directory = Path(__file__).resolve().parent.parent
+    database_path = parent_directory / 'database'
+    database_file_path = Path(f"{database_path}/database.db")
+    templates_path = 'templates'
+    # Application
+    app = Flask(__name__, template_folder=templates_path)
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{database_file_path}"
+    app.config['SECRET_KEY'] = 'umgccmsc495'
+    # Database
+    db = SQLAlchemy(app)
+    # Encryption for Password Storage
+    bcrypt = Bcrypt(app)
+    # Login Manager
+    login_mgr = LoginManager()
+    login_mgr.init_app(app)
+    login_mgr.login_view = "login"
+    return database_file_path, database_path, app, db, bcrypt, login_mgr
 
-# Application
-app = Flask(__name__, template_folder=templates_path)
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{database_file_path}"
-app.config['SECRET_KEY'] = 'umgccmsc495'
+database_file_path, database_path, app, db, bcrypt, login_mgr = init_application()
 
-# Database
-db = SQLAlchemy(app)
-
-# Encryption for Password Storage
-bcrypt = Bcrypt(app)
-
-# Login Manager
-login_mgr = LoginManager()
-login_mgr.init_app(app)
-login_mgr.login_view = "login"
-
-# User Loading
 @login_mgr.user_loader
 def load_user(id):
     return User.query.get(int(id))
@@ -312,23 +311,21 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Login")
 
 # Creating the initial database
-class DatabaseInitializer():
-
-    def __init__(self):
-        if not database_file_path.is_file():
-            # Create parent directory & database file if it does not exist
-            database_file_path.parent.mkdir(parents=True, exist_ok=True)
-            database_file_path.touch(exist_ok=True)
-            # Initialize the new database file
-            if database_file_path.is_file():
-                with app.app_context():
-                    # Creating Default Database Tables
-                    #db.drop_all()
-                    db.create_all()
-                    # Populate Courses
-                    Course.init_database_courses()
-                    # Create Classes from Courses
-                    Course.create_classes()
+def init_database(database_file_path, app, db, course):
+    if not database_file_path.is_file():
+        # Create parent directory & database file if it does not exist
+        database_file_path.parent.mkdir(parents=True, exist_ok=True)
+        database_file_path.touch(exist_ok=True)
+        # Initialize the new database file
+        if database_file_path.is_file():
+            with app.app_context():
+                # Creating Default Database Tables
+                #db.drop_all()
+                db.create_all()
+                # Populate Courses
+                course.init_database_courses()
+                # Create Classes from Courses
+                course.create_classes()
 
 # ROUTES...
 
@@ -548,8 +545,10 @@ def registered_courses():
     return render_template('registered_courses.html', registered_courses=registered_courses)
 
 def main():
+    
     # Will check for database each app execution. If not found, creates a new blank database with User table
-    DatabaseInitializer()
+    init_database(database_file_path, app, db, Course)
+
     # Using port tcp/8080 in testing.  Use port tcp/80 in prod (may require root). 
     # Note: This app does not use HTTPS - password is sent in cleartext across the wire
     app.run(host='0.0.0.0', port=8080, debug=True)
