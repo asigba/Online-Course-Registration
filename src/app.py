@@ -1,17 +1,20 @@
-from datetime import datetime, timezone
-from flask import flash, Flask, redirect, render_template, request, url_for
+from datetime import datetime, timedelta, timezone
+from flask import flash, Flask, redirect, render_template, request, session, url_for
 from flask_bcrypt import Bcrypt
 from flask_login import current_user, login_required, login_user, logout_user, LoginManager, UserMixin
+from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from itertools import chain
 from json import load
+from os import urandom
 from pathlib import Path
 from random import randint
+from re import match, search
 from sqlalchemy import asc, JSON
 from sqlalchemy.orm import validates
 from wtforms import PasswordField, StringField, SubmitField
-from wtforms.validators import InputRequired, Length, ValidationError
+from wtforms.validators import InputRequired, Length, ValidationError, DataRequired, Email
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.types import JSON
@@ -25,18 +28,25 @@ def init_application():
     # Application
     app = Flask(__name__, template_folder=templates_path)
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{database_file_path}"
-    app.config['SECRET_KEY'] = 'umgccmsc495'
+    app.config['SECRET_KEY'] = urandom(24)
+    app.config['SESSION_TYPE'] = 'filesystem'
+    app.config['SESSION_PERMANENT'] = True
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
+    app.config['SESSION_USE_SIGNER'] = True
     # Database
     db = SQLAlchemy(app)
     # Encryption for Password Storage
     bcrypt = Bcrypt(app)
     # Login Manager
-    login_mgr = LoginManager()
-    login_mgr.init_app(app)
+    login_mgr = LoginManager(app)
+    #login_mgr.init_app(app)    # replaced by including (app) in the constructor above
     login_mgr.login_view = "login"
-    return database_file_path, database_path, app, db, bcrypt, login_mgr
+    # Flask Session
+    flask_session = Session(app)
 
-database_file_path, database_path, app, db, bcrypt, login_mgr = init_application()
+    return database_file_path, database_path, app, db, bcrypt, login_mgr, flask_session
+
+database_file_path, database_path, app, db, bcrypt, login_mgr, flask_session = init_application()
 
 @login_mgr.user_loader
 def load_user(id):
@@ -50,11 +60,11 @@ def load_user(id):
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(30), nullable=False, unique=True)
+    student = db.relationship('Student', back_populates='user', uselist=False)
+    username = db.Column(db.String(64), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc), nullable=True)     
-    student = db.relationship('Student', back_populates='user', uselist=False)
 
     # Changing the default representation
     def __repr__(self):
@@ -69,28 +79,27 @@ class User(db.Model, UserMixin):
 # Default Database Table : Students
 class Student(db.Model):
     __tablename__ = 'students'
+    # Establishing a relationship to the User class
     id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    user = db.relationship('User', back_populates='student')
     student_id = db.Column(db.Integer, unique=True, nullable=False)
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc), nullable=True)
-    email = db.Column(db.String(64), nullable=True)
-    phone_number = db.Column(db.String(12), nullable=True)
+    student_email = db.Column(db.String(64), nullable=False)
+    phone_number = db.Column(db.String(10), nullable=False)
     current_enrollments = db.Column(JSON, nullable=True)
     past_enrollments = db.Column(JSON, nullable=True)
     cart = db.Column(MutableList.as_mutable(JSON), default=[])
-    registered_courses = db.Column(JSON, default=[])
+    registered_courses = db.Column(MutableList.as_mutable(JSON), default=[])
     
-
-    # Establishing a relationship to the User class
-    user = db.relationship('User', back_populates='student')
-
-    def __init__(self, first_name, last_name, id):
+    def __init__(self, first_name, last_name, id, email, phone):
         self.id = id
         self.first_name = first_name.lower()
         self.last_name = last_name.lower()
         self.student_id = self.generate_student_id()
-
+        self.student_email = email
+        self.phone_number = phone
 
     def __repr__(self):
         return f'<Student {self.first_name} {self.last_name}, User ID: {self.student_id}>'
@@ -104,41 +113,41 @@ class Student(db.Model):
             if not Student.query.filter_by(student_id=unique_id).first():
                 return unique_id
     
-    def add_course_to_cart(self, course):
+    def add_course_to_cart(self, class_selected):
         """Gives students ability to add a course to their cart
         Args:
-            course(Course):
+            add_course_to_cart(Class):
         Returns:
             None
         """
         if not self.cart:
             self.cart = []
     
-        if course.course_id in self.cart:
-            flash(f"Course {course.course_id} is already in the cart.", "info")
+        if class_selected.class_id in self.cart:
+            flash(f"Class {class_selected.class_id}:{class_selected.course_id} is already in the cart.", "info")
         else:
-            self.cart.append(course.course_id)
+            self.cart.append(class_selected.class_id)
             # Mark the JSON column as modified so SQLAlchemy detects the change
             flag_modified(self, "cart")
             db.session.commit()
-            flash(f"Course {course.course_id} added to cart!", "success")
+            flash(f"Class {class_selected.class_id}:{class_selected.course_id} added to cart!", "success")
 
         #print(f"Updated cart contents (Student ID: {self.student_id}): {self.cart}")
             
-    def remove_course_from_cart(self, course_id):
+    def remove_course_from_cart(self, class_selected):
         """Removes a class from the cart
         Args:
             None
         Returns:
             None
         """
-        if course_id in self.cart:
-            self.cart.remove(course_id)
+        if class_selected.class_id in self.cart:
+            self.cart.remove(class_selected.class_id)
             flag_modified(self, "cart")
             db.session.commit()
-            flash(f"Course {course_id} removed from cart.", "success")
+            flash(f"Class {class_selected.class_id}:{class_selected.course_id} removed from cart.", "success")
         else:
-            flash(f"Course {course_id} is not in the cart.", "info")
+            flash(f"Class {class_selected.class_id}:{class_selected.course_id} is not in the cart.", "info")
     
     def clear_cart(self):
         """Empties the cart or list of course
@@ -148,6 +157,7 @@ class Student(db.Model):
             None
         """
         self.cart = []
+        flag_modified(self, "cart")
         db.session.commit()
 
     def register_cart_courses(self):
@@ -155,12 +165,13 @@ class Student(db.Model):
             flash("Your cart is empty. No courses to register.", "warning")
             return
 
-        for course_id in self.cart[:]:
-            if course_id not in self.registered_courses:
-                self.registered_courses.append(course_id)
-                flash(f"Successfully registered for {course_id}!", "success")
+        for class_id in self.cart[:]:
+            class_selected = Class.query.filter(Class.class_id == class_id).first()
+            if class_id not in self.registered_courses:
+                self.registered_courses.append(class_id)
+                flash(f"Successfully registered for {class_selected.class_id}:{class_selected.course_id}!", "success")
             else:
-                flash(f"Course {course_id} is already registered.", "info")
+                flash(f"Course {class_selected.class_id}:{class_selected.course_id} is already registered.", "info")
             
         self.cart.clear()
         flag_modified(self, "cart")
@@ -173,8 +184,8 @@ class Student(db.Model):
             print("No registered courses.")
         else:
             print("Registered Courses:")
-            for course_id in self.registered_courses:
-                print(f"{course_id}")
+            for class_id in self.registered_courses:
+                print(f"{class_id}")
             
 
 # Default Database Table : Courses
@@ -289,28 +300,109 @@ class Class(db.Model):
     credits_awarded = db.Column(db.Integer, nullable=False)
     available_seats = db.Column(db.Integer, nullable=False)
 
+
 # New Account Form
 class RegisterForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=20)],
-                           render_kw={"placeholder": "Username"})
-    password = PasswordField(validators=[InputRequired(), Length(min=12, max=24)],
-                           render_kw={"placeholder": "Password"})
+    
+    def validate_username(self, username_field):
+        existing_user = User.query.filter_by(username=username_field.data).first()
+        if existing_user:
+                raise ValidationError(f"Existing account found for username: {existing_user.username}.")
+
+    def validate_password_complexity(self, password_field):
+        password = password_field.data
+        if not search(r'[A-Z]', password):
+            raise ValidationError('Password must contain at least one uppercase letter.')
+        if not search(r'[a-z]', password):
+            raise ValidationError('Password must contain at least one lowercase letter.')
+        if not search(r'\d', password):
+            raise ValidationError('Password must contain at least one digit.')
+        if not search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            raise ValidationError('Password must contain at least one special character from this list: !@#$%^&*(),.?":{}|<>')
+    
+    def validate_phone_number(self, phone_number_field):
+        phone_number = phone_number_field.data
+        # Ensure the phone number is exactly 10 digits
+        if not match(r'^\d{10}$', phone_number):
+            raise ValidationError('Phone number must be exactly 10 digits long. (e.g. 2105551234)')
+        
+    username = StringField(
+        validators=[
+            DataRequired(message="Username field is required."),
+            Email(message="Invalid username.  The username must be an email address."),
+            Length(min=4, max=80, message="Username must be between 4 and 80 characters."),
+            validate_username
+        ],
+        render_kw={"placeholder": "Email"}
+    )
+    password = PasswordField(
+        validators=[
+            DataRequired(message="Password field is required."),
+            Length(min=12, max=24, message="Password must be between 12 and 24 characters long."),
+            validate_password_complexity
+        ],
+        render_kw={"placeholder": "Password"}
+    )
     first_name = StringField(validators=[InputRequired(), Length(min=2, max=63)],
                            render_kw={"placeholder": "First Name"})
     last_name = StringField(validators=[InputRequired(), Length(min=2, max=63)],
                            render_kw={"placeholder": "Last Name"})
+    phone_number = StringField(
+        validators=[
+            DataRequired(message="Phone number field is required."),
+            Length(min=10, max=10, message="Phone number must be exactly 10 digits long (e.g. 2105551234)"),
+            validate_phone_number  # Custom phone number validation
+        ],
+        render_kw={"placeholder": "Phone Number"}
+    )
     submit = SubmitField("Register")
 
-    def validate_username(self, username):
-        existing_user = User.query.filter_by(username=username.data).first()
-        if existing_user:
-                raise ValidationError(f"Existing account found for username: {existing_user.username}.")
+class ChangePasswordForm(FlaskForm):
 
-# USer Account Form
+    updated_password = None
+
+    def validate_password_complexity(self, password_field):
+        updated_password = password_field.data
+        if not search(r'[A-Z]', updated_password):
+            raise ValidationError('Password must contain at least one uppercase letter.')
+        if not search(r'[a-z]', updated_password):
+            raise ValidationError('Password must contain at least one lowercase letter.')
+        if not search(r'\d', updated_password):
+            raise ValidationError('Password must contain at least one digit.')
+        if not search(r'[!@#$%^&*(),.?":{}|<>]', updated_password):
+            raise ValidationError('Password must contain at least one special character from this list: !@#$%^&*(),.?":{}|<>')
+        # Save New Password for comparion
+        self.updated_password = updated_password
+    
+    def validate_same_passwords(self, confirmation_field):
+        print(self.updated_password, confirmation_field.data)
+        if self.updated_password != confirmation_field.data:
+            raise ValidationError('Passwords must match.')
+
+    new_password = PasswordField(
+        validators=[
+            DataRequired(message="New Password field is required."),
+            Length(min=12, max=24, message="Password must be between 12 and 24 characters long."),
+            validate_password_complexity
+        ],
+        render_kw={"placeholder": "Password"}
+    )
+    confirmation_password = PasswordField(
+        validators=[
+            DataRequired(message="Confirmation Password field is required."),
+            Length(min=12, max=24, message="Password must be between 12 and 24 characters long."),
+            validate_same_passwords
+        ],
+        render_kw={"placeholder": "Password"}
+    )
+    submit = SubmitField("Change Password")
+
+
+# User Account Form
 class LoginForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=20)],
+    username = StringField(validators=[InputRequired(), Length(min=4, max=80)],
                            render_kw={"placeholder": "Username"})
-    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)],
+    password = PasswordField(validators=[InputRequired(), Length(min=12, max=24)],
                            render_kw={"placeholder": "Password"})
     submit = SubmitField("Login")
 
@@ -461,6 +553,7 @@ def course_details(course_id):
 @login_required
 def logout():
     logout_user()
+    session.clear()
     flash('You have been successfully logged out.', 'success')
     return redirect(url_for('login'))
 
@@ -479,7 +572,27 @@ def login():
                 login_user(user)
                 full_name = f"{user.student.first_name} {user.student.last_name}".title()
                 return redirect(url_for('landing', user=full_name, id=user.student.student_id))
+            else:
+                flash('[!] Failed login attempt. Please try a different password', 'failure')
     return render_template('login.html', form=form)
+
+@app.route('/passwordchange', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        print(current_user.password)
+        password_hash = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
+        print(password_hash)
+        # Setting new password
+        current_user.password = password_hash
+        db.session.commit()
+        # Forcing Re-login
+        logout_user()
+        session.clear()
+        flash('Your password has been changed! Please login with your new password.', 'success')
+        return redirect(url_for('login'))
+    return render_template('change_password.html', form=form)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -489,7 +602,7 @@ def register():
         user = User(username=form.username.data, password=password_hash)
         db.session.add(user)
         db.session.commit()
-        student = Student(form.first_name.data, form.last_name.data, user.id)
+        student = Student(form.first_name.data, form.last_name.data, user.id, form.username.data, form.phone_number.data)
         db.session.add(student)
         db.session.commit()
         flash('Registration successful! You may now login.', 'success')
@@ -499,14 +612,14 @@ def register():
 @app.route('/add_to_cart', methods=['POST'])
 @login_required
 def add_to_cart():
-    course_id = request.form.get('course_id')
-    course = Course.query.filter_by(course_id=course_id).first()
+    class_id = int(request.form.get('class_id'))
+    class_selected = Class.query.filter_by(class_id=class_id).first()
 
-    if course:
+    if class_selected:
         student = current_user.student
-        student.add_course_to_cart(course)
+        student.add_course_to_cart(class_selected)
     else:
-        flash(f"Course ID {course_id} not found!", 'error')
+        flash(f"Class {class_selected.class_id}:{class_selected.course_id} not found!", 'error')
 
     return redirect(url_for('view_courses'))
 
@@ -515,22 +628,24 @@ def add_to_cart():
 def view_cart():
     student = current_user.student
     #print(f"Current cart from DB for {student.first_name} {student.last_name}: {student.cart}")
-    cart_courses = Course.query.filter(Course.course_id.in_(student.cart)).all()
+    cart_courses = Class.query.filter(Class.class_id.in_(student.cart)).all()
+    print(cart_courses)
     #print(f"Cart Courses Retrieved: {[course.course_id for course in cart_courses]}")
     return render_template('view_cart.html', cart_courses=cart_courses)
 
 @app.route('/remove_from_cart', methods=['POST'])
 @login_required
 def remove_from_cart():
-    course_id = request.form.get('course_id')
+    class_id = int(request.form.get('class_id'))
     student = current_user.student
+    class_selected = Class.query.filter(Class.class_id == class_id).first()
 
-    if course_id in student.cart:
-        student.cart.remove(course_id)
+    if class_id in student.cart:
+        student.cart.remove(class_id)
         db.session.commit()
-        flash(f"Course {course_id} removed from cart.", "success")
+        flash(f"Class {class_selected.class_id}:{class_selected.course_id} removed from cart.", "success")
     else:
-        flash(f"Course {course_id} not found in cart.", "info")
+        flash(f"Class {class_selected.class_id}:{class_selected.course_id} not found in cart.", "info")
 
     return redirect(url_for('view_cart'))
 
@@ -543,17 +658,18 @@ def register_courses():
 @app.route('/drop_course', methods=['POST'])
 @login_required
 def drop_course():
-    course_id = request.form.get('course_id')
+    class_id = int(request.form.get('class_id'))
     student = current_user.student
-    
-    if course_id in student.registered_courses:
-        student.registered_courses.remove(course_id)
+    class_selected = Class.query.filter(Class.class_id == class_id).first()
+
+    if class_id in student.registered_courses:
+        student.registered_courses.remove(class_id)
         # Mark the JSON column as modified
         flag_modified(student, "registered_courses")
         db.session.commit()
-        flash(f"Course {course_id} has been successfully dropped.", "success")
+        flash(f"Class {class_selected.class_id}:{class_selected.course_id} has been successfully dropped.", "success")
     else:
-        flash(f"Course {course_id} is not in your registered courses.", "info")
+        flash(f"Class {class_selected.class_id}:{class_selected.course_id} is not in your registered courses.", "info")
     
     return redirect(url_for('registered_courses'))
 
@@ -562,7 +678,7 @@ def drop_course():
 def registered_courses():
     student = current_user.student
     # Fetch course objects for all course IDs in registered_courses
-    registered_courses = Course.query.filter(Course.course_id.in_(student.registered_courses)).all()
+    registered_courses = Class.query.filter(Class.class_id.in_(student.registered_courses)).all()
     return render_template('registered_courses.html', registered_courses=registered_courses)
 
 def main():

@@ -55,17 +55,19 @@
                     
                 <th scope="col" class="px-4 py-2 border border-gray-400">Course ID</th>
                 <th scope="col" class="px-4 py-2 border border-gray-400">Course Number</th>
+                <th scope="col" class="px-4 py-2 border border-gray-400">Class ID</th>
                 <th scope="col" class="px-4 py-2 border border-gray-400">Credits</th>
                 <th></th>
             </tr>
-            {% for course in registered_courses %}
+            {% for class in registered_courses %}
             <tr>
-                <td class="px-4 py-2 border border-gray-400">{{ course.course_id }}</td>
-                <td class="px-4 py-2 border border-gray-400">{{ course.course_name }}</td>
-                <td class="px-4 py-2 border border-gray-400">{{ course.credits_awarded }}</td>
+                <td class="px-4 py-2 border border-gray-400">{{ class.course_id }}</td>
+                <td class="px-4 py-2 border border-gray-400">{{ class.course_name }}</td>
+                <td class="px-4 py-2 border border-gray-400">{{ class.class_id }}</td>
+                <td class="px-4 py-2 border border-gray-400">{{ class.credits_awarded }}</td>
                 <td>
                     <form action="{{ url_for('drop_course') }}" method="post">
-                        <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                        <input type="hidden" name="class_id" value="{{ class.class_id }}">
                         <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
                         font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Drop Course</button>
                     </form>
