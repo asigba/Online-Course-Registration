@@ -137,6 +137,13 @@ select * from classes;
             PRIMARY KEY (course_id),
             UNIQUE (course_id)
     );
+    CREATE TABLE semesters (
+            semester_name VARCHAR(12) NOT NULL,
+            start_date DATE NOT NULL,
+            end_date DATE NOT NULL,
+            PRIMARY KEY (semester_name),
+            UNIQUE (semester_name)
+    );
     CREATE TABLE students (
             id INTEGER NOT NULL,
             student_id INTEGER NOT NULL,

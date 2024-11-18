@@ -1,0 +1,32 @@
+[
+    {
+        "semester_name": "Spring 2024",
+        "start_date": "3/19/2024",
+        "end_date": "6/19/2024"
+    },
+    {
+        "semester_name": "Summer 2024",
+        "start_date": "6/20/2024",
+        "end_date": "9/21/2024"
+    },
+    {
+        "semester_name": "Fall 2024",
+        "start_date": "9/22/2024",
+        "end_date": "12/20/2024"
+    },
+    {
+        "semester_name": "Spring 2025",
+        "start_date": "3/20/2025",
+        "end_date": "6/19/2025"
+    },
+    {
+        "semester_name": "Summer 2025",
+        "start_date": "6/20/2025",
+        "end_date": "9/21/2025"
+    },
+    {
+        "semester_name": "Fall 2025",
+        "start_date": "9/22/2025",
+        "end_date": "12/20/2025"
+    }
+]

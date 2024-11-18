@@ -263,6 +263,7 @@ class Course(db.Model):
                 print(f"Error committing changes to the database: {e}")
             db.session.rollback()
 
+    @staticmethod
     def create_classes():
         all_courses = Course.query.all()
 
@@ -303,6 +304,37 @@ class Class(db.Model):
     professor = db.Column(db.String(64), nullable=False)
     credits_awarded = db.Column(db.Integer, nullable=False)
     available_seats = db.Column(db.Integer, nullable=False)
+
+
+# Default Database Table : Semesters
+class Semester(db.Model):
+    __tablename__ = 'semesters'
+    semester_name = db.Column(db.String(12), primary_key=True, nullable=False, unique=True)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+
+    @staticmethod
+    def init_database_semesters():
+        json_file_path = 'initial_semester_dates.json'
+        with open(json_file_path, 'r') as semester_data_file:
+            semesters_data_data = load(semester_data_file)
+
+        for semester_data in semesters_data_data:
+            semester = Semester(
+                semester_name = semester_data['semester_name'],
+                start_date = datetime.strptime(semester_data['start_date'], "%m/%d/%Y"),
+                end_date = datetime.strptime(semester_data['end_date'], "%m/%d/%Y")
+            )
+            # Add each new semester to the database
+            db.session.add(semester)
+        try:
+            db.session.commit()
+            if app.debug:
+                print("Semesters have been successfully added to the database.")
+        except Exception as e:
+            if app.debug:
+                print(f"Error committing changes to the database: {e}")
+            db.session.rollback()
 
 
 # New Account Form
@@ -423,9 +455,10 @@ def init_database(database_file_path, app, db, course):
                 #db.drop_all()
                 db.create_all()
                 # Populate Courses
-                course.init_database_courses()
+                Course.init_database_courses()
+                Semester.init_database_semesters()
                 # Create Classes from Courses
-                course.create_classes()
+                Course.create_classes()
 
 # ROUTES...
 
