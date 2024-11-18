@@ -108,9 +108,7 @@
                     <th scope="col" class="px-4 py-3 border border-gray-400">Credits</th>
                     <th scope="col" class="px-4 py-3 border border-gray-400">Semseters Offered</th>
                     <th scope="col" class="px-4 py-3 border border-gray-400">Professors</th>
-                    <th scope="col" class="px-4 py-3 border border-gray-400">Locations
-                        <span class="sr-only">Edit</span>
-                    </th>
+                    <th scope="col" class="px-4 py-3 border border-gray-400">Locations</th>
                 </tr>
             </thead>
             <tbody>
@@ -127,15 +125,7 @@
                     <td class="px-4 py-2 border border-gray-400">{{ course.semesters_offered | join(', ') }}</td> 
                     <td class="px-4 py-2 border border-gray-400">{{ course.faculty | join(', ') }}</td> 
                     <td class="px-4 py-2 border border-gray-400">{{ course.locations_offered | join(', ') }}</td> 
-                    <td class="px-4 py-2 text-right border border-gray-400">
-                        <!-- Add to Cart Button -->
-                        <form action ="{{ url_for('add_to_cart') }}" method="post">
-                            <input type="hidden" name="course_id" value="{{ course.course_id }}">
-                            <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
-                            font-medium text-sm px-4 py-2 border-2 border-black shadow rounded transition duration-200">Add to Cart
-                            </button>
-                        </form>
-                    </td>    
+                    <td class="px-4 py-2 text-right border border-gray-400"></td>    
                 </tr>
                 {% endfor %}
             </tbody>

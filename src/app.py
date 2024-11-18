@@ -540,6 +540,23 @@ def register_courses():
     current_user.student.register_cart_courses()
     return redirect(url_for('view_cart'))
 
+@app.route('/drop_course', methods=['POST'])
+@login_required
+def drop_course():
+    course_id = request.form.get('course_id')
+    student = current_user.student
+    
+    if course_id in student.registered_courses:
+        student.registered_courses.remove(course_id)
+        # Mark the JSON column as modified
+        flag_modified(student, "registered_courses")
+        db.session.commit()
+        flash(f"Course {course_id} has been successfully dropped.", "success")
+    else:
+        flash(f"Course {course_id} is not in your registered courses.", "info")
+    
+    return redirect(url_for('registered_courses'))
+
 @app.route('/registered')
 @login_required
 def registered_courses():
