@@ -123,7 +123,7 @@ class Student(db.Model):
             db.session.commit()
             flash(f"Course {course.course_id} added to cart!", "success")
 
-        print(f"Updated cart contents (Student ID: {self.student_id}): {self.cart}")
+        #print(f"Updated cart contents (Student ID: {self.student_id}): {self.cart}")
             
     def remove_course_from_cart(self, course_id):
         """Removes a class from the cart
@@ -514,9 +514,9 @@ def add_to_cart():
 @login_required
 def view_cart():
     student = current_user.student
-    print(f"Current cart from DB for {student.first_name} {student.last_name}: {student.cart}")
+    #print(f"Current cart from DB for {student.first_name} {student.last_name}: {student.cart}")
     cart_courses = Course.query.filter(Course.course_id.in_(student.cart)).all()
-    print(f"Cart Courses Retrieved: {[course.course_id for course in cart_courses]}")
+    #print(f"Cart Courses Retrieved: {[course.course_id for course in cart_courses]}")
     return render_template('view_cart.html', cart_courses=cart_courses)
 
 @app.route('/remove_from_cart', methods=['POST'])

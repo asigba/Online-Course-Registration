@@ -114,7 +114,7 @@ class TestUserRegistration(unittest.TestCase):
 
     def test_4_logout(self):
         """
-        Test Case 3 - Logout of a user session
+        Test Case 4 - Logout of a user session
         """
         # Login first to logout
         self.test_3_login_valid_credentials()
@@ -126,7 +126,7 @@ class TestUserRegistration(unittest.TestCase):
 
     def test_5_unauthenticated_access(self):
         """
-        Test Case 3 - App prevents access to @login_required routes
+        Test Case 5 - App prevents access to @login_required routes
         """
         # Landing
         response = self.client.get('/landing', data={
@@ -187,6 +187,50 @@ class TestUserRegistration(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Please log in to access this page', response.data)
         self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
+
+    def test_6_add_class_to_cart(self):
+        """
+        Test Case 6 - Add a class to the cart
+        """
+        # Login first to logout
+        self.test_3_login_valid_credentials()
+        response = self.client.post('/add_to_cart', data={
+            'course_id': 'ARTS101',
+            # will need to change this test once classes are added to cart versus courses
+            #'class_id': '36',
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'added to cart!', response.data)
+
+    def test_7_view_cart(self):
+        """
+        Test Case 7 - View cart empty and with class(es)
+        """
+        # Login first to logout
+        self.test_3_login_valid_credentials()
+        # View Empty Cart
+        response = self.client.get('/cart', data={
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.request.path.endswith('/cart'), "The user is not being redirected to /cart")
+        self.assertIn(b'Your Cart', response.data)
+        # Add a class
+        response = self.client.post('/add_to_cart', data={
+            'course_id': 'ARTS101',
+            # will need to change this test once classes are added to cart versus courses
+            #'class_id': '36',
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        # View Cart
+        response = self.client.get('/cart', data={
+            'csrf_token': self.csrf_token
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.request.path.endswith('/cart'), "The user is not being redirected to /cart")
+        self.assertIn(b'Your Cart', response.data)
+        self.assertIn(b'Course Name', response.data)
 
 
 if __name__ == '__main__':
