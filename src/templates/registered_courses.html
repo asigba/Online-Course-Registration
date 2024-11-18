@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registered Courses</title>
+</head>
+<body>
+    <h1>Your Registered Courses</h1>
+    {% if not registered_courses %}
+        <p>You have not registered for any courses.</p>
+    {% else %}
+        <table border="1">
+            <tr>
+                <th>Course ID</th>
+                <th>Course Name</th>
+                <th>Credits</th>
+                <th></th>
+            </tr>
+            {% for course in registered_courses %}
+            <tr>
+                <td>{{ course.course_id }}</td>
+                <td>{{ course.course_name }}</td>
+                <td>{{ course.credits_awarded }}</td>
+                <td>
+                    <form action="{{ url_for('drop_course') }}" method="post">
+                        <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                        <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
+                        font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Drop Course</button>
+                    </form>
+
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    <a href="{{ url_for('view_courses') }}">Back to Courses</a>
+</body>
+</html>
