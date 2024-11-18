@@ -68,9 +68,11 @@ class TestUserRegistration(unittest.TestCase):
         """
         Test case 1 - Register a new user account
         """
+        username = 'student1@student.umgc.edu'
         response = self.client.post('/register', data={
-            'username': 'student',
-            'password': 'studentpassword',
+            'username': username,
+            'password': 'student1PASSWORD!',
+            'phone_number': '2105551234',
             'first_name': 'Hello',
             'last_name': 'World',
             #'csrf_token': self.get_csrf_token()
@@ -83,7 +85,7 @@ class TestUserRegistration(unittest.TestCase):
         
         # Verify the user in the database
         with app.app_context():
-            user = User.query.filter_by(username='student').first()
+            user = User.query.filter_by(username=username).first()
             self.assertIsNotNone(user)
 
     def test_2_registration_with_existing_username(self):
@@ -91,22 +93,23 @@ class TestUserRegistration(unittest.TestCase):
         Test Case 2 - Application prevents new user account registration if the username already exists
         """
         response = self.client.post('/register', data={
-            'username': 'student',
-            'password': 'studentpassword',
+            'username': 'student1@student.umgc.edu',
+            'password': 'student1PASSWORD!',
+            'phone_number': '2105551234',
             'first_name': 'Hello',
             'last_name': 'World',
             'csrf_token': self.csrf_token
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Existing account found for username: student.', response.data)      
+        self.assertIn(b'Existing account found for username:', response.data)      
 
     def test_3_login_valid_credentials(self):
         """
         Test Case 3 - Login using valid account credentials
         """
         response = self.client.post('/login', data={
-            'username': 'student',
-            'password': 'studentpassword',
+            'username': 'student1@student.umgc.edu',
+            'password': 'student1PASSWORD!',
             'csrf_token': self.csrf_token
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
@@ -195,9 +198,9 @@ class TestUserRegistration(unittest.TestCase):
         # Login first to logout
         self.test_3_login_valid_credentials()
         response = self.client.post('/add_to_cart', data={
-            'course_id': 'ARTS101',
+            #'course_id': 'ARTS101',
             # will need to change this test once classes are added to cart versus courses
-            #'class_id': '36',
+            'class_id': '36',
             'csrf_token': self.csrf_token
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
@@ -218,9 +221,9 @@ class TestUserRegistration(unittest.TestCase):
         self.assertIn(b'Your Cart', response.data)
         # Add a class
         response = self.client.post('/add_to_cart', data={
-            'course_id': 'ARTS101',
+            #'course_id': 'ARTS101',
             # will need to change this test once classes are added to cart versus courses
-            #'class_id': '36',
+            'class_id': '36',
             'csrf_token': self.csrf_token
         }, follow_redirects=True)
         # View Cart

@@ -11,6 +11,7 @@ from os import urandom
 from pathlib import Path
 from random import randint
 from re import match, search
+from redis import Redis
 from sqlalchemy import asc, JSON
 from sqlalchemy.orm import validates
 from wtforms import PasswordField, StringField, SubmitField
@@ -29,10 +30,13 @@ def init_application():
     app = Flask(__name__, template_folder=templates_path)
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{database_file_path}"
     app.config['SECRET_KEY'] = urandom(24)
-    app.config['SESSION_TYPE'] = 'filesystem'
+    #app.config['SESSION_TYPE'] = 'filesystem'
+    app.config['SESSION_TYPE'] = 'redis'
+    app.config['SESSION_KEY_PREFIX'] = 'ocr_app_session:'
     app.config['SESSION_PERMANENT'] = True
-    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
-    app.config['SESSION_USE_SIGNER'] = True
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)
+    #app.config['REDIS_URL'] = "redis://127.0.0.1:6379/1"
+    app.config['SESSION_REDIS'] = Redis.from_url('redis://127.0.0.1:6379/0')
     # Database
     db = SQLAlchemy(app)
     # Encryption for Password Storage
@@ -581,7 +585,7 @@ def login():
 def change_password():
     form = ChangePasswordForm()
     if form.validate_on_submit():
-        print(current_user.password)
+        #print(current_user.password)
         password_hash = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
         print(password_hash)
         # Setting new password
@@ -629,7 +633,7 @@ def view_cart():
     student = current_user.student
     #print(f"Current cart from DB for {student.first_name} {student.last_name}: {student.cart}")
     cart_courses = Class.query.filter(Class.class_id.in_(student.cart)).all()
-    print(cart_courses)
+    #print(cart_courses)
     #print(f"Cart Courses Retrieved: {[course.course_id for course in cart_courses]}")
     return render_template('view_cart.html', cart_courses=cart_courses)
 
