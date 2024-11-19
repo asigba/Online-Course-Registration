@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from flask import flash, Flask, redirect, render_template, request, session, url_for
 from flask_bcrypt import Bcrypt
 from flask_login import current_user, login_required, login_user, logout_user, LoginManager, UserMixin
@@ -299,6 +299,7 @@ class Course(db.Model):
 
 # Default Database Table : Classes
 class Class(db.Model):
+
     __tablename__ = 'classes'
     class_id = db.Column(db.Integer, primary_key=True, nullable=False)
     course = db.relationship('Course', back_populates='_class')
@@ -323,8 +324,27 @@ class Class(db.Model):
             self.available_seats += 1
             db.session.commit()
 
+    def get_semester_status(self):
+        today = date.today()
+        semester = Semester.get_semester(self.semester)
+        print(semester, semester.start_date, semester.end_date)
+        if semester.start_date <= today <= semester.end_date:
+            return Semester.IN_SESSION
+        elif semester.start_date > today:
+            return Semester.UPCOMING
+        elif semester.end_date <= today:
+            return Semester.ENDED
+        else:
+            return Semester.INVALID
+
 # Default Database Table : Semesters
 class Semester(db.Model):
+
+    INVALID = 0
+    ENDED = 1
+    IN_SESSION = 2
+    UPCOMING = 3
+
     __tablename__ = 'semesters'
     semester_name = db.Column(db.String(12), primary_key=True, nullable=False, unique=True)
     start_date = db.Column(db.Date, nullable=False)
@@ -353,6 +373,9 @@ class Semester(db.Model):
                 print(f"Error committing changes to the database: {e}")
             db.session.rollback()
 
+    @staticmethod
+    def get_semester(semester_name):
+        return Semester.query.filter_by(semester_name=semester_name).first()
 
 # New Account Form
 class RegisterForm(FlaskForm):
@@ -671,14 +694,19 @@ def add_to_cart():
     class_id = int(request.form.get('class_id'))
     class_selected = Class.query.filter_by(class_id=class_id).first()
 
-    if class_selected.available_seats > 0:
-        if class_selected:
-            student = current_user.student
-            student.add_course_to_cart(class_selected)
+    # Only allow classes that haven't started
+    if class_selected.get_semester_status() == Semester.UPCOMING:
+        !# Only allow classes with open seats available
+        if class_selected.available_seats > 0:
+            if class_selected:
+                student = current_user.student
+                student.add_course_to_cart(class_selected)
+            else:
+                flash(f"Class {class_selected.class_id}:{class_selected.course_id} not found!", 'error')
         else:
-            flash(f"Class {class_selected.class_id}:{class_selected.course_id} not found!", 'error')
+            flash(f"Course {class_selected.class_id}:{class_selected.course_id} does not have any available seats.", "failure")
     else:
-        flash(f"Course {class_selected.class_id}:{class_selected.course_id} does not have any available seats.", "failure")
+        flash(f"Course {class_selected.class_id}:{class_selected.course_id} has already started or has invalid dates.", "failure")
     return redirect(url_for('view_cart'))
 
 @app.route('/cart')
