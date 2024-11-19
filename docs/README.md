@@ -12,7 +12,7 @@ sudo service redis-server restart
 #sudo ln -s /usr/bin/python3 /usr/bin/python
 
 # Step 2: Virutal Environment Setup
-cd; python3 -m venv .venv495
+cd </mtn/c/Users/...>; python3 -m venv .venv495
 source ./.venv495/bin/activate
 python3 -m ensurepip --upgrade
 
