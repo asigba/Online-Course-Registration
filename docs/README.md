@@ -5,7 +5,8 @@ Our project will simplify the course registration process, allowing students to 
 # Installation Commands - commented-out commands may not be necessary
 ```
 # Step 1: Python Reqs
-sudo apt install python3-pip python3-venv python3-dev redis-server
+sudo apt update -y
+sudo apt install -y python3-pip python3-venv python3-dev redis-server
 sudo service redis-server restart
 #sudo rm /usr/bin/python3; sudo ln -s /usr/bin/python3.<VERSION> /usr/bin/python3
 #sudo ln -s /usr/bin/python3 /usr/bin/python
