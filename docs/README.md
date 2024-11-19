@@ -2,11 +2,11 @@
 ![alt text](../images/banner.png)  
 Our project will simplify the course registration process, allowing students to easily browse available courses, view detailed information, and register with just a few clicks. However, these features are accessible only after the student has successfully completed a secure login or registration process.  
 
-
 # Installation Commands - commented-out commands may not be necessary
 ```
 # Step 1: Python Reqs
-sudo apt install python3-pip python3-venv python3-dev
+sudo apt install python3-pip python3-venv python3-dev redis-server
+sudo service redis-server restart
 #sudo rm /usr/bin/python3; sudo ln -s /usr/bin/python3.<VERSION> /usr/bin/python3
 #sudo ln -s /usr/bin/python3 /usr/bin/python
 
@@ -23,7 +23,7 @@ pip install -r requirements.txt
 python3 src/app.py
 
 # Step 4 - Option 2:
-pip install Flask==3.0.3 Flask-Bcrypt==1.0.1 Flask-Login==0.6.3 Flask-SQLAlchemy==3.1.1 Flask-WTF==1.2.2 WTForms==3.2.1
+pip install Flask==3.0.3 Flask-Bcrypt==1.0.1 Flask-Login==0.6.3 Flask-SQLAlchemy==3.1.1 Flask-WTF==1.2.2 WTForms==3.2.1 beautifulsoup4==4.12.3 email-validator==2.2.0 Flask-Session==0.8.0 redis==5.2.0
 python3 src/app.py
 
 # Step 4 - Option 3:
@@ -43,6 +43,12 @@ sudo cmsc495
     ├── /docs
     │   └── README.md
     │
+    ├── node_modules
+    │   └── <many_files>   
+    |
+    ├── .vscode
+    │   └── launch.json         # enables sudo via VSCode   
+    |
     ├── /src
     │   ├── app.py              # the main application
     |   |
@@ -53,23 +59,37 @@ sudo cmsc495
     │   ├── tailwind.config.js      # tailwind configuration
     │   │
     │   ├── /templates          # HTML templates
+    │   │   ├── change_password.html
     │   │   ├── course_details.html
     │   │   ├── index.html
     │   │   ├── landing.html
     │   │   ├── login.html
     │   │   ├── register.html
+    │   │   ├── registerd_courses.html
     │   │   ├── view_cart.html
     │   │   └── view_courses.html
     │   │    
+    │   ├── node_modules
+    │   │   └── <many_files>
+    │   │    
     │   └── /static             # Static assets (CSS, JS, images)
+    │       │ 
     │       ├── dist
     │       │   └── css
-    |       |        └── <output.css>   
-    │       ├── resources
-    │           └── <input.css>
+    |       |        ├── output.css   
+    |       |        ├── styles.css   
+    |       |        └── table.css
+    │       │
+    │       ├── images
+    │       |   ├── banner.png
+    │       |   ├── Logo.png
+    │       |   └── tinybanner.png
+    |       |
+    |       └── resource
+    |           └── input.css
     │
     ├── /tests
-    │   └── <test.py>
+    │   └── test_app.py         # 'python -m unittest discover tests'
     │  
     ├── initial_course_data.json
     |
@@ -93,7 +113,7 @@ select * from classes;
 
     CREATE TABLE users (
             id INTEGER NOT NULL,
-            username VARCHAR(30) NOT NULL,
+            username VARCHAR(64) NOT NULL,
             password VARCHAR(80) NOT NULL,
             created_at DATETIME NOT NULL,
             updated_at DATETIME,
@@ -117,16 +137,25 @@ select * from classes;
             PRIMARY KEY (course_id),
             UNIQUE (course_id)
     );
+    CREATE TABLE semesters (
+            semester_name VARCHAR(12) NOT NULL,
+            start_date DATE NOT NULL,
+            end_date DATE NOT NULL,
+            PRIMARY KEY (semester_name),
+            UNIQUE (semester_name)
+    );
     CREATE TABLE students (
             id INTEGER NOT NULL,
             student_id INTEGER NOT NULL,
             first_name VARCHAR(30) NOT NULL,
             last_name VARCHAR(30) NOT NULL,
             updated_at DATETIME,
-            email VARCHAR(64),
-            phone_number VARCHAR(12),
+            student_email VARCHAR(64) NOT NULL,
+            phone_number VARCHAR(10) NOT NULL,
             current_enrollments JSON,
             past_enrollments JSON,
+            cart JSON,
+            registered_courses JSON,
             PRIMARY KEY (id),
             FOREIGN KEY(id) REFERENCES users (id),
             UNIQUE (student_id)

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{url_for('static', filename='dist/css/output.css')}}">
-    <title>CMSC485 Online Course Registration User Landing</title>
+    <title>CMSC495 Online Course Registration User Landing</title>
 </head>
 <body>
     <nav class="bg-blue-300 w-full">  
@@ -42,7 +42,7 @@
             <li><a href="{{url_for('logout')}}" class="block text-black hover:text-blue-600">Logout</a></li>
         </ul>
     </aside>
-    <main class="ml-64 p-8 text-center">
+    <main class="ml-64 p-8 text-center" style="padding-top: 30px;">
         <h2 class="text-3xl md:text-4xl font-extrabold">
             {% if user %}
                 Welcome, {{ user }}! 
@@ -57,6 +57,14 @@
         <div class="flex justify-center gap-8 mt-4">
             <a href="{{url_for('view_courses')}}" class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-14 py-3 border-2 border-black shadow rounded transition duration-200">View Courses</a>
+            <a href="{{url_for('registered_courses')}}" class="text-white hover:text-black bg-black hover:bg-white 
+            font-medium text-sm px-14 py-3 border-2 border-black shadow rounded transition duration-200">Registered Courses</a>
+            <a href="{{url_for('change_password')}}" class="text-white hover:text-black bg-black hover:bg-white 
+            font-medium text-sm px-14 py-3 border-2 border-black shadow rounded transition duration-200">Change Password</a>
+        </div>
+        <div class="flex justify-center gap-8 mt-4">
+            <img src="{{ url_for('static', filename='images/banner.png') }}" alt="banner">
+        </div>    
     </main>
 </body>
 </html>
