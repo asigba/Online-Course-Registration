@@ -171,18 +171,21 @@ class Student(db.Model):
 
         for class_id in self.cart[:]:
             class_selected = Class.query.filter(Class.class_id == class_id).first()
-            if class_id not in self.registered_courses:
-                self.registered_courses.append(class_id)
-                flash(f"Successfully registered for {class_selected.class_id}:{class_selected.course_id}!", "success")
+            if class_selected.available_seats > 0:
+                if class_id not in self.registered_courses:
+                    self.registered_courses.append(class_id)
+                    flash(f"Successfully registered for {class_selected.class_id}:{class_selected.course_id}!", "success")
+                else:
+                    flash(f"Course {class_selected.class_id}:{class_selected.course_id} is already registered.", "info")
             else:
-                flash(f"Course {class_selected.class_id}:{class_selected.course_id} is already registered.", "info")
+                flash(f"Course {class_selected.class_id}:{class_selected.course_id} does not have any available seats.", "failure")
             
         self.cart.clear()
         flag_modified(self, "cart")
         flag_modified(self, "registered_courses")
         db.session.commit()
         class_selected.allocate_seat()
-        flash("All selected courses have been registered successfully.", "success")
+        flash("All available classes selected have been registered successfully.", "success")
 
     def view_registered_courses(self):
         if not self.registered_courses:
@@ -196,6 +199,7 @@ class Student(db.Model):
 # Default Database Table : Courses
 class Course(db.Model):
     __tablename__ = 'courses'
+    _class = db.relationship('Class', back_populates='course')
     catalog = db.Column(db.String(4), nullable=False)
     course_number = db.Column(db.Integer, nullable=False)
     course_id = db.Column(db.String(7), primary_key=True, unique=True)
@@ -297,6 +301,7 @@ class Course(db.Model):
 class Class(db.Model):
     __tablename__ = 'classes'
     class_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    course = db.relationship('Course', back_populates='_class')
     course_id = db.Column(db.String(7), db.ForeignKey('courses.course_id'))
     course_name = db.Column(db.String(250), nullable=True)
     current_enrollments = db.Column(JSON, nullable=True)
@@ -307,12 +312,16 @@ class Class(db.Model):
     available_seats = db.Column(db.Integer, nullable=False)
 
     def allocate_seat(self):
-        self.available_seats -= 1
-        db.session.commit()
+        print(self.course.max_seats)
+        if self.available_seats > 0:
+            self.available_seats -= 1
+            db.session.commit()
 
     def free_seat(self):
-        self.available_seats += 1
-        db.session.commit()
+        print(self.course.max_seats)
+        if self.available_seats < self.course.max_seats:
+            self.available_seats += 1
+            db.session.commit()
 
 # Default Database Table : Semesters
 class Semester(db.Model):
@@ -371,6 +380,7 @@ class RegisterForm(FlaskForm):
             raise ValidationError('Phone number must be exactly 10 digits long. (e.g. 2105551234)')
         
     username = StringField(
+        default='student1@student.umgc.edu',
         validators=[
             DataRequired(message="Username field is required."),
             Email(message="Invalid username.  The username must be an email address."),
@@ -387,11 +397,12 @@ class RegisterForm(FlaskForm):
         ],
         render_kw={"placeholder": "Password"}
     )
-    first_name = StringField(validators=[InputRequired(), Length(min=2, max=63)],
+    first_name = StringField(default='Hello', validators=[InputRequired(), Length(min=2, max=63)],
                            render_kw={"placeholder": "First Name"})
-    last_name = StringField(validators=[InputRequired(), Length(min=2, max=63)],
+    last_name = StringField(default='World', validators=[InputRequired(), Length(min=2, max=63)],
                            render_kw={"placeholder": "Last Name"})
     phone_number = StringField(
+        default='2105551234',
         validators=[
             DataRequired(message="Phone number field is required."),
             Length(min=10, max=10, message="Phone number must be exactly 10 digits long (e.g. 2105551234)"),
@@ -660,13 +671,15 @@ def add_to_cart():
     class_id = int(request.form.get('class_id'))
     class_selected = Class.query.filter_by(class_id=class_id).first()
 
-    if class_selected:
-        student = current_user.student
-        student.add_course_to_cart(class_selected)
+    if class_selected.available_seats > 0:
+        if class_selected:
+            student = current_user.student
+            student.add_course_to_cart(class_selected)
+        else:
+            flash(f"Class {class_selected.class_id}:{class_selected.course_id} not found!", 'error')
     else:
-        flash(f"Class {class_selected.class_id}:{class_selected.course_id} not found!", 'error')
-
-    return redirect(url_for('view_courses'))
+        flash(f"Course {class_selected.class_id}:{class_selected.course_id} does not have any available seats.", "failure")
+    return redirect(url_for('view_cart'))
 
 @app.route('/cart')
 @login_required
