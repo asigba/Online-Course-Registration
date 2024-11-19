@@ -327,7 +327,7 @@ class Class(db.Model):
     def get_semester_status(self):
         today = date.today()
         semester = Semester.get_semester(self.semester)
-        print(semester, semester.start_date, semester.end_date)
+        #print(semester, semester.start_date, semester.end_date)
         if semester.start_date <= today <= semester.end_date:
             return Semester.IN_SESSION
         elif semester.start_date > today:
