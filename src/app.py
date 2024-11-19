@@ -696,7 +696,7 @@ def add_to_cart():
 
     # Only allow classes that haven't started
     if class_selected.get_semester_status() == Semester.UPCOMING:
-        !# Only allow classes with open seats available
+        # Only allow classes with open seats available
         if class_selected.available_seats > 0:
             if class_selected:
                 student = current_user.student
