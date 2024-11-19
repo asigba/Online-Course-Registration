@@ -179,8 +179,9 @@ class Student(db.Model):
             
         self.cart.clear()
         flag_modified(self, "cart")
-        flag_modified(self, "registered_courses")    
+        flag_modified(self, "registered_courses")
         db.session.commit()
+        class_selected.allocate_seat()
         flash("All selected courses have been registered successfully.", "success")
 
     def view_registered_courses(self):
@@ -305,6 +306,13 @@ class Class(db.Model):
     credits_awarded = db.Column(db.Integer, nullable=False)
     available_seats = db.Column(db.Integer, nullable=False)
 
+    def allocate_seat(self):
+        self.available_seats -= 1
+        db.session.commit()
+
+    def free_seat(self):
+        self.available_seats += 1
+        db.session.commit()
 
 # Default Database Table : Semesters
 class Semester(db.Model):
@@ -436,7 +444,7 @@ class ChangePasswordForm(FlaskForm):
 
 # User Account Form
 class LoginForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=80)],
+    username = StringField(default='student1@student.umgc.edu', validators=[InputRequired(), Length(min=4, max=80)],
                            render_kw={"placeholder": "Username"})
     password = PasswordField(validators=[InputRequired(), Length(min=12, max=24)],
                            render_kw={"placeholder": "Password"})
@@ -704,6 +712,7 @@ def drop_course():
         # Mark the JSON column as modified
         flag_modified(student, "registered_courses")
         db.session.commit()
+        class_selected.free_seat()
         flash(f"Class {class_selected.class_id}:{class_selected.course_id} has been successfully dropped.", "success")
     else:
         flash(f"Class {class_selected.class_id}:{class_selected.course_id} is not in your registered courses.", "info")
