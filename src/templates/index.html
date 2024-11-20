@@ -10,12 +10,29 @@
     <nav class="bg-blue-300 w-full">  
         <div class="flex justify-between">
             <div>
-                <button data-collapse-toggle="navbar-hamburger" type="button" class="inline-flex items-center justify-center p-2 w-10 h-10 text-sm text-black rounded-lg aria-controls="navbar-hamburger" aria-expanded="false">
+                <button data-collapse-toggle="navbar-hamburger" type="button" class="inline-flex items-center justify-center p-2 w-10 h-10 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 " aria-controls="navbar-hamburger" aria-expanded="false">
+                    <span class="sr-only">Open main menu</span>
                     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
                     </svg>
-                </button> 
-            </div>            
+                  </button>
+                <div class="w-full" id="navbar-hamburger">
+                    <ul class="flex flex-col font-medium mt-4 rounded-lg bg-blue-300">
+                        <li>
+                          <a href="#" class="block py-2 px-3 text-black bg-blue-300 rounded" aria-current="page">Home</a>
+                        </li>
+                        <li>
+                          <a href="#" class="block py-2 px-3 text-black rounded  bg-blue-300">Services</a>
+                        </li>
+                        <li>
+                          <a href="#" class="block py-2 px-3 text-black rounded bg-blue-300">Pricing</a>
+                        </li>
+                        <li>
+                          <a href="#" class="block py-2 px-3 text-black rounded bg-blue-300">Contact</a>
+                        </li>
+                      </ul>
+                </div> 
+            </div>                     
             <div class="relative flex justify-between right-10">
                 <div class="relative right-8">
                     <input
@@ -41,8 +58,7 @@
     </nav>
     <div class="relative top-60">
         <div class="relative flex justify-center">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
-           <!-- <h1 class="text-3xl md:text-4xl font-extrabold">Online Course Registration</h1>-->
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">          
         </div>
         <div >
             <div class="relative flex  gap-8 top-5 justify-center">

@@ -36,7 +36,8 @@ def init_application():
     app.config['SESSION_PERMANENT'] = True
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)
     #app.config['REDIS_URL'] = "redis://127.0.0.1:6379/1"
-    app.config['SESSION_REDIS'] = Redis.from_url('redis://127.0.0.1:6379/0')
+    redis_url = Redis.from_url('redis://127.0.0.1:6379/0')     
+    app.config['SESSION_REDIS'] = redis_url    
     # Database
     db = SQLAlchemy(app)
     # Encryption for Password Storage
