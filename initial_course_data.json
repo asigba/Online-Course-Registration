@@ -144,7 +144,7 @@
         "course_number": 101,
         "course_name": "Intro to Art History",
         "description": "Survey of Western art history.",
-        "max_seats": 30,
+        "max_seats": 0,
         "credits_awarded": 3,
         "semesters_offered": ["Fall 2025", "Spring 2024", "Spring 2025"],
         "locations_offered": ["Maryland"],

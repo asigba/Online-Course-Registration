@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from flask import flash, Flask, redirect, render_template, request, session, url_for
 from flask_bcrypt import Bcrypt
 from flask_login import current_user, login_required, login_user, logout_user, LoginManager, UserMixin
@@ -172,17 +172,21 @@ class Student(db.Model):
 
         for class_id in self.cart[:]:
             class_selected = Class.query.filter(Class.class_id == class_id).first()
-            if class_id not in self.registered_courses:
-                self.registered_courses.append(class_id)
-                flash(f"Successfully registered for {class_selected.class_id}:{class_selected.course_id}!", "success")
+            if class_selected.available_seats > 0:
+                if class_id not in self.registered_courses:
+                    self.registered_courses.append(class_id)
+                    flash(f"Successfully registered for {class_selected.class_id}:{class_selected.course_id}!", "success")
+                else:
+                    flash(f"Course {class_selected.class_id}:{class_selected.course_id} is already registered.", "info")
             else:
-                flash(f"Course {class_selected.class_id}:{class_selected.course_id} is already registered.", "info")
+                flash(f"Course {class_selected.class_id}:{class_selected.course_id} does not have any available seats.", "failure")
             
         self.cart.clear()
         flag_modified(self, "cart")
-        flag_modified(self, "registered_courses")    
+        flag_modified(self, "registered_courses")
         db.session.commit()
-        flash("All selected courses have been registered successfully.", "success")
+        class_selected.allocate_seat()
+        flash("All available classes selected have been registered successfully.", "success")
 
     def view_registered_courses(self):
         if not self.registered_courses:
@@ -196,6 +200,7 @@ class Student(db.Model):
 # Default Database Table : Courses
 class Course(db.Model):
     __tablename__ = 'courses'
+    _class = db.relationship('Class', back_populates='course')
     catalog = db.Column(db.String(4), nullable=False)
     course_number = db.Column(db.Integer, nullable=False)
     course_id = db.Column(db.String(7), primary_key=True, unique=True)
@@ -295,8 +300,10 @@ class Course(db.Model):
 
 # Default Database Table : Classes
 class Class(db.Model):
+
     __tablename__ = 'classes'
     class_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    course = db.relationship('Course', back_populates='_class')
     course_id = db.Column(db.String(7), db.ForeignKey('courses.course_id'))
     course_name = db.Column(db.String(250), nullable=True)
     current_enrollments = db.Column(JSON, nullable=True)
@@ -306,9 +313,39 @@ class Class(db.Model):
     credits_awarded = db.Column(db.Integer, nullable=False)
     available_seats = db.Column(db.Integer, nullable=False)
 
+    def allocate_seat(self):
+        print(self.course.max_seats)
+        if self.available_seats > 0:
+            self.available_seats -= 1
+            db.session.commit()
+
+    def free_seat(self):
+        print(self.course.max_seats)
+        if self.available_seats < self.course.max_seats:
+            self.available_seats += 1
+            db.session.commit()
+
+    def get_semester_status(self):
+        today = date.today()
+        semester = Semester.get_semester(self.semester)
+        #print(semester, semester.start_date, semester.end_date)
+        if semester.start_date <= today <= semester.end_date:
+            return Semester.IN_SESSION
+        elif semester.start_date > today:
+            return Semester.UPCOMING
+        elif semester.end_date <= today:
+            return Semester.ENDED
+        else:
+            return Semester.INVALID
 
 # Default Database Table : Semesters
 class Semester(db.Model):
+
+    INVALID = 0
+    ENDED = 1
+    IN_SESSION = 2
+    UPCOMING = 3
+
     __tablename__ = 'semesters'
     semester_name = db.Column(db.String(12), primary_key=True, nullable=False, unique=True)
     start_date = db.Column(db.Date, nullable=False)
@@ -337,6 +374,9 @@ class Semester(db.Model):
                 print(f"Error committing changes to the database: {e}")
             db.session.rollback()
 
+    @staticmethod
+    def get_semester(semester_name):
+        return Semester.query.filter_by(semester_name=semester_name).first()
 
 # New Account Form
 class RegisterForm(FlaskForm):
@@ -364,6 +404,7 @@ class RegisterForm(FlaskForm):
             raise ValidationError('Phone number must be exactly 10 digits long. (e.g. 2105551234)')
         
     username = StringField(
+        default='student1@student.umgc.edu',
         validators=[
             DataRequired(message="Username field is required."),
             Email(message="Invalid username.  The username must be an email address."),
@@ -380,11 +421,12 @@ class RegisterForm(FlaskForm):
         ],
         render_kw={"placeholder": "Password"}
     )
-    first_name = StringField(validators=[InputRequired(), Length(min=2, max=63)],
+    first_name = StringField(default='Hello', validators=[InputRequired(), Length(min=2, max=63)],
                            render_kw={"placeholder": "First Name"})
-    last_name = StringField(validators=[InputRequired(), Length(min=2, max=63)],
+    last_name = StringField(default='World', validators=[InputRequired(), Length(min=2, max=63)],
                            render_kw={"placeholder": "Last Name"})
     phone_number = StringField(
+        default='2105551234',
         validators=[
             DataRequired(message="Phone number field is required."),
             Length(min=10, max=10, message="Phone number must be exactly 10 digits long (e.g. 2105551234)"),
@@ -437,7 +479,7 @@ class ChangePasswordForm(FlaskForm):
 
 # User Account Form
 class LoginForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=80)],
+    username = StringField(default='student1@student.umgc.edu', validators=[InputRequired(), Length(min=4, max=80)],
                            render_kw={"placeholder": "Username"})
     password = PasswordField(validators=[InputRequired(), Length(min=12, max=24)],
                            render_kw={"placeholder": "Password"})
@@ -653,13 +695,20 @@ def add_to_cart():
     class_id = int(request.form.get('class_id'))
     class_selected = Class.query.filter_by(class_id=class_id).first()
 
-    if class_selected:
-        student = current_user.student
-        student.add_course_to_cart(class_selected)
+    # Only allow classes that haven't started
+    if class_selected.get_semester_status() == Semester.UPCOMING:
+        # Only allow classes with open seats available
+        if class_selected.available_seats > 0:
+            if class_selected:
+                student = current_user.student
+                student.add_course_to_cart(class_selected)
+            else:
+                flash(f"Class {class_selected.class_id}:{class_selected.course_id} not found!", 'error')
+        else:
+            flash(f"Course {class_selected.class_id}:{class_selected.course_id} does not have any available seats.", "failure")
     else:
-        flash(f"Class {class_selected.class_id}:{class_selected.course_id} not found!", 'error')
-
-    return redirect(url_for('view_courses'))
+        flash(f"Course {class_selected.class_id}:{class_selected.course_id} has already started or has invalid dates.", "failure")
+    return redirect(url_for('view_cart'))
 
 @app.route('/cart')
 @login_required
@@ -705,6 +754,7 @@ def drop_course():
         # Mark the JSON column as modified
         flag_modified(student, "registered_courses")
         db.session.commit()
+        class_selected.free_seat()
         flash(f"Class {class_selected.class_id}:{class_selected.course_id} has been successfully dropped.", "success")
     else:
         flash(f"Class {class_selected.class_id}:{class_selected.course_id} is not in your registered courses.", "info")

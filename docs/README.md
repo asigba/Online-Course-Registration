@@ -5,13 +5,14 @@ Our project will simplify the course registration process, allowing students to 
 # Installation Commands - commented-out commands may not be necessary
 ```
 # Step 1: Python Reqs
-sudo apt install python3-pip python3-venv python3-dev redis-server
+sudo apt update -y
+sudo apt install -y python3-pip python3-venv python3-dev redis-server
 sudo service redis-server restart
 #sudo rm /usr/bin/python3; sudo ln -s /usr/bin/python3.<VERSION> /usr/bin/python3
 #sudo ln -s /usr/bin/python3 /usr/bin/python
 
 # Step 2: Virutal Environment Setup
-cd; python3 -m venv .venv495
+cd </mtn/c/Users/...>; python3 -m venv .venv495
 source ./.venv495/bin/activate
 python3 -m ensurepip --upgrade
 
