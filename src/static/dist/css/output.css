@@ -1123,16 +1123,16 @@ input:checked + .toggle-bg {
   top: 0px;
 }
 
+.top-2 {
+  top: 0.5rem;
+}
+
 .top-5 {
   top: 1.25rem;
 }
 
 .top-60 {
   top: 15rem;
-}
-
-.top-2 {
-  top: 0.5rem;
 }
 
 .z-10 {
@@ -1896,6 +1896,11 @@ input:checked + .toggle-bg {
 .hover\:text-gray-900:hover {
   --tw-text-opacity: 1;
   color: rgb(17 24 39 / var(--tw-text-opacity));
+}
+
+.hover\:text-white:hover {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
 .hover\:underline:hover {

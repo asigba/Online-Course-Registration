@@ -11,12 +11,26 @@
     <nav class="bg-blue-300 w-full">  
         <div class="flex justify-between">
             <div>
-                <button data-collapse-toggle="navbar-hamburger" type="button" class="inline-flex items-center justify-center p-2 w-10 h-10 text-sm text-black rounded-lg aria-controls="navbar-hamburger" aria-expanded="false">
+                <button data-collapse-toggle="navbar-hamburger" type="button" class="inline-flex items-center justify-center p-2 w-10 h-10 text-sm text-black rounded-lg" aria-controls="navbar-hamburger" aria-expanded="false">
+                    <span class="sr-only">Open main menu</span>
                     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
                     </svg>
-                </button> 
-            </div>            
+                  </button>
+                <div class="hidden w-full" id="navbar-hamburger">
+                    <ul class="flex flex-col font-medium mt-4 rounded-lg bg-blue-300">
+                        <li>
+                          <a href="#" class="block py-2 px-3 text-black bg-blue-300 rounded hover:bg-blue-500 hover:text-white" aria-current="page">Home</a>
+                        </li>
+                        <li>
+                          <a href="#" class="block py-2 px-3 text-black rounded  bg-blue-300">Logout</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block py-2 px-3 text-black rounded  bg-blue-300">View Cart</a>
+                        </li>                                               
+                      </ul>
+                </div> 
+            </div>                               
             <div class="relative flex justify-between right-10">
                 <div class="relative right-8">
                     <input
@@ -31,12 +45,12 @@
                             <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z"/>
                         </svg>
                     </button>
-                </div>
-                <a class="relative flex items-center" href="#">
+                </div>             
+                <a class="relative top-2" href="#">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                </a>
+                </a>                
             </div>
         </div> 
     </nav>
@@ -77,3 +91,5 @@
 
         <!-- <a href="{{url_for('index')}}">Home</a><br> -->
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+</body>
