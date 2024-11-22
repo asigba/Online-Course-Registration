@@ -65,6 +65,7 @@
                     <th scope="col" class="px-4 py-2 border border-gray-400">Course Name</th>
                     <th scope="col" class="px-4 py-2 border border-gray-400">Class ID</th>
                     <th scope="col" class="px-4 py-2 border border-gray-400">Semester</th>
+                    <th scope="col" class="px-4 py-2 border border-gray-400">Credits</th>
                     <th> </th>
                 </tr>
                 {% for class in cart_courses %}
@@ -73,6 +74,7 @@
                     <td class="px-4 py-2 border border-gray-400">{{ class.course_name }}</td>
                     <td class="px-4 py-2 border border-gray-400">{{ class.class_id }}</td>
                     <td class="px-4 py-2 border border-gray-400">{{ class.semester }}</td>
+                    <td class="px-4 py-2 border border-gray-400">{{ class.credits_awarded }}</td>
                     <td> 
                         <form action="{{ url_for('remove_from_cart') }}" method="post">
                             <input type="hidden" name="class_id" value="{{ class.class_id }}">
@@ -82,6 +84,13 @@
                     </td>
                 </tr>
                 {% endfor %}
+                <!-- This doesn't break it up by semester, so Total Credits is really useless right now -->
+                 <!--
+                <tr>
+                    <td class="px-4 py-2 border border-gray-400" colspan="3" style="text-align: center;">Total Credits:</td>
+                    <td class="px-4 py-2 border border-gray-400" colspan="2" style="text-align: center;">{{ total_credits }}</td>
+                </tr>
+                -->
             </thead>    
         </table>
         <br>

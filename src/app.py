@@ -260,6 +260,25 @@ class Student(db.Model):
             flash("Your cart is empty. No courses to register.", "warning")
             return
 
+        # Registered Credits by Semester
+        total_credits = {}
+        for class_id in self.registered_classes:
+            the_class = Class.get_class(class_id)
+            total_credits.setdefault(the_class.semester, 0)
+            total_credits[the_class.semester] += the_class.credits_awarded
+
+        # Cart Credits by Semester
+        for class_id in self.cart[:]:
+            class_selected = Class.get_class(class_id)
+            total_credits.setdefault(class_selected.semester, 0)
+            # Checking Total Credits by Semester
+            if (total_credits[class_selected.semester] + class_selected.credits_awarded) <= 12:
+                total_credits[class_selected.semester] += class_selected.credits_awarded
+            else:
+                flash(f"You cannot register for more than 12 credits in a semester.", "failure")
+                return None
+
+        # If credits are good, start registering
         for class_id in self.cart[:]:
             class_selected = Class.get_class(class_id)
             if class_selected.available_seats > 0:
@@ -270,7 +289,7 @@ class Student(db.Model):
                     flash(f"Course {class_selected} is already registered.", "info")
             else:
                 flash(f"Course {class_selected} does not have any available seats.", "failure")
-            
+                
         self.cart.clear()
         flag_modified(self, "cart")
         flag_modified(self, "registered_classes")
@@ -898,7 +917,8 @@ def add_to_cart():
 def view_cart():
     student = current_user.student
     cart_courses = Class.query.filter(Class.class_id.in_(student.cart)).all()
-    return render_template('view_cart.html', cart_courses=cart_courses)
+    total_credits = sum(current_class.credits_awarded for current_class in cart_courses)
+    return render_template('view_cart.html', cart_courses=cart_courses, total_credits=total_credits)
 
 @app.route('/remove_from_cart', methods=['POST'])
 @login_required

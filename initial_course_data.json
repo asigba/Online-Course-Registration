@@ -292,5 +292,19 @@
         "faculty": ["Dr. Mario"],
         "required_technology": "Laptop",
         "reporting_instructions": "M, W, F at 12pm"
+    },
+    {
+        "catalog": "PHED",
+        "course_number": 101,
+        "course_name": "Intro to Physical Education",
+        "description": "Learn how to be healthier.",
+        "max_seats": 30,
+        "credits_awarded": 3,
+        "semesters_offered": ["Fall 2024", "Spring 2024", "Summer 2024", "Fall 2025"],
+        "locations_offered": ["Campus Gym"],
+        "prereqs": [],
+        "faculty": ["Dr. Mario"],
+        "required_technology": "None",
+        "reporting_instructions": "T, Th at 10am"
     }
 ]
