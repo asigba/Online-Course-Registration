@@ -1115,6 +1115,10 @@ input:checked + .toggle-bg {
   right: 2.5rem;
 }
 
+.right-20 {
+  right: 5rem;
+}
+
 .right-8 {
   right: 2rem;
 }
@@ -1135,16 +1139,8 @@ input:checked + .toggle-bg {
   top: 15rem;
 }
 
-.top-40 {
-  top: 10rem;
-}
-
-.left-20 {
-  left: 5rem;
-}
-
-.right-20 {
-  right: 5rem;
+.left-10 {
+  left: 2.5rem;
 }
 
 .z-10 {
@@ -1430,6 +1426,10 @@ input:checked + .toggle-bg {
 
 .rounded-lg {
   border-radius: 0.5rem;
+}
+
+.rounded-md {
+  border-radius: 0.375rem;
 }
 
 .rounded-e-lg {
