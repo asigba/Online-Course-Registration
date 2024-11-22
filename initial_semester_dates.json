@@ -28,5 +28,20 @@
         "semester_name": "Fall 2025",
         "start_date": "9/22/2025",
         "end_date": "12/20/2025"
+    },
+    {
+        "semester_name": "Spring 2026",
+        "start_date": "3/20/2026",
+        "end_date": "6/20/2026"
+    },
+    {
+        "semester_name": "Summer 2026",
+        "start_date": "6/21/2026",
+        "end_date": "9/21/2026"
+    },
+    {
+        "semester_name": "Fall 2026",
+        "start_date": "9/22/2026",
+        "end_date": "12/20/2026"
     }
 ]

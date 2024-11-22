@@ -4,6 +4,11 @@ from src.app import app, Course, database_file_path, database_path, db, init_app
 
 class TestUserRegistration(unittest.TestCase):
 
+    username = 'student2@student.umgc.edu'
+    password = 'studentSTUDENT2#'
+    phone_number = '4435551234'
+    first_name = 'ITSAME'
+    last_name = 'MARIO'
     csrf_token = None
 
     # Runs before every test
@@ -68,24 +73,21 @@ class TestUserRegistration(unittest.TestCase):
         """
         Test case 1 - Register a new user account
         """
-        username = 'student1@student.umgc.edu'
         response = self.client.post('/register', data={
-            'username': username,
-            'password': 'student1PASSWORD!',
-            'phone_number': '2105551234',
-            'first_name': 'Hello',
-            'last_name': 'World',
-            #'csrf_token': self.get_csrf_token()
+            'username': self.username,
+            'password': self.password,
+            'phone_number': self.phone_number,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
             'csrf_token': self.csrf_token
         }, follow_redirects=True)
-        #print(self.csrf_token)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.request.path.endswith('/login'), "The user is not being redirected to /login")
         self.assertIn(b'Registration successful! You may now login.', response.data)
         
         # Verify the user in the database
         with app.app_context():
-            user = User.query.filter_by(username=username).first()
+            user = User.query.filter_by(username=self.username).first()
             self.assertIsNotNone(user)
 
     def test_2_registration_with_existing_username(self):
@@ -93,11 +95,11 @@ class TestUserRegistration(unittest.TestCase):
         Test Case 2 - Application prevents new user account registration if the username already exists
         """
         response = self.client.post('/register', data={
-            'username': 'student1@student.umgc.edu',
-            'password': 'student1PASSWORD!',
-            'phone_number': '2105551234',
-            'first_name': 'Hello',
-            'last_name': 'World',
+            'username': self.username,
+            'password': self.password,
+            'phone_number': self.phone_number,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
             'csrf_token': self.csrf_token
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
@@ -108,10 +110,11 @@ class TestUserRegistration(unittest.TestCase):
         Test Case 3 - Login using valid account credentials
         """
         response = self.client.post('/login', data={
-            'username': 'student1@student.umgc.edu',
-            'password': 'student1PASSWORD!',
+            'username': self.username,
+            'password': self.password,
             'csrf_token': self.csrf_token
         }, follow_redirects=True)
+        #print(self.username, self.password, self.csrf_token)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Student ID is', response.data)  
 
@@ -198,9 +201,7 @@ class TestUserRegistration(unittest.TestCase):
         # Login first to logout
         self.test_3_login_valid_credentials()
         response = self.client.post('/add_to_cart', data={
-            #'course_id': 'ARTS101',
-            # will need to change this test once classes are added to cart versus courses
-            'class_id': '36',
+            'class_id': '6',
             'csrf_token': self.csrf_token
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
@@ -221,9 +222,7 @@ class TestUserRegistration(unittest.TestCase):
         self.assertIn(b'Your Cart', response.data)
         # Add a class
         response = self.client.post('/add_to_cart', data={
-            #'course_id': 'ARTS101',
-            # will need to change this test once classes are added to cart versus courses
-            'class_id': '36',
+            'class_id': '7',
             'csrf_token': self.csrf_token
         }, follow_redirects=True)
         # View Cart
@@ -234,8 +233,6 @@ class TestUserRegistration(unittest.TestCase):
         self.assertTrue(response.request.path.endswith('/cart'), "The user is not being redirected to /cart")
         self.assertIn(b'Your Cart', response.data)
         self.assertIn(b'Course ID', response.data)
-        #self.assertIn(b'Class Number', response.data)
-
 
 if __name__ == '__main__':
     unittest.main()

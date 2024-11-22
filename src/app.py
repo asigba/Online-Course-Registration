@@ -58,7 +58,6 @@ def load_user(id):
     #user_loaded = User.query.get(int(id))
     # Replaced deprecated User.query with db.session.get
     user_loaded = db.session.get(User, int(id))
-    #print(user_loaded)
     return user_loaded
 
 # Default Database Table : Users
@@ -104,8 +103,6 @@ class User(db.Model, UserMixin):
             db.session.add(user)
         try:
             db.session.commit()
-            if app.debug:
-                print("Users have been successfully added to the database.")
         except Exception as e:
             if app.debug:
                 print(f"Error committing changes to the database: {e}")
@@ -160,16 +157,13 @@ class Student(db.Model):
 
             # Allocate seats automatically
             for class_id in student.registered_classes:
-                class_selected = Class.query.filter(Class.class_id == class_id).first()
-                print(class_selected)
+                class_selected = Class.get_class(class_id)
                 class_selected.allocate_seat()
 
             # Add each new course to the database
             db.session.add(student)
         try:
             db.session.commit()
-            if app.debug:
-                print("Students have been successfully added to the database.")
         except Exception as e:
             if app.debug:
                 print(f"Error committing changes to the database: {e}")
@@ -194,16 +188,46 @@ class Student(db.Model):
         if not self.cart:
             self.cart = []
     
+        proceed_with_add_to_cart = True
+
+        # Course of the class being added to verify two of the same course are not in the cart
+        course = Course.get_course(class_selected.course_id)
+        cart_courses = []
+        for cart_class_id in self.cart:
+            cart_class_obj = Class.get_class(cart_class_id)
+            cart_courses.append(Course.get_course(cart_class_obj.course_id))
+        registered_courses = []
+        registered_classes = []
+        for reg_class_id in self.registered_classes:
+            reg_class_obj = Class.get_class(reg_class_id)
+            registered_courses.append(Course.get_course(reg_class_obj.course_id))
+            registered_classes.append(reg_class_obj)
+
         if class_selected.class_id in self.cart:
+            proceed_with_add_to_cart = False
             flash(f"Class {class_selected} is already in the cart.", "info")
-        else:
+        elif course in cart_courses:
+            proceed_with_add_to_cart = False
+            flash(f"Course {course} is already in the cart.", "info")
+        elif course in registered_courses:
+            # Making sure re-enrollments are later than previous enrollments
+            for registered_class in registered_classes:
+                if class_selected.course_id == registered_class.course_id:
+                    class_selected_semester = Semester.get_semester(class_selected.semester)
+                    registered_class_semester = Semester.get_semester(registered_class.semester)
+                    semester_comp = class_selected_semester.compare_semester_to(registered_class_semester)
+                    registered_class_semester_status = registered_class.get_semester_status()
+                    if semester_comp != Semester.LATER or registered_class_semester_status != Semester.ENDED:
+                        proceed_with_add_to_cart = False
+            if proceed_with_add_to_cart == False:
+                flash(f"Course {course} has already been registered for.", "info")
+                        
+        if proceed_with_add_to_cart:
             self.cart.append(class_selected.class_id)
             # Mark the JSON column as modified so SQLAlchemy detects the change
             flag_modified(self, "cart")
             db.session.commit()
             flash(f"Class {class_selected} added to cart!", "success")
-
-        #print(f"Updated cart contents (Student ID: {self.student_id}): {self.cart}")
             
     def remove_course_from_cart(self, class_selected):
         """Removes a class from the cart
@@ -237,7 +261,7 @@ class Student(db.Model):
             return
 
         for class_id in self.cart[:]:
-            class_selected = Class.query.filter(Class.class_id == class_id).first()
+            class_selected = Class.get_class(class_id)
             if class_selected.available_seats > 0:
                 if class_id not in self.registered_classes:
                     self.registered_classes.append(class_id)
@@ -254,6 +278,7 @@ class Student(db.Model):
         class_selected.allocate_seat()
         flash("All available classes selected have been registered successfully.", "success")
 
+    '''
     def view_registered_classes(self):
         if not self.registered_classes:
             print("No registered courses.")
@@ -261,6 +286,7 @@ class Student(db.Model):
             print("Registered Courses:")
             for class_id in self.registered_classes:
                 print(f"{class_id}")
+    '''
 
     def remove_course_from_registered(self, class_selected):
         if class_selected.class_id in self.registered_classes:
@@ -339,8 +365,6 @@ class Course(db.Model):
             db.session.add(course)
         try:
             db.session.commit()
-            if app.debug:
-                print("Courses have been successfully added to the database.")
         except Exception as e:
             if app.debug:
                 print(f"Error committing changes to the database: {e}")
@@ -368,13 +392,17 @@ class Course(db.Model):
                         db.session.add(new_class)
         try:
             db.session.commit()
-            if app.debug:
-                print("Classes have been successfully added to the database.")
         except Exception as e:
             if app.debug:
                 print(f"Error committing changes to the database: {e}")
             db.session.rollback()
 
+    @staticmethod
+    def get_course(course_id):
+        # Deprecated
+        #return Course.query.get_or_404(course_id)
+        return db.session.get(Course, course_id)
+    
 # Default Database Table : Classes
 class Class(db.Model):
 
@@ -400,14 +428,16 @@ class Class(db.Model):
         """
         return f'Class: {self.course_id}, ID: {self.class_id} '
     
+    @staticmethod
+    def get_class(class_id):
+        return Class.query.filter_by(class_id=class_id).first()
+
     def allocate_seat(self):
-        print(self.course.max_seats)
         if self.available_seats > 0:
             self.available_seats -= 1
             db.session.commit()
 
     def free_seat(self):
-        print(self.course.max_seats)
         if self.available_seats < self.course.max_seats:
             self.available_seats += 1
             db.session.commit()
@@ -415,7 +445,6 @@ class Class(db.Model):
     def get_semester_status(self):
         today = date.today()
         semester = Semester.get_semester(self.semester)
-        #print(semester, semester.start_date, semester.end_date)
         if semester.start_date <= today <= semester.end_date:
             return Semester.IN_SESSION
         elif semester.start_date > today:
@@ -459,8 +488,6 @@ class Semester(db.Model):
             db.session.add(semester)
         try:
             db.session.commit()
-            if app.debug:
-                print("Semesters have been successfully added to the database.")
         except Exception as e:
             if app.debug:
                 print(f"Error committing changes to the database: {e}")
@@ -554,7 +581,6 @@ class ChangePasswordForm(FlaskForm):
         self.updated_password = updated_password
     
     def validate_same_passwords(self, confirmation_field):
-        print(self.updated_password, confirmation_field.data)
         if self.updated_password != confirmation_field.data:
             raise ValidationError('Passwords must match.')
 
@@ -652,9 +678,9 @@ def view_courses():
         if hide_courses_registered_bool:
             student = current_user.student
             for class_id in student.registered_classes:
-                registered_course = Class.query.filter_by(class_id=class_id).first()
+                registered_class = Class.get_class(class_id)
                 # Remove any courses already registered for
-                if registered_course.course_name == course.course_name:
+                if registered_class.course_name == course.course_name:
                     try:
                         filtered_courses.remove(course)
                     except:
@@ -711,8 +737,6 @@ def view_courses():
 @login_required
 def course_details(course_id):
     
-    #  HERE
-
     # Set Filter Values Selected
     selected_location = request.args.get('location', '')
     selected_semester = request.args.get('semester', '')
@@ -720,8 +744,8 @@ def course_details(course_id):
     show_all_classes_bool = request.args.get('show_all_classes', '')
 
     # Course Selected
-    course = Course.query.get_or_404(course_id)
-
+    course = Course.get_course(course_id)
+    
     # Get All Classes of the Selected Course First
     all_classes = Class.query.filter_by(course_id=course_id).order_by(asc(Class.class_id))
     upcoming_classes = []
@@ -778,12 +802,11 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if not user:
-            if app.debug:
-                print(f"{form.username.data} not found in database.")
-            flash('Username not found in the database', 'failure')
+            flash(f"Username {form.username.data} not found in the database", 'failure')
         if user:
             # Password hashing for storing in the database
-            if bcrypt.check_password_hash(user.password, form.password.data):
+            password_match = bcrypt.check_password_hash(user.password, form.password.data)
+            if password_match:
                 login_user(user)
                 full_name = f"{user.student.first_name} {user.student.last_name}".title()
                 return redirect(url_for('landing', user=full_name, id=user.student.student_id))
@@ -796,9 +819,7 @@ def login():
 def change_password():
     form = ChangePasswordForm()
     if form.validate_on_submit():
-        #print(current_user.password)
         password_hash = User.hash_password(form.password.data)
-        print(password_hash)
         # Setting new password
         current_user.password = password_hash
         db.session.commit()
@@ -813,8 +834,7 @@ def change_password():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        password_hash = User.hash_password(form.password.data)
-        user = User(username=form.username.data, password=password_hash)
+        user = User(username=form.username.data, password=form.password.data)
         db.session.add(user)
         db.session.commit()
         student = Student(form.first_name.data, form.last_name.data, user.id, form.username.data, form.phone_number.data)
@@ -828,14 +848,42 @@ def register():
 @login_required
 def add_to_cart():
     class_id = int(request.form.get('class_id'))
-    class_selected = Class.query.filter_by(class_id=class_id).first()
+    class_selected = Class.get_class(class_id)
+    course = Course.get_course(class_selected.course_id)
+    student = current_user.student
+    
+    # Converting Class IDs into Class Objects
+    registered_classes = []
+    for class_id in student.registered_classes:
+        current_class = Class.get_class(class_id)
+        registered_classes.append(current_class)
 
+    # Prereqs
+    prereqs = course.prereqs
+    prereq_met = False
+
+    if prereqs:
+        for prereq_id in prereqs:
+            for registered_class in registered_classes:
+                # If prereg matches a registered class
+                if prereq_id == registered_class.course_id:
+                    class_selected_semester = Semester.get_semester(class_selected.semester)
+                    registered_class_semester = Semester.get_semester(registered_class.semester)
+                    # Checking that prereq semester is later than registered class
+                    semester_comp = class_selected_semester.compare_semester_to(registered_class_semester)
+                    if semester_comp == Semester.LATER:
+                        prereq_met = True
+
+    # Return if preregs are no good
+    if prereqs and not prereq_met:
+        flash(f"[!] ERROR: Prerequisites have not been met!", 'error')
+        return redirect(url_for('view_cart'))
+                
     # Only allow classes that haven't started
-    if class_selected.get_semester_status() == Semester.UPCOMING:
+    if class_selected.get_semester_status() == Semester.UPCOMING and (prereq_met == True or not prereqs):
         # Only allow classes with open seats available
         if class_selected.available_seats > 0:
             if class_selected:
-                student = current_user.student
                 student.add_course_to_cart(class_selected)
             else:
                 flash(f"{class_selected} not found!", 'error')
@@ -849,10 +897,7 @@ def add_to_cart():
 @login_required
 def view_cart():
     student = current_user.student
-    #print(f"Current cart from DB for {student.first_name} {student.last_name}: {student.cart}")
     cart_courses = Class.query.filter(Class.class_id.in_(student.cart)).all()
-    #print(cart_courses)
-    #print(f"Cart Courses Retrieved: {[course.course_id for course in cart_courses]}")
     return render_template('view_cart.html', cart_courses=cart_courses)
 
 @app.route('/remove_from_cart', methods=['POST'])
@@ -860,7 +905,7 @@ def view_cart():
 def remove_from_cart():
     class_id = int(request.form.get('class_id'))
     student = current_user.student
-    class_selected = Class.query.filter(Class.class_id == class_id).first()
+    class_selected = Class.get_class(class_id)
 
     if class_id in student.cart:
         student.cart.remove(class_id)
@@ -882,7 +927,7 @@ def register_courses():
 def drop_course():
     class_id = int(request.form.get('class_id'))
     student = current_user.student
-    class_selected = Class.query.filter(Class.class_id == class_id).first()
+    class_selected = Class.get_class(class_id)
 
     # Drop/Withdraw Result in the same action for now.  Future features may require separating the two.
     if class_selected.get_semester_status() == Semester.UPCOMING or class_selected.get_semester_status() == Semester.IN_SESSION:

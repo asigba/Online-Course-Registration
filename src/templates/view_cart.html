@@ -64,6 +64,7 @@
                     <th scope="col" class="px-4 py-2 border border-gray-400">Course ID</th>
                     <th scope="col" class="px-4 py-2 border border-gray-400">Course Name</th>
                     <th scope="col" class="px-4 py-2 border border-gray-400">Class ID</th>
+                    <th scope="col" class="px-4 py-2 border border-gray-400">Semester</th>
                     <th> </th>
                 </tr>
                 {% for class in cart_courses %}
@@ -71,6 +72,7 @@
                     <td class="px-4 py-2 border border-gray-400">{{ class.course_id }}</td>
                     <td class="px-4 py-2 border border-gray-400">{{ class.course_name }}</td>
                     <td class="px-4 py-2 border border-gray-400">{{ class.class_id }}</td>
+                    <td class="px-4 py-2 border border-gray-400">{{ class.semester }}</td>
                     <td> 
                         <form action="{{ url_for('remove_from_cart') }}" method="post">
                             <input type="hidden" name="class_id" value="{{ class.class_id }}">
