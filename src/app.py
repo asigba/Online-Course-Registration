@@ -71,6 +71,10 @@ class User(db.Model, UserMixin):
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc), nullable=True)     
 
+    def __init__(self, username, password):
+        self.username = username
+        self.password = User.hash_password(password)
+
     # Changing the default representation
     def __repr__(self):
         """ Changes the default representation 
@@ -80,6 +84,32 @@ class User(db.Model, UserMixin):
             None
         """
         return f'{self.username}'
+    
+    @staticmethod
+    def hash_password(password):
+        return bcrypt.generate_password_hash(password).decode('utf-8')
+    
+    @staticmethod
+    def init_database_users():
+        json_file_path = 'initial_student_user_data.json'
+        with open(json_file_path, 'r') as student_user_data_file:
+            student_user_data = load(student_user_data_file)
+
+        for student_user in student_user_data:
+            user = User(
+                username=student_user['username'],
+                password=student_user['password']
+            )
+            # Add each new course to the database
+            db.session.add(user)
+        try:
+            db.session.commit()
+            if app.debug:
+                print("Users have been successfully added to the database.")
+        except Exception as e:
+            if app.debug:
+                print(f"Error committing changes to the database: {e}")
+            db.session.rollback()
 
 # Default Database Table : Students
 class Student(db.Model):
@@ -90,14 +120,16 @@ class Student(db.Model):
     student_id = db.Column(db.Integer, unique=True, nullable=False)
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc), nullable=True)
     student_email = db.Column(db.String(64), nullable=False)
     phone_number = db.Column(db.String(10), nullable=False)
     current_enrollments = db.Column(JSON, nullable=True)
     past_enrollments = db.Column(JSON, nullable=True)
     cart = db.Column(MutableList.as_mutable(JSON), default=[])
-    registered_courses = db.Column(MutableList.as_mutable(JSON), default=[])
+    registered_classes = db.Column(MutableList.as_mutable(JSON), default=[])
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc), nullable=True)
     
+    # student = Student(form.first_name.data, form.last_name.data, user.id, form.username.data, form.phone_number.data)
     def __init__(self, first_name, last_name, id, email, phone):
         self.id = id
         self.first_name = first_name.lower()
@@ -110,6 +142,40 @@ class Student(db.Model):
         return f'<Student {self.first_name} {self.last_name}, User ID: {self.student_id}>'
     
     @staticmethod
+    def init_database_students():
+        json_file_path = 'initial_student_user_data.json'
+        with open(json_file_path, 'r') as student_user_data_file:
+            student_user_data = load(student_user_data_file)
+
+        for student_user in student_user_data:
+            user = User.query.filter_by(username=student_user['username']).first()
+            student = Student(
+                first_name=student_user['first_name'],
+                last_name=student_user['last_name'],
+                id=user.id,
+                email=student_user['username'],
+                phone=student_user['phone_number']
+            )
+            student.registered_classes = student_user['registered_classes']
+
+            # Allocate seats automatically
+            for class_id in student.registered_classes:
+                class_selected = Class.query.filter(Class.class_id == class_id).first()
+                print(class_selected)
+                class_selected.allocate_seat()
+
+            # Add each new course to the database
+            db.session.add(student)
+        try:
+            db.session.commit()
+            if app.debug:
+                print("Students have been successfully added to the database.")
+        except Exception as e:
+            if app.debug:
+                print(f"Error committing changes to the database: {e}")
+            db.session.rollback()
+
+    @staticmethod
     def generate_student_id():
         while True:
             # Generate a random 8-digit integer
@@ -117,7 +183,7 @@ class Student(db.Model):
             # Check if it already exists in the database
             if not Student.query.filter_by(student_id=unique_id).first():
                 return unique_id
-    
+
     def add_course_to_cart(self, class_selected):
         """Gives students ability to add a course to their cart
         Args:
@@ -129,13 +195,13 @@ class Student(db.Model):
             self.cart = []
     
         if class_selected.class_id in self.cart:
-            flash(f"Class {class_selected.class_id}:{class_selected.course_id} is already in the cart.", "info")
+            flash(f"Class {class_selected} is already in the cart.", "info")
         else:
             self.cart.append(class_selected.class_id)
             # Mark the JSON column as modified so SQLAlchemy detects the change
             flag_modified(self, "cart")
             db.session.commit()
-            flash(f"Class {class_selected.class_id}:{class_selected.course_id} added to cart!", "success")
+            flash(f"Class {class_selected} added to cart!", "success")
 
         #print(f"Updated cart contents (Student ID: {self.student_id}): {self.cart}")
             
@@ -150,9 +216,9 @@ class Student(db.Model):
             self.cart.remove(class_selected.class_id)
             flag_modified(self, "cart")
             db.session.commit()
-            flash(f"Class {class_selected.class_id}:{class_selected.course_id} removed from cart.", "success")
+            flash(f"Class {class_selected} removed from cart.", "success")
         else:
-            flash(f"Class {class_selected.class_id}:{class_selected.course_id} is not in the cart.", "info")
+            flash(f"Class {class_selected} is not in the cart.", "info")
     
     def clear_cart(self):
         """Empties the cart or list of course
@@ -173,29 +239,40 @@ class Student(db.Model):
         for class_id in self.cart[:]:
             class_selected = Class.query.filter(Class.class_id == class_id).first()
             if class_selected.available_seats > 0:
-                if class_id not in self.registered_courses:
-                    self.registered_courses.append(class_id)
-                    flash(f"Successfully registered for {class_selected.class_id}:{class_selected.course_id}!", "success")
+                if class_id not in self.registered_classes:
+                    self.registered_classes.append(class_id)
+                    flash(f"Successfully registered for {class_selected}!", "success")
                 else:
-                    flash(f"Course {class_selected.class_id}:{class_selected.course_id} is already registered.", "info")
+                    flash(f"Course {class_selected} is already registered.", "info")
             else:
-                flash(f"Course {class_selected.class_id}:{class_selected.course_id} does not have any available seats.", "failure")
+                flash(f"Course {class_selected} does not have any available seats.", "failure")
             
         self.cart.clear()
         flag_modified(self, "cart")
-        flag_modified(self, "registered_courses")
+        flag_modified(self, "registered_classes")
         db.session.commit()
         class_selected.allocate_seat()
         flash("All available classes selected have been registered successfully.", "success")
 
-    def view_registered_courses(self):
-        if not self.registered_courses:
+    def view_registered_classes(self):
+        if not self.registered_classes:
             print("No registered courses.")
         else:
             print("Registered Courses:")
-            for class_id in self.registered_courses:
+            for class_id in self.registered_classes:
                 print(f"{class_id}")
-            
+
+    def remove_course_from_registered(self, class_selected):
+        if class_selected.class_id in self.registered_classes:
+            self.registered_classes.remove(class_selected.class_id)
+            # Mark the JSON column as modified
+            flag_modified(self, "registered_classes")
+            db.session.commit()
+            class_selected.free_seat()
+            flash(f"Class {class_selected} has been successfully dropped.", "success")
+        else:
+            flash(f"Class {class_selected} is not in your registered courses.", "info")
+    
 
 # Default Database Table : Courses
 class Course(db.Model):
@@ -313,6 +390,16 @@ class Class(db.Model):
     credits_awarded = db.Column(db.Integer, nullable=False)
     available_seats = db.Column(db.Integer, nullable=False)
 
+    # Changing the default representation
+    def __repr__(self):
+        """ Changes the default representation 
+        Args:
+            None
+        Returns:
+            None
+        """
+        return f'Class: {self.course_id}, ID: {self.class_id} '
+    
     def allocate_seat(self):
         print(self.course.max_seats)
         if self.available_seats > 0:
@@ -502,6 +589,10 @@ def init_database(database_file_path, app, db, course):
                 Semester.init_database_semesters()
                 # Create Classes from Courses
                 Course.create_classes()
+                # Create Default User/Student Account
+                User.init_database_users()
+                Student.init_database_students()
+
 
 # ROUTES...
 
@@ -662,7 +753,7 @@ def change_password():
     form = ChangePasswordForm()
     if form.validate_on_submit():
         #print(current_user.password)
-        password_hash = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
+        password_hash = User.hash_password(form.password.data)
         print(password_hash)
         # Setting new password
         current_user.password = password_hash
@@ -678,7 +769,7 @@ def change_password():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        password_hash = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        password_hash = User.hash_password(form.password.data)
         user = User(username=form.username.data, password=password_hash)
         db.session.add(user)
         db.session.commit()
@@ -703,11 +794,11 @@ def add_to_cart():
                 student = current_user.student
                 student.add_course_to_cart(class_selected)
             else:
-                flash(f"Class {class_selected.class_id}:{class_selected.course_id} not found!", 'error')
+                flash(f"{class_selected} not found!", 'error')
         else:
-            flash(f"Course {class_selected.class_id}:{class_selected.course_id} does not have any available seats.", "failure")
+            flash(f"{class_selected} does not have any available seats.", "failure")
     else:
-        flash(f"Course {class_selected.class_id}:{class_selected.course_id} has already started or has invalid dates.", "failure")
+        flash(f"{class_selected} has already started or has invalid dates.", "failure")
     return redirect(url_for('view_cart'))
 
 @app.route('/cart')
@@ -730,9 +821,9 @@ def remove_from_cart():
     if class_id in student.cart:
         student.cart.remove(class_id)
         db.session.commit()
-        flash(f"Class {class_selected.class_id}:{class_selected.course_id} removed from cart.", "success")
+        flash(f"Class {class_selected} removed from cart.", "success")
     else:
-        flash(f"Class {class_selected.class_id}:{class_selected.course_id} not found in cart.", "info")
+        flash(f"Class {class_selected} not found in cart.", "info")
 
     return redirect(url_for('view_cart'))
 
@@ -749,25 +840,22 @@ def drop_course():
     student = current_user.student
     class_selected = Class.query.filter(Class.class_id == class_id).first()
 
-    if class_id in student.registered_courses:
-        student.registered_courses.remove(class_id)
-        # Mark the JSON column as modified
-        flag_modified(student, "registered_courses")
-        db.session.commit()
-        class_selected.free_seat()
-        flash(f"Class {class_selected.class_id}:{class_selected.course_id} has been successfully dropped.", "success")
+    # Drop/Withdraw Result in the same action for now.  Future features may require separating the two.
+    if class_selected.get_semester_status() == Semester.UPCOMING or class_selected.get_semester_status() == Semester.IN_SESSION:
+        student.remove_course_from_registered(class_selected)
     else:
-        flash(f"Class {class_selected.class_id}:{class_selected.course_id} is not in your registered courses.", "info")
+        flash(f"[!] ERROR: {student} cannot be unregistered from {class_selected}.", "failure")
     
-    return redirect(url_for('registered_courses'))
+    return redirect(url_for('registered_classes'))
 
 @app.route('/registered')
 @login_required
-def registered_courses():
+def registered_classes():
     student = current_user.student
-    # Fetch course objects for all course IDs in registered_courses
-    registered_courses = Class.query.filter(Class.class_id.in_(student.registered_courses)).all()
-    return render_template('registered_courses.html', registered_courses=registered_courses)
+    # Fetch course objects for all course IDs in registered_classes
+    registered_classes = Class.query.filter(Class.class_id.in_(student.registered_classes)).all()
+    return render_template('registered_classes.html', registered_classes=registered_classes,
+    Semester=Semester)
 
 def main():
     

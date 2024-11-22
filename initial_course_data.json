@@ -1,5 +1,33 @@
 [
     {
+        "catalog": "INTR",
+        "course_number": 101,
+        "course_name": "Intro to Intros",
+        "description": "An intro about intros.",
+        "max_seats": 1,
+        "credits_awarded": 1,
+        "semesters_offered": ["Spring 2024"],
+        "locations_offered": ["Online"],
+        "prereqs": [],
+        "faculty": ["Prof. Daisy"],
+        "required_technology": "None",
+        "reporting_instructions": "M, W at 10am"
+    },
+    {
+        "catalog": "INTR",
+        "course_number": 102,
+        "course_name": "Intro to Intros",
+        "description": "An intro about intros.",
+        "max_seats": 1,
+        "credits_awarded": 1,
+        "semesters_offered": ["Fall 2024"],
+        "locations_offered": ["Online"],
+        "prereqs": ["INTR101"],
+        "faculty": ["Prof. Daisy"],
+        "required_technology": "None",
+        "reporting_instructions": "Tu, Th at 10am"
+    },
+    {
         "catalog": "CMSC",
         "course_number": 101,
         "course_name": "Intro to Programming",
