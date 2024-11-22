@@ -428,10 +428,15 @@ class Class(db.Model):
 # Default Database Table : Semesters
 class Semester(db.Model):
 
+    # Statuses
     INVALID = 0
     ENDED = 1
     IN_SESSION = 2
     UPCOMING = 3
+    # Comparisons
+    EARLIER = 4
+    SAME = 5
+    LATER = 6
 
     __tablename__ = 'semesters'
     semester_name = db.Column(db.String(12), primary_key=True, nullable=False, unique=True)
@@ -464,6 +469,14 @@ class Semester(db.Model):
     @staticmethod
     def get_semester(semester_name):
         return Semester.query.filter_by(semester_name=semester_name).first()
+    
+    def compare_semester_to(self, other_semester):
+        if self.start_date < other_semester.start_date:
+            return Semester.EARLIER
+        elif self.start_date == other_semester.start_date:
+            return Semester.SAME
+        elif self.start_date > other_semester.start_date:
+            return Semester.LATER
 
 # New Account Form
 class RegisterForm(FlaskForm):
