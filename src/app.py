@@ -669,6 +669,13 @@ def landing():
 @login_required
 def view_courses():
 
+    search_query = None
+    search_results = []
+    
+    if 'reset' in request.args:
+        # Redirect to the same route without query parameters
+        return redirect(url_for('view_courses'))
+
     # Set Filter Values Selected
     selected_location = request.args.get('location', '')
     selected_semester = request.args.get('semester', '')
@@ -676,9 +683,25 @@ def view_courses():
     selected_catalog = request.args.get('catalog', '')
     hide_courses_registered_bool = request.args.get('hide_courses_registered', '')
 
+    if request.method == 'GET':
+        search_results = Course.query.order_by(asc(Course.course_id)).all()
+    elif request.method == 'POST':
+        # Getting search query results instead of all courses
+        search_query = request.form.get('search')
+        if search_query:
+            search_results = Course.query.filter(
+                (Course.catalog.ilike(f"%{search_query}%")) |
+                (Course.course_number.ilike(f"%{search_query}%")) |
+                (Course.course_id.ilike(f"%{search_query}%")) |
+                (Course.semesters_offered.ilike(f"%{search_query}%")) |
+                (Course.course_name.ilike(f"%{search_query}%")) |
+                (Course.description.ilike(f"%{search_query}%")) |
+                (Course.faculty.ilike(f"%{search_query}%"))
+            ).all()
+
     # Start with All Courses
-    all_courses = Course.query.order_by(asc(Course.course_id))
-    filtered_courses = all_courses.all()
+    all_courses = search_results[:]
+    filtered_courses = all_courses[:]
 
     # Convert List Options to Individual Options in Drop Down Menu
     semesters = list(set(chain.from_iterable(course.semesters_offered for course in all_courses)))
@@ -741,7 +764,6 @@ def view_courses():
                     pass
             all_courses = filtered_courses
         
-
     # Render
     return render_template(
         'view_courses.html', 
@@ -749,7 +771,9 @@ def view_courses():
         semesters=semesters, 
         locations=locations, 
         catalogs=[cat[0] for cat in catalogs],
-        professors=professors
+        professors=professors,
+        results=search_results,
+        query=search_query
     )
 
 @app.route('/course/<course_id>')
