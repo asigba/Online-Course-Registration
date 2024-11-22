@@ -89,6 +89,12 @@
                     <option value="{{ prof }}" {% if request.args.get('professor') == prof %}selected{% endif %}>{{ prof }}</option>
                 {% endfor %}
             </select>
+
+            <label for="hide_courses_registered">Hide Courses Already Registered For:</label>
+            <select name="hide_courses_registered" id="hide_courses_registered">
+                <option value="">False</option>
+                <option value="True" {% if request.args.get('hide_courses_registered') == "True" %}selected{% endif %}>True</option>
+            </select>
         
             <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Filter</button>

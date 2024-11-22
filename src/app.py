@@ -122,8 +122,8 @@ class Student(db.Model):
     last_name = db.Column(db.String(30), nullable=False)
     student_email = db.Column(db.String(64), nullable=False)
     phone_number = db.Column(db.String(10), nullable=False)
-    current_enrollments = db.Column(JSON, nullable=True)
-    past_enrollments = db.Column(JSON, nullable=True)
+    #current_enrollments = db.Column(JSON, nullable=True)
+    #past_enrollments = db.Column(JSON, nullable=True)
     cart = db.Column(MutableList.as_mutable(JSON), default=[])
     registered_classes = db.Column(MutableList.as_mutable(JSON), default=[])
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
@@ -383,7 +383,7 @@ class Class(db.Model):
     course = db.relationship('Course', back_populates='_class')
     course_id = db.Column(db.String(7), db.ForeignKey('courses.course_id'))
     course_name = db.Column(db.String(250), nullable=True)
-    current_enrollments = db.Column(JSON, nullable=True)
+    #current_enrollments = db.Column(JSON, nullable=True)
     location = db.Column(db.String(64), nullable=False)
     semester = db.Column(db.String(8), nullable=False)
     professor = db.Column(db.String(64), nullable=False)
@@ -616,6 +616,7 @@ def view_courses():
     selected_semester = request.args.get('semester', '')
     selected_professor = request.args.get('professor', '')
     selected_catalog = request.args.get('catalog', '')
+    hide_courses_registered_bool = request.args.get('hide_courses_registered', '')
 
     # Start with All Courses
     all_courses = Course.query.order_by(asc(Course.course_id))
@@ -635,6 +636,19 @@ def view_courses():
 
     # Filter Selections
     for course in all_courses:
+        if hide_courses_registered_bool:
+            student = current_user.student
+            for class_id in student.registered_classes:
+                registered_course = Class.query.filter_by(class_id=class_id).first()
+                # Remove any courses already registered for
+                if registered_course.course_name == course.course_name:
+                    try:
+                        filtered_courses.remove(course)
+                    except:
+                        pass
+            # Saving remaining courses
+            all_courses = filtered_courses
+
         if selected_semester:
             # Remove any courses not filtered for
             if not selected_semester in course.semesters_offered:
@@ -668,6 +682,7 @@ def view_courses():
                 except:
                     pass
             all_courses = filtered_courses
+        
 
     # Render
     return render_template(
@@ -683,24 +698,38 @@ def view_courses():
 @login_required
 def course_details(course_id):
     
+    #  HERE
+
     # Set Filter Values Selected
     selected_location = request.args.get('location', '')
     selected_semester = request.args.get('semester', '')
     selected_professor = request.args.get('professor', '')
+    show_all_classes_bool = request.args.get('show_all_classes', '')
 
     # Course Selected
     course = Course.query.get_or_404(course_id)
 
     # Get All Classes of the Selected Course First
     all_classes = Class.query.filter_by(course_id=course_id).order_by(asc(Class.class_id))
+    upcoming_classes = []
+    display_classes = []
+    for current_class in all_classes:
+        semester_status = current_class.get_semester_status()
+        if semester_status == Semester.UPCOMING:
+            upcoming_classes.append(current_class)
+
+    if show_all_classes_bool:
+        display_classes = all_classes
+    else:
+        display_classes = upcoming_classes
 
     # Filter Classes By Selections
     if selected_location:
-        all_classes = all_classes.filter_by(location=selected_location)
+        display_classes = display_classes.filter_by(location=selected_location)
     if selected_semester:
-        all_classes = all_classes.filter_by(semester=selected_semester)
+        display_classes = display_classes.filter_by(semester=selected_semester)
     if selected_professor:
-        all_classes = all_classes.filter_by(professor=selected_professor)
+        display_classes = display_classes.filter_by(professor=selected_professor)
 
     # Drop Down Selection Options
     locations = Class.query.with_entities(Class.location).distinct().all()
@@ -716,6 +745,8 @@ def course_details(course_id):
     return render_template('course_details.html',
                            course=course,
                            all_classes=all_classes,
+                           upcoming_classes=upcoming_classes,
+                           display_classes=display_classes,
                            locations=[loc[0] for loc in locations],
                            semesters=[sem[0] for sem in semesters],
                            professors=[prof[0] for prof in professors])

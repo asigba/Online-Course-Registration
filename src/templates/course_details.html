@@ -89,6 +89,14 @@
                     <option value="{{ prof }}" {% if request.args.get('professor') == prof %}selected{% endif %}>{{ prof }}</option>
                 {% endfor %}
             </select>
+
+            
+            <label for="show_all_classes">Show Unavailable Classes:</label>
+            <select name="show_all_classes" id="show_all_classes">
+                <option value="">False</option>
+                <option value="True" {% if request.args.get('show_all_classes') == "True" %}selected{% endif %}>True</option>
+            </select>
+
             <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Filter</button>
         </form>
@@ -112,7 +120,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for class in all_classes %}
+                {% for class in display_classes %}
                     {% if class.course_id == course.course_id %}
                         <tr>
                             <td class="px-4 py-2 border border-gray-400">{{ class.class_id }}</td>
@@ -124,14 +132,16 @@
                             <td class="px-4 py-2 border border-gray-400">{{ class.professor }}</td>
                             <td class="px-4 py-2 border border-gray-400">{{ class.credits_awarded }}</td>
                             <td class="px-4 py-2 border border-gray-400">{{ class.available_seats }}</td>
-                            <td class="px-4 py-2 border border-gray-400">
-                                <form action ="{{ url_for('add_to_cart') }}" method="post">
-                                    <input type="hidden" name="class_id" value="{{ class.class_id }}">
-                                    <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
-                                    font-medium text-sm px-4 py-2 border-2 border-black shadow rounded transition duration-200">Add to Cart
-                                    </button>
-                                </form>
-                            </td>
+                            {% if class in upcoming_classes %}
+                                <td class="px-4 py-2 border border-gray-400">
+                                    <form action ="{{ url_for('add_to_cart') }}" method="post">
+                                        <input type="hidden" name="class_id" value="{{ class.class_id }}">
+                                        <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
+                                        font-medium text-sm px-4 py-2 border-2 border-black shadow rounded transition duration-200">Add to Cart
+                                        </button>
+                                    </form>
+                                </td>
+                            {% endif %}
                         </tr>
                     {% endif %}
                 {% endfor %}
