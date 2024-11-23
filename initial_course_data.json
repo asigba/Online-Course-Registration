@@ -264,5 +264,47 @@
         "faculty": ["Dr. Mario"],
         "required_technology": "Laptop",
         "reporting_instructions": "M, W, F at 12pm"
-    }
+    },
+    {
+        "catalog": "AASP",
+        "course_number": 102,
+        "course_name": "Introduction to African American Studies",
+        "description": "An interdisciplinary study of significant aspects of African American history and culture.",
+        "max_seats": 20,
+        "credits_awarded": 3,
+        "semesters_offered": ["Fall 2024", "Spring 2024"],
+        "locations_offered": ["Online", "Texas"],
+        "prereqs": [],
+        "faculty": ["Dr. Mario"],
+        "required_technology": "Laptop",
+        "reporting_instructions": "M, W, F at 1pm"
+    },
+    {
+        "catalog": "ACCT",
+        "course_number": 202,
+        "course_name": "Principles of Accounting I",
+        "description": "An introduction to basic theory and techniques of financial accounting.",
+        "max_seats": 20,
+        "credits_awarded": 3,
+        "semesters_offered": ["Fall 2024", "Spring 2024", "Spring 2025","Fall 2025"],
+        "locations_offered": ["Online", "Maryland"],
+        "prereqs": [],
+        "faculty": ["Dr. Sam"],
+        "required_technology": "Laptop",
+        "reporting_instructions": "M, F at 9am"
+    },
+    {
+        "catalog": "ACCT",
+        "course_number": 313,
+        "course_name": "Principles of Accounting II",
+        "description": "Further study of contemporary accounting practices.",
+        "max_seats": 20,
+        "credits_awarded": 3,
+        "semesters_offered": ["Fall 2024", "Spring 2024", "Spring 2025"],
+        "locations_offered": ["Online", "Texas"],
+        "prereqs": ["ACCT202"],
+        "faculty": ["Dr. Mario"],
+        "required_technology": "Laptop",
+        "reporting_instructions": "M, W, F at 12pm"
+    }  
 ]
