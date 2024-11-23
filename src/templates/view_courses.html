@@ -14,51 +14,7 @@
             {% endif %}
         {% endwith %}
     
-        <!-- This form is used to filter the available courses -->
-        <form method="GET" action="{{ url_for('view_courses') }}">
-            <label for="semester">Semester: </label>
-            <select name="semester" id="semester">
-                <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
-                {% for sem in semesters %}
-                    <option value="{{ sem }}" {% if request.args.get('semester') == sem %}selected{% endif %}>{{ sem }}</option>
-                {% endfor %}
-            </select>
         
-            <label for="location" style="margin-left: 30px;">Location: </label>
-            <select name="location" id="location">
-                <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
-                {% for loc in locations %}
-                    <option value="{{ loc }}" {% if request.args.get('location') == loc %}selected{% endif %}>{{ loc }}</option>
-                {% endfor %}
-            </select>
-        
-            <label for="catalog" style="margin-left: 30px;">Catalog: </label>
-            <select name="catalog" id="catalog">
-                <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
-                {% for cat in catalogs %}
-                    <option value="{{ cat }}" {% if request.args.get('catalog') == cat %}selected{% endif %}>{{ cat }}</option>
-                {% endfor %}
-            </select>
-        
-            <label for="professor" style="margin-left: 30px;">Professor: </label>
-            <select name="professor" id="professor">
-                <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
-                {% for prof in professors %}
-                    <option value="{{ prof }}" {% if request.args.get('professor') == prof %}selected{% endif %}>{{ prof }}</option>
-                {% endfor %}
-            </select>
-
-            <label for="hide_courses_registered" style="margin-left: 30px;">Hide Courses Already Registered For: </label>
-            <select name="hide_courses_registered" id="hide_courses_registered">
-                <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>False</option>
-                <option value="True" {% if request.args.get('hide_courses_registered') == "True" %}selected{% endif %}>True</option>
-            </select>
-        
-            <button type="submit" style="margin-left: 30px;" class="text-white hover:text-black bg-black hover:bg-white 
-            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Filter</button>
-
-
-        </form>
     <br>
 
 {% block content %}
@@ -79,40 +35,47 @@
         
             <!-- This form is used to filter the available courses -->
             <form method="GET" action="{{ url_for('view_courses') }}">
-                <label for="semester">Semester:</label>
+                <label for="semester">Semester: </label>
                 <select name="semester" id="semester">
-                    <option value="">All</option>
+                    <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
                     {% for sem in semesters %}
                         <option value="{{ sem }}" {% if request.args.get('semester') == sem %}selected{% endif %}>{{ sem }}</option>
                     {% endfor %}
                 </select>
             
-                <label for="location">Location:</label>
+                <label for="location" style="margin-left: 30px;">Location: </label>
                 <select name="location" id="location">
-                    <option value="">All</option>
+                    <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
                     {% for loc in locations %}
                         <option value="{{ loc }}" {% if request.args.get('location') == loc %}selected{% endif %}>{{ loc }}</option>
                     {% endfor %}
                 </select>
             
-                <label for="catalog">Catalog:</label>
+                <label for="catalog" style="margin-left: 30px;">Catalog: </label>
                 <select name="catalog" id="catalog">
-                    <option value="">All</option>
+                    <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
                     {% for cat in catalogs %}
                         <option value="{{ cat }}" {% if request.args.get('catalog') == cat %}selected{% endif %}>{{ cat }}</option>
                     {% endfor %}
                 </select>
             
-                <label for="professor">Professor:</label>
+                <label for="professor" style="margin-left: 30px;">Professor: </label>
                 <select name="professor" id="professor">
-                    <option value="">All</option>
+                    <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
                     {% for prof in professors %}
                         <option value="{{ prof }}" {% if request.args.get('professor') == prof %}selected{% endif %}>{{ prof }}</option>
                     {% endfor %}
                 </select>
+
+                <label for="hide_courses_registered" style="margin-left: 30px;">Hide Courses Already Registered For: </label>
+                <select name="hide_courses_registered" id="hide_courses_registered">
+                    <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>False</option>
+                    <option value="True" {% if request.args.get('hide_courses_registered') == "True" %}selected{% endif %}>True</option>
+                </select>
             
-                <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
+                <button type="submit" style="margin-left: 30px;" class="text-white hover:text-black bg-black hover:bg-white 
                 font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Filter</button>
+
             </form>
         <br>
 
@@ -121,13 +84,13 @@
             font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">View Cart</button>
         </a>
         <a href="{{url_for('landing')}}">
-            <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
+            <button type="submit" class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Return to Landing
             </button>
         </a>
 
         <a href="{{url_for('view_courses')}}">
-            <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
+            <button type="submit" class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Clear Search/Filters
             </button>
         </a>

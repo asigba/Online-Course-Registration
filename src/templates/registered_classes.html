@@ -60,6 +60,11 @@
         </table>
         {% endif %}
         <br>
+        <a href="{{ url_for('registration_log') }}">
+            <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
+            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">View Registration Logs</button>
+        </a>
+
         <a href="{{ url_for('view_courses') }}">
             <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Back to Courses</button>
