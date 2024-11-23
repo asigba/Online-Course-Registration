@@ -603,6 +603,7 @@ class Transaction():
     REGISTER = 1
     DROP = 2
     WITHDRAW = 3
+    COMPLETE = 4
 
     transaction = {
             "student": None,
@@ -614,7 +615,6 @@ class Transaction():
             "action": None
     }
     
-    # Transaction(student, current_class, action)
     def __init__(self, student, current_class, action):
         self.transaction['student'] = student.student_id
         self.transaction['transaction_id'] = str(uuid4())
@@ -637,6 +637,8 @@ class Transaction():
                 return "drop"
             case 3:
                 return "withdraw"
+            case 4:
+                return "complete"
     
     def to_log_string(self):
         return dumps(self.transaction)
@@ -1122,12 +1124,22 @@ def registration_log():
     transactions = []
     for transaction_record in student.course_transactions:
         transaction_dict = loads(transaction_record)
+
+        # Converting ended registrations to completed (assumes a passing grade)
+        if transaction_dict['action'] == Transaction.get_action(Transaction.REGISTER):
+            current_class = Class.get_class(transaction_dict['class_id'])
+            #class_semester = Semester.get_semester(current_class.semester)
+            class_semester_status = current_class.get_semester_status()
+            print(current_class.course_id, class_semester_status)
+            if class_semester_status == Semester.ENDED:
+                transaction_dict['action'] = Transaction.get_action(Transaction.COMPLETE)
+
         if selected_action and transaction_dict['action'] == selected_action:
             transactions.append(transaction_dict)
         elif not selected_action:
             transactions.append(transaction_dict)
     
-    actions = [Transaction.get_action(Transaction.REGISTER), Transaction.get_action(Transaction.DROP), Transaction.get_action(Transaction.WITHDRAW)]
+    actions = [Transaction.get_action(Transaction.REGISTER), Transaction.get_action(Transaction.DROP), Transaction.get_action(Transaction.WITHDRAW), Transaction.get_action(Transaction.COMPLETE)]
     
     return render_template('registration_log.html', course_transactions=transactions, actions=actions, action=selected_action)
 
