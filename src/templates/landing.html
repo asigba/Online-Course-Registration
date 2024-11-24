@@ -1,66 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{url_for('static', filename='dist/css/output.css')}}">
-    <title>CMSC495 Online Course Registration User Landing</title>
-</head>
-<body>
-    <nav class="bg-blue-300 w-full">  
-        <div class="flex justify-between">
-            <div>
-                <button data-collapse-toggle="navbar-hamburger" type="button" class="inline-flex items-center justify-center p-2 w-10 h-10 text-sm text-black rounded-lg" aria-controls="navbar-hamburger" aria-expanded="false">
-                    <span class="sr-only">Open main menu</span>
-                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
-                    </svg>
-                  </button>
-                <div class="hidden w-full" id="navbar-hamburger">
-                    <ul class="flex flex-col font-medium mt-4 rounded-lg bg-blue-300">
-                        <li>
-                          <a href="#" class="block py-2 px-3 text-black bg-blue-300 rounded hover:bg-blue-500 hover:text-white" aria-current="page">Home</a>
-                        </li>
-                        <li>
-                          <a href="#" class="block py-2 px-3 text-black rounded  bg-blue-300">Logout</a>
-                        </li>
-                        <li>
-                            <a href="#" class="block py-2 px-3 text-black rounded  bg-blue-300">View Cart</a>
-                        </li>                                               
-                      </ul>
-                </div> 
-            </div>
-            <div class="relative right-20">
-                <img class="rounded-md" src="{{ url_for('static', filename='images/tinybanner.png') }}" alt="banner">
-            </div>               
-            <div class="relative flex justify-between right-10">
-                <div class="relative right-8">
-                    <form method="POST" action="{{ url_for('view_courses') }}">
-                        <div class="relative">
-                            <input
-                                class="border-2 border-gray-300 bg-white h-10 pl-2 pr-8 rounded-lg text-sm focus:outline-none"
-                                type="search" 
-                                name="search" 
-                                placeholder="Course Search">
-                            <button type="submit" class="absolute right-0 top-0 mt-3 mr-2">
-                                <svg class="text-gray-600 h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 56.966 56.966" style="enable-background:new 0 0 56.966 56.966;"
-                                    xml:space="preserve" width="512px" height="512px">
-                                    <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </form>
-                </div>             
-                <a class="relative top-2" href="#">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </a>                
-            </div>
-        </div> 
-    </nav>
+{% extends "navbar_base.html" %} 
 
+{% block content %}
     <div class="relative top-30 right-20">
     <main class="ml-64 p-8 text-center" style="padding-top: 30px;">
         <h2 class="text-3xl md:text-4xl font-extrabold">
@@ -77,7 +17,7 @@
         <div class="flex justify-center gap-8 mt-4">
             <a href="{{url_for('view_courses')}}" class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-14 py-3 border-2 border-black shadow rounded transition duration-200">View Courses</a>
-            <a href="{{url_for('registered_classes')}}" class="text-white hover:text-black bg-black hover:bg-white 
+            <a href="{{url_for('registered_courses')}}" class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-14 py-3 border-2 border-black shadow rounded transition duration-200">Registered Courses</a>
             <a href="{{url_for('change_password')}}" class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-14 py-3 border-2 border-black shadow rounded transition duration-200">Change Password</a>
@@ -87,6 +27,4 @@
         </div>    
     </main>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
-</body>
-</html>
+{% endblock %}

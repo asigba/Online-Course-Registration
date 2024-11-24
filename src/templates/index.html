@@ -1,14 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to the CMSC495 Online Course Registration Application</title>
-    <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
-</head>
-<body>
-    <!-- Body -->
-    <div class="relative top-60">
+{% extends "navbar_base.html" %} 
+
+{% block nav %}
+{% endblock %}
+
+{%block content%}
+    <div class="container px-4 mx-auto">
         <div class="relative flex justify-center">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">          
         </div>
@@ -29,6 +25,4 @@
             </div>  
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
-</body>
-</html>
+{% endblock %}
