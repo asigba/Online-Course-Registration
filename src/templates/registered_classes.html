@@ -5,24 +5,25 @@
         <div>
             <h1 class="text-3xl md:text-3xl font-extrabold;" style=" font-weight: bold; font-size: x-large;">
                 Registered Courses</h1>
-                {% if not registered_courses %}
+                {% if not registered_classes %}
                     <p>You have not registered for any courses.</p>
                 {% else %}
         </div><br>
         <table border="1">
             <tr>
-                    
                 <th scope="col" class="px-4 py-2 border border-gray-400">Course ID</th>
-                <th scope="col" class="px-4 py-2 border border-gray-400">Course Number</th>
+                <th scope="col" class="px-4 py-2 border border-gray-400">Course Name</th>
                 <th scope="col" class="px-4 py-2 border border-gray-400">Class ID</th>
+                <th scope="col" class="px-4 py-2 border border-gray-400">Semester</th>
                 <th scope="col" class="px-4 py-2 border border-gray-400">Credits</th>
                 <th></th>
             </tr>
-            {% for class in registered_courses %}
+            {% for class in registered_classes %}
             <tr>
                 <td class="px-4 py-2 border border-gray-400">{{ class.course_id }}</td>
                 <td class="px-4 py-2 border border-gray-400">{{ class.course_name }}</td>
                 <td class="px-4 py-2 border border-gray-400">{{ class.class_id }}</td>
+                <td class="px-4 py-2 border border-gray-400">{{ class.semester }}</td>
                 <td class="px-4 py-2 border border-gray-400">{{ class.credits_awarded }}</td>
                 <td>
                     <form action="{{ url_for('drop_course') }}" method="post">
