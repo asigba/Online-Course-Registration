@@ -150,32 +150,31 @@ select * from classes;
             UNIQUE (semester_name)
     );
     CREATE TABLE students (
-            id INTEGER NOT NULL,
-            student_id INTEGER NOT NULL,
-            first_name VARCHAR(30) NOT NULL,
-            last_name VARCHAR(30) NOT NULL,
-            updated_at DATETIME,
-            student_email VARCHAR(64) NOT NULL,
-            phone_number VARCHAR(10) NOT NULL,
-            current_enrollments JSON,
-            past_enrollments JSON,
-            cart JSON,
-            registered_courses JSON,
-            PRIMARY KEY (id),
-            FOREIGN KEY(id) REFERENCES users (id),
-            UNIQUE (student_id)
+            id INTEGER NOT NULL, 
+	    student_id INTEGER NOT NULL, 
+	    first_name VARCHAR(30) NOT NULL, 
+	    last_name VARCHAR(30) NOT NULL, 
+	    student_email VARCHAR(64) NOT NULL, 
+	    phone_number VARCHAR(10) NOT NULL, 
+	    cart JSON, 
+	    registered_classes JSON, 
+	    course_transactions JSON, 
+	    created_at DATETIME NOT NULL, 
+	    updated_at DATETIME, 
+	    PRIMARY KEY (id), 
+	    FOREIGN KEY(id) REFERENCES users (id), 
+	    UNIQUE (student_id)
     );
     CREATE TABLE classes (
-            class_id INTEGER NOT NULL,
-            course_id VARCHAR(7),
-            course_name VARCHAR(250),
-            current_enrollments JSON,
-            location VARCHAR(64) NOT NULL,
-            semester VARCHAR(8) NOT NULL,
-            professor VARCHAR(64) NOT NULL,
-            credits_awarded INTEGER NOT NULL,
-            available_seats INTEGER NOT NULL,
-            PRIMARY KEY (class_id),
+            class_id INTEGER NOT NULL, 
+            course_id VARCHAR(7), 
+            course_name VARCHAR(250), 
+            location VARCHAR(64) NOT NULL, 
+            semester VARCHAR(8) NOT NULL, 
+            professor VARCHAR(64) NOT NULL, 
+            credits_awarded INTEGER NOT NULL, 
+            available_seats INTEGER NOT NULL, 
+            PRIMARY KEY (class_id), 
             FOREIGN KEY(course_id) REFERENCES courses (course_id)
     );
 
