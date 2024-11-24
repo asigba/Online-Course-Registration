@@ -8,8 +8,8 @@
         "_comment_on_registered_classes": "Class ID 1 is in the past & Class ID 2 is currently in session",
         "registered_classes": [1, 2],
         "course_transactions": [],
-        "_comment_on_cart_classes": "Class ID 59 is 4 credits and these are used to test registering >12 credits for Fall 2025",
-        "cart": [8, 22, 88, 100, 105, 59]
+        "_comment_on_cart_classes": "Class ID 61 is 4 credits and these are used to test registering >12 credits for Fall 2025",
+        "cart": [7, 24, 76, 90, 107, 61]
     },
     {
         "username": "student02@student.umgc.edu",

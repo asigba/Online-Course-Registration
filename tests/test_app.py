@@ -201,7 +201,7 @@ class TestUserRegistration(unittest.TestCase):
         # Login first to logout
         self.test_3_login_valid_credentials()
         response = self.client.post('/add_to_cart', data={
-            'class_id': '6',
+            'class_id': '7',
             'csrf_token': self.csrf_token
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)

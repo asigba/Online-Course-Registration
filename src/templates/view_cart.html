@@ -24,6 +24,8 @@
                     <th scope="col" class="px-4 py-2 border border-gray-400">Course ID</th>
                     <th scope="col" class="px-4 py-2 border border-gray-400">Course Name</th>
                     <th scope="col" class="px-4 py-2 border border-gray-400">Class ID</th>
+                    <th scope="col" class="px-4 py-2 border border-gray-400">Semester</th>
+                    <th scope="col" class="px-4 py-2 border border-gray-400">Credits</th>
                     <th> </th>
                 </tr>
                 {% for class in cart_courses %}
@@ -31,6 +33,8 @@
                     <td class="px-4 py-2 border border-gray-400">{{ class.course_id }}</td>
                     <td class="px-4 py-2 border border-gray-400">{{ class.course_name }}</td>
                     <td class="px-4 py-2 border border-gray-400">{{ class.class_id }}</td>
+                    <td class="px-4 py-2 border border-gray-400">{{ class.semester }}</td>
+                    <td class="px-4 py-2 border border-gray-400">{{ class.credits_awarded }}</td>
                     <td> 
                         <form action="{{ url_for('remove_from_cart') }}" method="post">
                             <input type="hidden" name="class_id" value="{{ class.class_id }}">
@@ -53,7 +57,7 @@
             <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Back to Courses</button>
         </a>
-        <a href="{{ url_for('registered_courses') }}">
+        <a href="{{ url_for('registered_classes') }}">
             <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Registered Courses</button>
         </a>
