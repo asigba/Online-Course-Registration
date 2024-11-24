@@ -1,12 +1,40 @@
 [
     {
+        "catalog": "INTR",
+        "course_number": 101,
+        "course_name": "Intro to Intros",
+        "description": "An intro about intros.",
+        "max_seats": 1,
+        "credits_awarded": 1,
+        "semesters_offered": ["Spring 2024"],
+        "locations_offered": ["Online"],
+        "prereqs": [],
+        "faculty": ["Prof. Daisy"],
+        "required_technology": "None",
+        "reporting_instructions": "M, W at 10am"
+    },
+    {
+        "catalog": "INTR",
+        "course_number": 102,
+        "course_name": "Intro to Intros",
+        "description": "An intro about intros.",
+        "max_seats": 1,
+        "credits_awarded": 1,
+        "semesters_offered": ["Summer 2024", "Spring 2025", "Summer 2025", "Fall 2025"],
+        "locations_offered": ["Online"],
+        "prereqs": ["INTR101"],
+        "faculty": ["Prof. Daisy"],
+        "required_technology": "None",
+        "reporting_instructions": "Tu, Th at 10am"
+    },
+    {
         "catalog": "CMSC",
         "course_number": 101,
         "course_name": "Intro to Programming",
         "description": "Introduction to programming fundamentals.",
         "max_seats": 25,
         "credits_awarded": 3,
-        "semesters_offered": ["Fall 2024", "Fall 2025", "Spring 2024", "Spring 2025"],
+        "semesters_offered": ["Spring 2025", "Summer 2025", "Fall 2025"],
         "locations_offered": ["Online", "Maryland"],
         "prereqs": [],
         "faculty": ["Prof. Luigi"],
@@ -34,7 +62,7 @@
         "description": "Introduction to calculus concepts.",
         "max_seats": 24,
         "credits_awarded": 3,
-        "semesters_offered": ["Fall 2024", "Fall 2025"],
+        "semesters_offered": ["Spring 2024", "Fall 2024", "Spring 2025", "Fall 2025"],
         "locations_offered": ["Maryland", "Online"],
         "prereqs": [],
         "faculty": ["Dr. Mario", "Prof. Luigi"],
@@ -48,7 +76,7 @@
         "description": "Advanced calculus topics.",
         "max_seats": 24,
         "credits_awarded": 3,
-        "semesters_offered": ["Fall 2024", "Fall 2025"],
+        "semesters_offered": ["Fall 2024", "Fall 2025", "Spring 2026", "Summer 2026", "Fall 2026"],
         "locations_offered": ["Maryland", "Online"],
         "prereqs": ["MATH101"],
         "faculty": ["Dr. Mario", "Prof. Luigi"],
@@ -266,6 +294,20 @@
         "reporting_instructions": "M, W, F at 12pm"
     },
     {
+        "catalog": "PHED",
+        "course_number": 101,
+        "course_name": "Intro to Physical Education",
+        "description": "Learn how to be healthier.",
+        "max_seats": 30,
+        "credits_awarded": 3,
+        "semesters_offered": ["Fall 2024", "Spring 2024", "Summer 2024", "Fall 2025"],
+        "locations_offered": ["Campus Gym"],
+        "prereqs": [],
+        "faculty": ["Dr. Mario"],
+        "required_technology": "None",
+        "reporting_instructions": "T, Th at 10am"
+    },
+    {
         "catalog": "AASP",
         "course_number": 102,
         "course_name": "Introduction to African American Studies",
@@ -306,5 +348,5 @@
         "faculty": ["Dr. Mario"],
         "required_technology": "Laptop",
         "reporting_instructions": "M, W, F at 12pm"
-    }  
+    } 
 ]

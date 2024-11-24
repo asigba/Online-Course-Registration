@@ -1,0 +1,104 @@
+[
+    {
+        "username": "student01@student.umgc.edu",
+        "password": "student01STUDENT!",
+        "first_name": "student",
+        "last_name": "one",
+        "phone_number": "2105551234",
+        "_comment_on_registered_classes": "Class ID 1 is in the past & Class ID 2 is currently in session",
+        "registered_classes": [1, 2],
+        "course_transactions": [],
+        "_comment_on_cart_classes": "Class ID 59 is 4 credits and these are used to test registering >12 credits for Fall 2025",
+        "cart": [8, 22, 88, 100, 105, 59]
+    },
+    {
+        "username": "student02@student.umgc.edu",
+        "password": "student02STUDENT!",
+        "first_name": "student",
+        "last_name": "two",
+        "phone_number": "4435551234",
+        "registered_classes": [],
+        "course_transactions": [],
+        "cart": []
+    },    
+    {
+        "username": "student03@student.umgc.edu",
+        "password": "student03STUDENT!",
+        "first_name": "student",
+        "last_name": "three",
+        "phone_number": "2105551234",
+        "registered_classes": [],
+        "course_transactions": [],
+        "cart": []
+    },
+    {
+        "username": "student04@student.umgc.edu",
+        "password": "student04STUDENT!",
+        "first_name": "student",
+        "last_name": "four",
+        "phone_number": "4435551234",
+        "registered_classes": [],
+        "course_transactions": [],
+        "cart": []
+    },
+    {
+        "username": "student05@student.umgc.edu",
+        "password": "student05STUDENT!",
+        "first_name": "student",
+        "last_name": "five",
+        "phone_number": "2105551234",
+        "registered_classes": [],
+        "course_transactions": [],
+        "cart": []
+    },
+    {
+        "username": "student06@student.umgc.edu",
+        "password": "student06STUDENT!",
+        "first_name": "student",
+        "last_name": "six",
+        "phone_number": "4435551234",
+        "registered_classes": [],
+        "course_transactions": [],
+        "cart": []
+    },
+    {
+        "username": "student07@student.umgc.edu",
+        "password": "student07STUDENT!",
+        "first_name": "student",
+        "last_name": "seven",
+        "phone_number": "2105551234",
+        "registered_classes": [],
+        "course_transactions": [],
+        "cart": []
+    },
+    {
+        "username": "student08@student.umgc.edu",
+        "password": "student08STUDENT!",
+        "first_name": "student",
+        "last_name": "eight",
+        "phone_number": "4435551234",
+        "registered_classes": [],
+        "course_transactions": [],
+        "cart": []
+    },
+    {
+        "username": "student09@student.umgc.edu",
+        "password": "student09STUDENT!",
+        "first_name": "student",
+        "last_name": "nine",
+        "phone_number": "2105551234",
+        "registered_classes": [],
+        "course_transactions": [],
+        "cart": []
+    },
+    {
+        "username": "student10@student.umgc.edu",
+        "password": "student10STUDENT!",
+        "first_name": "student",
+        "last_name": "ten",
+        "phone_number": "4435551234",
+        "registered_classes": [],
+        "course_transactions": [],
+        "cart": []
+    }
+]
