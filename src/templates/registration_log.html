@@ -1,0 +1,65 @@
+{% extends "navbar_base.html" %}
+
+{% block content %}
+    <main class="ml-64 p-8" style="padding-left: 40px">
+        <div>
+            <h1 class="text-3xl md:text-3xl font-extrabold;" style=" font-weight: bold; font-size: x-large;">
+                Registration Log</h1>
+                {% if not course_transactions %}
+                    <p>You have not registered for any courses.</p>
+                {% else %}
+        
+        
+            <!-- This form is used to filter the available courses -->
+            <form method="GET" action="{{ url_for('registration_log') }}">
+               <label for="action">Action Taken: </label>
+               <select name="action" id="action">
+                   <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
+                   {% for act in actions %}
+                       <option value="{{ act }}" {% if request.args.get('action') == act %}selected{% endif %}>{{ act }}</option>
+                   {% endfor %}
+               </select>
+
+               <button type="submit" style="margin-left: 30px;" class="text-white hover:text-black bg-black hover:bg-white 
+               font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Filter</button>
+
+            </form>
+        </div><br>
+
+        <table border="1">
+            <tr>
+                <th scope="col" class="px-4 py-2 border border-gray-400">Student</th>
+                <th scope="col" class="px-4 py-2 border border-gray-400">Transaction ID</th>
+                <th scope="col" class="px-4 py-2 border border-gray-400">DateTime</th>
+                <th scope="col" class="px-4 py-2 border border-gray-400">Course</th>
+                <th scope="col" class="px-4 py-2 border border-gray-400">Class ID</th>
+                <th scope="col" class="px-4 py-2 border border-gray-400">Semester</th>
+                <th scope="col" class="px-4 py-2 border border-gray-400">Action Taken</th>
+            </tr>
+            {% for transaction in course_transactions %}
+            <tr></tr>
+                <td class="px-4 py-2 border border-gray-400">{{ transaction['student'] }}</td>
+                <td class="px-4 py-2 border border-gray-400">{{ transaction['transaction_id'] }}</td>
+                <td class="px-4 py-2 border border-gray-400">{{ transaction['datetime'] }}</td>
+                <td class="px-4 py-2 border border-gray-400">{{ transaction['course'] }}</td>
+                <td class="px-4 py-2 border border-gray-400">{{ transaction['class_id'] }}</td>
+                <td class="px-4 py-2 border border-gray-400">{{ transaction['semester'] }}</td>
+                <td class="px-4 py-2 border border-gray-400">{{ transaction['action'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+        <br>
+        <a href="{{ url_for('registered_classes') }}">
+            <button type="submit" class="text-white hover:text-black bg-black hover:bg-white 
+            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Back to Registered Classes</button>
+        </a>
+
+        <a href="{{url_for('registration_log')}}">
+            <button type="submit" class="text-white hover:text-black bg-black hover:bg-white 
+            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Clear Search/Filters
+            </button>
+        </a>
+
+    </main>
+{% endblock %}

@@ -6,19 +6,20 @@ from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from itertools import chain
-from json import load
+from json import dumps, load, loads
 from os import urandom
 from pathlib import Path
 from random import randint
 from re import match, search
 from redis import Redis
 from sqlalchemy import asc, JSON
-from sqlalchemy.orm import validates
-from wtforms import PasswordField, StringField, SubmitField
-from wtforms.validators import InputRequired, Length, ValidationError, DataRequired, Email
+from sqlalchemy.orm import joinedload, validates
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.types import JSON
+from wtforms import PasswordField, StringField, SubmitField
+from wtforms.validators import InputRequired, Length, ValidationError, DataRequired, Email
+from uuid import uuid4
 
 def init_application():
     # paths to account for package directory structure (see README)
@@ -94,15 +95,20 @@ class User(db.Model, UserMixin):
         with open(json_file_path, 'r') as student_user_data_file:
             student_user_data = load(student_user_data_file)
 
+        if not student_user_data:
+            return
+        
         for student_user in student_user_data:
             user = User(
                 username=student_user['username'],
                 password=student_user['password']
             )
             # Add each new course to the database
-            db.session.add(user)
+            if user is not None:
+                db.session.add(user)
         try:
             db.session.commit()
+
         except Exception as e:
             if app.debug:
                 print(f"Error committing changes to the database: {e}")
@@ -123,8 +129,10 @@ class Student(db.Model):
     #past_enrollments = db.Column(JSON, nullable=True)
     cart = db.Column(MutableList.as_mutable(JSON), default=[])
     registered_classes = db.Column(MutableList.as_mutable(JSON), default=[])
+    course_transactions = db.Column(MutableList.as_mutable(JSON), default=[])
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc), nullable=True)
+    
     
     # student = Student(form.first_name.data, form.last_name.data, user.id, form.username.data, form.phone_number.data)
     def __init__(self, first_name, last_name, id, email, phone):
@@ -144,8 +152,12 @@ class Student(db.Model):
         with open(json_file_path, 'r') as student_user_data_file:
             student_user_data = load(student_user_data_file)
 
+        if not student_user_data:
+            return
+        
         for student_user in student_user_data:
             user = User.query.filter_by(username=student_user['username']).first()
+            
             student = Student(
                 first_name=student_user['first_name'],
                 last_name=student_user['last_name'],
@@ -153,15 +165,33 @@ class Student(db.Model):
                 email=student_user['username'],
                 phone=student_user['phone_number']
             )
+
+            # Add each new student to the database
+            if student is not None:
+                db.session.add(student)
+            
+            # Direct registration without the cart involved (not normal function - for dev init/testing only)
             student.registered_classes = student_user['registered_classes']
+            student.course_transactions = student_user['course_transactions']
+            flag_modified(student, "registered_classes")
+            flag_modified(student, "course_transactions")
 
             # Allocate seats automatically
             for class_id in student.registered_classes:
                 class_selected = Class.get_class(class_id)
+                if class_selected is not None:
+                    db.session.add(class_selected)
                 class_selected.allocate_seat()
+                # manual log transaction
+                transaction = Transaction(student, class_selected, Transaction.REGISTER)
+                student.add_transaction_to_log(transaction.to_log_string())
 
-            # Add each new course to the database
-            db.session.add(student)
+            # Adding to cart via the normal functions
+            for class_id in student_user['cart']:
+                class_selected = Class.get_class(class_id)
+                if class_selected is not None:
+                    db.session.add(class_selected)
+                student.add_course_to_cart(class_selected)
         try:
             db.session.commit()
         except Exception as e:
@@ -205,10 +235,16 @@ class Student(db.Model):
 
         if class_selected.class_id in self.cart:
             proceed_with_add_to_cart = False
-            flash(f"Class {class_selected} is already in the cart.", "info")
+            try:
+                flash(f"Class {class_selected} is already in the cart.", "info")
+            except:
+                pass
         elif course in cart_courses:
             proceed_with_add_to_cart = False
-            flash(f"Course {course} is already in the cart.", "info")
+            try:
+                flash(f"Course {course} is already in the cart.", "info")
+            except:
+                pass
         elif course in registered_courses:
             # Making sure re-enrollments are later than previous enrollments
             for registered_class in registered_classes:
@@ -220,14 +256,20 @@ class Student(db.Model):
                     if semester_comp != Semester.LATER or registered_class_semester_status != Semester.ENDED:
                         proceed_with_add_to_cart = False
             if proceed_with_add_to_cart == False:
-                flash(f"Course {course} has already been registered for.", "info")
+                try:
+                    flash(f"Course {course} has already been registered for.", "info")
+                except:
+                    pass
                         
         if proceed_with_add_to_cart:
             self.cart.append(class_selected.class_id)
             # Mark the JSON column as modified so SQLAlchemy detects the change
             flag_modified(self, "cart")
             db.session.commit()
-            flash(f"Class {class_selected} added to cart!", "success")
+            try:
+                flash(f"Class {class_selected} added to cart!", "success")
+            except:
+                pass
             
     def remove_course_from_cart(self, class_selected):
         """Removes a class from the cart
@@ -284,6 +326,7 @@ class Student(db.Model):
             if class_selected.available_seats > 0:
                 if class_id not in self.registered_classes:
                     self.registered_classes.append(class_id)
+                    self.log_transaction(class_selected, Transaction.REGISTER)
                     flash(f"Successfully registered for {class_selected}!", "success")
                 else:
                     flash(f"Course {class_selected} is already registered.", "info")
@@ -297,28 +340,44 @@ class Student(db.Model):
         class_selected.allocate_seat()
         flash("All available classes selected have been registered successfully.", "success")
 
-    '''
-    def view_registered_classes(self):
-        if not self.registered_classes:
-            print("No registered courses.")
-        else:
-            print("Registered Courses:")
-            for class_id in self.registered_classes:
-                print(f"{class_id}")
-    '''
+    # This method id for dev init from files
+    def add_transaction_to_log(self, transaction):
+        if not self.course_transactions:
+            self.course_transactions = []
+        self.course_transactions.append(transaction)
+        flag_modified(self, "course_transactions")
+        db.session.commit()
+        #self.print_all_transactions()
+
+    # This method if for normal app activity
+    def log_transaction(self, current_class, action):
+        transaction = Transaction(self, current_class, action)
+        self.add_transaction_to_log(transaction.to_log_string())
+
+    
+    def print_all_transactions(self):
+        for transaction_dump in self.course_transactions:
+            transaction = loads(transaction_dump)
+            print(transaction['student'], transaction['transaction_id'], transaction['datetime'], transaction['course'], transaction['class_id'], transaction['semester'], transaction['action'])
 
     def remove_course_from_registered(self, class_selected):
         if class_selected.class_id in self.registered_classes:
             self.registered_classes.remove(class_selected.class_id)
+            if class_selected.get_semester_status() == Semester.UPCOMING:
+                self.log_transaction(class_selected, Transaction.DROP)
+            elif class_selected.get_semester_status() == Semester.IN_SESSION:
+                self.log_transaction(class_selected, Transaction.WITHDRAW)
             # Mark the JSON column as modified
-            flag_modified(self, "registered_classes")
+            try:
+                flag_modified(self, "registered_classes")
+            except:
+                pass
             db.session.commit()
             class_selected.free_seat()
             flash(f"Class {class_selected} has been successfully dropped.", "success")
         else:
             flash(f"Class {class_selected} is not in your registered courses.", "info")
     
-
 # Default Database Table : Courses
 class Course(db.Model):
     __tablename__ = 'courses'
@@ -365,6 +424,9 @@ class Course(db.Model):
         with open(json_file_path, 'r') as course_data_file:
             courses_data = load(course_data_file)
 
+        if not courses_data:
+            return
+        
         for course_data in courses_data:
             course = Course(
                 catalog=course_data['catalog'],
@@ -381,7 +443,8 @@ class Course(db.Model):
                 reporting_instructions=course_data['reporting_instructions']
             )
             # Add each new course to the database
-            db.session.add(course)
+            if course is not None:
+                db.session.add(course)
         try:
             db.session.commit()
         except Exception as e:
@@ -408,7 +471,8 @@ class Course(db.Model):
                             available_seats=course.max_seats
                         )
                         # Add each new class to the database
-                        db.session.add(new_class)
+                        if new_class is not None:
+                            db.session.add(new_class)
         try:
             db.session.commit()
         except Exception as e:
@@ -445,11 +509,16 @@ class Class(db.Model):
         Returns:
             None
         """
-        return f'Class: {self.course_id}, ID: {self.class_id} '
+        return f'"Class: {self.course_id}, ID: {self.class_id}"'
     
     @staticmethod
     def get_class(class_id):
-        return Class.query.filter_by(class_id=class_id).first()
+        current_class = Class.query.filter_by(class_id=class_id).first()
+
+        if current_class is not None:
+            current_class = db.session.merge(current_class)
+
+        return current_class
 
     def allocate_seat(self):
         if self.available_seats > 0:
@@ -497,6 +566,9 @@ class Semester(db.Model):
         with open(json_file_path, 'r') as semester_data_file:
             semesters_data_data = load(semester_data_file)
 
+        if not semesters_data_data:
+            return
+        
         for semester_data in semesters_data_data:
             semester = Semester(
                 semester_name = semester_data['semester_name'],
@@ -504,7 +576,8 @@ class Semester(db.Model):
                 end_date = datetime.strptime(semester_data['end_date'], "%m/%d/%Y")
             )
             # Add each new semester to the database
-            db.session.add(semester)
+            if semester is not None:
+                db.session.add(semester)
         try:
             db.session.commit()
         except Exception as e:
@@ -523,6 +596,52 @@ class Semester(db.Model):
             return Semester.SAME
         elif self.start_date > other_semester.start_date:
             return Semester.LATER
+
+class Transaction():
+
+    INVALID = 0
+    REGISTER = 1
+    DROP = 2
+    WITHDRAW = 3
+    COMPLETE = 4
+
+    transaction = {
+            "student": None,
+            "transaction_id": None,
+            "datetime": None,       
+            "course": None,
+            "class_id": None,
+            "semester": None,
+            "action": None
+    }
+    
+    def __init__(self, student, current_class, action):
+        self.transaction['student'] = student.student_id
+        self.transaction['transaction_id'] = str(uuid4())
+        self.transaction['datetime'] = datetime.now(timezone.utc).isoformat()
+        self.transaction['course'] = current_class.course_id
+        self.transaction['class_id'] = current_class.class_id
+        self.transaction['semester'] = current_class.semester
+        self.transaction['action'] = Transaction.get_action(action)
+
+    # JSON Serialization
+    def __repr__(self):
+        return dumps(self.transaction)
+    
+    @staticmethod
+    def get_action(int):
+        match int:
+            case 1:
+                return "register"
+            case 2:
+                return "drop"
+            case 3:
+                return "withdraw"
+            case 4:
+                return "complete"
+    
+    def to_log_string(self):
+        return dumps(self.transaction)
 
 # New Account Form
 class RegisterForm(FlaskForm):
@@ -550,7 +669,7 @@ class RegisterForm(FlaskForm):
             raise ValidationError('Phone number must be exactly 10 digits long. (e.g. 2105551234)')
         
     username = StringField(
-        default='student1@student.umgc.edu',
+        default='student01@student.umgc.edu',
         validators=[
             DataRequired(message="Username field is required."),
             Email(message="Invalid username.  The username must be an email address."),
@@ -624,7 +743,7 @@ class ChangePasswordForm(FlaskForm):
 
 # User Account Form
 class LoginForm(FlaskForm):
-    username = StringField(default='student1@student.umgc.edu', validators=[InputRequired(), Length(min=4, max=80)],
+    username = StringField(default='student01@student.umgc.edu', validators=[InputRequired(), Length(min=4, max=80)],
                            render_kw={"placeholder": "Username"})
     password = PasswordField(validators=[InputRequired(), Length(min=12, max=24)],
                            render_kw={"placeholder": "Password"})
@@ -878,10 +997,12 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         user = User(username=form.username.data, password=form.password.data)
-        db.session.add(user)
+        if user is not None:
+            db.session.add(user)
         db.session.commit()
         student = Student(form.first_name.data, form.last_name.data, user.id, form.username.data, form.phone_number.data)
-        db.session.add(student)
+        if student is not None:
+            db.session.add(student)
         db.session.commit()
         flash('Registration successful! You may now login.', 'success')
         return redirect(url_for('login'))
@@ -987,8 +1108,40 @@ def registered_classes():
     student = current_user.student
     # Fetch course objects for all course IDs in registered_classes
     registered_classes = Class.query.filter(Class.class_id.in_(student.registered_classes)).all()
-    return render_template('registered_classes.html', registered_classes=registered_classes,
-    Semester=Semester)
+    return render_template('registered_classes.html', registered_classes=registered_classes, Semester=Semester)
+
+@app.route('/log')
+@login_required
+def registration_log():
+    student = current_user.student
+
+    if 'reset' in request.args:
+        # Redirect to the same route without query parameters
+        return redirect(url_for('registration_log'))
+    
+    selected_action = request.args.get('action', '')
+
+    transactions = []
+    for transaction_record in student.course_transactions:
+        transaction_dict = loads(transaction_record)
+
+        # Converting ended registrations to completed (assumes a passing grade)
+        if transaction_dict['action'] == Transaction.get_action(Transaction.REGISTER):
+            current_class = Class.get_class(transaction_dict['class_id'])
+            #class_semester = Semester.get_semester(current_class.semester)
+            class_semester_status = current_class.get_semester_status()
+            print(current_class.course_id, class_semester_status)
+            if class_semester_status == Semester.ENDED:
+                transaction_dict['action'] = Transaction.get_action(Transaction.COMPLETE)
+
+        if selected_action and transaction_dict['action'] == selected_action:
+            transactions.append(transaction_dict)
+        elif not selected_action:
+            transactions.append(transaction_dict)
+    
+    actions = [Transaction.get_action(Transaction.REGISTER), Transaction.get_action(Transaction.DROP), Transaction.get_action(Transaction.WITHDRAW), Transaction.get_action(Transaction.COMPLETE)]
+    
+    return render_template('registration_log.html', course_transactions=transactions, actions=actions, action=selected_action)
 
 def main():
     
