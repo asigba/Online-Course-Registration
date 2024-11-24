@@ -1,22 +1,5 @@
 {% extends "navbar_base.html" %} 
 
-    <main class="ml-64 p-8 text-center">
-        <h2 class="text-3xl md:text-4xl font-extrabold">
-            Available courses: 
-        </h2><br>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul>
-                    {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-    
-        
-    <br>
-
 {% block content %}
     <div class="relative top-30 right-20 shadow-none">
         <main class="ml-64 p-8 text-center">
