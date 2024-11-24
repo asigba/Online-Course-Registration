@@ -38,17 +38,15 @@ sudo cmsc495
 
     /cmsc495project
     │
+    ├── .vscode
+    │   └── launch.json         # enables sudo via VSCode
+    |
     ├── /database
     │   └── database.db         # this file and parent directory will be created automatic if non-existent
     │
     ├── /docs
     │   └── README.md
     │
-    ├── node_modules
-    │   └── <many_files>   
-    |
-    ├── .vscode
-    │   └── launch.json         # enables sudo via VSCode   
     |
     ├── /src
     │   ├── app.py              # the main application
@@ -65,8 +63,10 @@ sudo cmsc495
     │   │   ├── index.html
     │   │   ├── landing.html
     │   │   ├── login.html
+    |   |   ├── navbar_base.html    
     │   │   ├── register.html
-    │   │   ├── registerd_courses.html
+    │   │   ├── registered_classes.html
+    |   |   ├── registration_log.html    
     │   │   ├── view_cart.html
     │   │   └── view_courses.html
     │   │    
@@ -93,6 +93,10 @@ sudo cmsc495
     │   └── test_app.py         # 'python -m unittest discover tests'
     │  
     ├── initial_course_data.json
+    |
+    ├── initial_semester_dates.json
+    |
+    ├── initial_student_user_data.json
     |
     ├── requirements.txt
     │  
