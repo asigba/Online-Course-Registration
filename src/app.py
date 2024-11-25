@@ -981,7 +981,7 @@ def login():
 def change_password():
     form = ChangePasswordForm()
     if form.validate_on_submit():
-        password_hash = User.hash_password(form.password.data)
+        password_hash = User.hash_password(form.new_password.data)
         # Setting new password
         current_user.password = password_hash
         db.session.commit()
