@@ -354,7 +354,6 @@ class Student(db.Model):
         transaction = Transaction(self, current_class, action)
         self.add_transaction_to_log(transaction.to_log_string())
 
-    
     def print_all_transactions(self):
         for transaction_dump in self.course_transactions:
             transaction = loads(transaction_dump)
