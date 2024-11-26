@@ -1,7 +1,8 @@
 {% extends "navbar_base.html" %}
 
 {% block content %}
-    <main class="ml-64 p-8" style="padding-left: 40px">
+    <div class="flex flex-col items-center justify-center p-8 top-30 shadow-none">
+        <main class=" w-full text-center px-12">
         <div>
             <h1 class="text-3xl md:text-3xl font-extrabold;" style=" font-weight: bold; font-size: x-large;">
                 Registration Log</h1>
@@ -28,23 +29,23 @@
 
         <table border="1">
             <tr>
-                <th scope="col" class="px-4 py-2 border border-gray-400">Student</th>
-                <th scope="col" class="px-4 py-2 border border-gray-400">Transaction ID</th>
-                <th scope="col" class="px-4 py-2 border border-gray-400">DateTime</th>
-                <th scope="col" class="px-4 py-2 border border-gray-400">Course</th>
-                <th scope="col" class="px-4 py-2 border border-gray-400">Class ID</th>
-                <th scope="col" class="px-4 py-2 border border-gray-400">Semester</th>
-                <th scope="col" class="px-4 py-2 border border-gray-400">Action Taken</th>
+                <th scope="col" class="px-4 py-2 border-b border-gray-400">Student</th>
+                <th scope="col" class="px-4 py-2 border-b border-gray-400">Transaction ID</th>
+                <th scope="col" class="px-4 py-2 border-b border-gray-400">DateTime</th>
+                <th scope="col" class="px-4 py-2 border-b border-gray-400">Course</th>
+                <th scope="col" class="px-4 py-2 border-b border-gray-400">Class ID</th>
+                <th scope="col" class="px-4 py-2 border-b border-gray-400">Semester</th>
+                <th scope="col" class="px-4 py-2 border-b border-gray-400">Action Taken</th>
             </tr>
             {% for transaction in course_transactions %}
             <tr></tr>
-                <td class="px-4 py-2 border border-gray-400">{{ transaction['student'] }}</td>
-                <td class="px-4 py-2 border border-gray-400">{{ transaction['transaction_id'] }}</td>
-                <td class="px-4 py-2 border border-gray-400">{{ transaction['datetime'] }}</td>
-                <td class="px-4 py-2 border border-gray-400">{{ transaction['course'] }}</td>
-                <td class="px-4 py-2 border border-gray-400">{{ transaction['class_id'] }}</td>
-                <td class="px-4 py-2 border border-gray-400">{{ transaction['semester'] }}</td>
-                <td class="px-4 py-2 border border-gray-400">{{ transaction['action'] }}</td>
+                <td class="px-4 py-2 border-b border-gray-400">{{ transaction['student'] }}</td>
+                <td class="px-4 py-2 border-b border-gray-400">{{ transaction['transaction_id'] }}</td>
+                <td class="px-4 py-2 border-b border-gray-400">{{ transaction['datetime'] }}</td>
+                <td class="px-4 py-2 border-b border-gray-400">{{ transaction['course'] }}</td>
+                <td class="px-4 py-2 border-b border-gray-400">{{ transaction['class_id'] }}</td>
+                <td class="px-4 py-2 border-b border-gray-400">{{ transaction['semester'] }}</td>
+                <td class="px-4 py-2 border-b border-gray-400">{{ transaction['action'] }}</td>
             </tr>
             {% endfor %}
         </table>
@@ -57,10 +58,11 @@
 
         <a href="{{url_for('registration_log')}}">
             <button type="submit" class="text-white hover:text-black bg-black hover:bg-white 
-            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Clear Search/Filters
+            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Reset Filters
             </button>
         </a>
 
-    </main>
+        </main>
+    </div>    
     {% include 'additional_info.html' %}
 {% endblock %}
