@@ -30,6 +30,7 @@ python3 src/app.py
 # Step 4 - Option 3:
 #pip install build
 #python3 -m build
+<MAKE_NEW_VENV>
 pip install cmsc495project*.whl
 sudo cmsc495
 ```

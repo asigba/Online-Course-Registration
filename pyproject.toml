@@ -30,11 +30,5 @@ requires-python = ">=3.10"
 [tool.setuptools]
 packages = ["src"]
 
-[tool.setuptools.package-data]
-src = [
-    "templates/*",  # Include all template files
-    "static/*"      # Include all static files
-]
-
 [project.scripts]
 ocr = "src.app:main"

@@ -26,10 +26,13 @@ def init_application():
     parent_directory = Path(__file__).resolve().parent.parent
     database_path = parent_directory / 'database'
     database_file_path = Path(f"{database_path}/database.db")
-    templates_path = 'templates'
+    #templates_path = 'templates'
+    templates_path = parent_directory / 'src' / 'templates'
+    init_data_path = parent_directory / 'src' / 'init_data'
     # Application
     app = Flask(__name__, template_folder=templates_path)
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{database_file_path}"
+    print(f"Database is at: {database_file_path}")
     app.config['SECRET_KEY'] = urandom(24)
     #app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SESSION_TYPE'] = 'redis'
@@ -50,9 +53,9 @@ def init_application():
     # Flask Session
     flask_session = Session(app)
 
-    return database_file_path, database_path, app, db, bcrypt, login_mgr, flask_session
+    return database_file_path, database_path, app, db, bcrypt, login_mgr, flask_session, init_data_path
 
-database_file_path, database_path, app, db, bcrypt, login_mgr, flask_session = init_application()
+database_file_path, database_path, app, db, bcrypt, login_mgr, flask_session, init_data_path = init_application()
 
 @login_mgr.user_loader
 def load_user(id):
@@ -91,9 +94,12 @@ class User(db.Model, UserMixin):
     
     @staticmethod
     def init_database_users():
-        json_file_path = 'initial_student_user_data.json'
-        with open(json_file_path, 'r') as student_user_data_file:
-            student_user_data = load(student_user_data_file)
+        try:
+            json_file_path = init_data_path / 'initial_student_user_data.json'
+            with open(json_file_path, 'r') as student_user_data_file:
+                student_user_data = load(student_user_data_file)
+        except:
+            pass
 
         if not student_user_data:
             return
@@ -148,9 +154,12 @@ class Student(db.Model):
     
     @staticmethod
     def init_database_students():
-        json_file_path = 'initial_student_user_data.json'
-        with open(json_file_path, 'r') as student_user_data_file:
-            student_user_data = load(student_user_data_file)
+        try:
+            json_file_path = init_data_path / 'initial_student_user_data.json'
+            with open(json_file_path, 'r') as student_user_data_file:
+                student_user_data = load(student_user_data_file)
+        except:
+            pass
 
         if not student_user_data:
             return
@@ -421,9 +430,12 @@ class Course(db.Model):
 
     @staticmethod
     def init_database_courses():
-        json_file_path = 'initial_course_data.json'
-        with open(json_file_path, 'r') as course_data_file:
-            courses_data = load(course_data_file)
+        try:
+            json_file_path = init_data_path / 'initial_course_data.json'
+            with open(json_file_path, 'r') as course_data_file:
+                courses_data = load(course_data_file)
+        except:
+            pass
 
         if not courses_data:
             return
@@ -563,9 +575,12 @@ class Semester(db.Model):
 
     @staticmethod
     def init_database_semesters():
-        json_file_path = 'initial_semester_dates.json'
-        with open(json_file_path, 'r') as semester_data_file:
-            semesters_data_data = load(semester_data_file)
+        try:
+            json_file_path = init_data_path / 'initial_semester_dates.json'
+            with open(json_file_path, 'r') as semester_data_file:
+                semesters_data_data = load(semester_data_file)
+        except:
+            pass
 
         if not semesters_data_data:
             return
