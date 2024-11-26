@@ -27,7 +27,7 @@
                             <option value="{{ sem }}" {% if request.args.get('semester') == sem %}selected{% endif %}>{{ sem }}</option>
                         {% endfor %}
                     </select>
-                   
+                    &nbsp;&nbsp;&nbsp;
                     <label for="location" class="block mb-2 font-medium text-gray-900 dark:text-white">Location: </label>
                     <select name="location" id="location" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -36,7 +36,7 @@
                             <option value="{{ loc }}" {% if request.args.get('location') == loc %}selected{% endif %}>{{ loc }}</option>
                         {% endfor %}
                     </select>
-                    
+                    &nbsp;&nbsp;&nbsp;
                     <label for="catalog" class="block mb-2 font-medium text-gray-900 dark:text-white">Catalog: </label>
                     <select name="catalog" id="catalog" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -45,7 +45,7 @@
                             <option value="{{ cat }}" {% if request.args.get('catalog') == cat %}selected{% endif %}>{{ cat }}</option>
                         {% endfor %}
                     </select>
-                 
+                    &nbsp;&nbsp;&nbsp;
                     <label for="professor" class="block mb-2 font-medium text-gray-900 dark:text-white">Professor: </label>
                     <select name="professor" id="professor" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -54,7 +54,7 @@
                             <option value="{{ prof }}" {% if request.args.get('professor') == prof %}selected{% endif %}>{{ prof }}</option>
                         {% endfor %}
                     </select>
-
+                    &nbsp;&nbsp;&nbsp;
                     <label for="hide_courses_registered" class="block mb-2 font-medium text-gray-900 dark:text-white">Hide Courses Registered: </label>
                     <select name="hide_courses_registered" id="hide_courses_registered" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">

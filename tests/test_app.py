@@ -4,8 +4,8 @@ from src.app import app, Course, database_file_path, database_path, db, init_app
 
 class TestUserRegistration(unittest.TestCase):
 
-    username = 'student2@student.umgc.edu'
-    password = 'studentSTUDENT2#'
+    username = 'student99@student.umgc.edu'
+    password = 'student99STUDENT()'
     phone_number = '4435551234'
     first_name = 'ITSAME'
     last_name = 'MARIO'
@@ -116,7 +116,7 @@ class TestUserRegistration(unittest.TestCase):
         }, follow_redirects=True)
         #print(self.username, self.password, self.csrf_token)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Student ID is', response.data)  
+        self.assertIn(b'Student ID:', response.data)  
 
     def test_4_logout(self):
         """
