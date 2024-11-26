@@ -2,10 +2,11 @@
 
 
 {% block content %}
-    <main class="ml-64 p-8" style="padding-left: 40px">
-        <div>
-            <h1 class="text-3xl md:text-3xl font-extrabold;" style=" font-weight: bold; font-size: x-large;">
-                Your Cart</h1>
+    <div class="flex flex-col items-center justify-center p-8 top-30 shadow-none">
+        <main class=" w-full text-center px-12">
+            <div">
+            <h2 class="text-3xl md:text-4xl font-extrabold">
+                Your Cart</h2>
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         <ul>
@@ -18,35 +19,40 @@
                 {% if not cart_courses %}
                     <p>Your cart is empty.</p>
                 {% else %}
-        </div><br>    
-        <table border="1">
-                <tr>
-                    <th scope="col" class="px-4 py-2 border border-gray-400">Course ID</th>
-                    <th scope="col" class="px-4 py-2 border border-gray-400">Course Name</th>
-                    <th scope="col" class="px-4 py-2 border border-gray-400">Class ID</th>
-                    <th scope="col" class="px-4 py-2 border border-gray-400">Semester</th>
-                    <th scope="col" class="px-4 py-2 border border-gray-400">Credits</th>
-                    <th> </th>
-                </tr>
-                {% for class in cart_courses %}
-                <tr>
-                    <td class="px-4 py-2 border border-gray-400">{{ class.course_id }}</td>
-                    <td class="px-4 py-2 border border-gray-400">{{ class.course_name }}</td>
-                    <td class="px-4 py-2 border border-gray-400">{{ class.class_id }}</td>
-                    <td class="px-4 py-2 border border-gray-400">{{ class.semester }}</td>
-                    <td class="px-4 py-2 border border-gray-400">{{ class.credits_awarded }}</td>
-                    <td> 
-                        <form action="{{ url_for('remove_from_cart') }}" method="post">
-                            <input type="hidden" name="class_id" value="{{ class.class_id }}">
-                            <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
-                            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Remove from Cart</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </thead>    
-        </table>
+        </div><br>
+        <div class="flex justify-center items-center sm:rounded-lg">
+            <table class="text-sm text-left rtl:text-right text-black dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-4 py-2 border-b border-gray-400">Course ID</th>
+                        <th scope="col" class="px-4 py-2 border-b border-gray-400">Course Name</th>
+                        <th scope="col" class="px-4 py-2 border-b border-gray-400">Class ID</th>
+                        <th scope="col" class="px-4 py-2 border-b border-gray-400">Semester</th>
+                        <th scope="col" class="px-4 py-2 border-b border-gray-400">Credits</th>
+                        <th> </th>
+                    </tr>
+                    {% for class in cart_courses %}
+                    <tr>
+                        <td class="px-4 py-2 border-b border-gray-400">{{ class.course_id }}</td>
+                        <td class="px-4 py-2 border-b border-gray-400">{{ class.course_name }}</td>
+                        <td class="px-4 py-2 border-b border-gray-400">{{ class.class_id }}</td>
+                        <td class="px-4 py-2 border-b border-gray-400">{{ class.semester }}</td>
+                        <td class="px-4 py-2 border-b border-gray-400">{{ class.credits_awarded }}</td>
+                        <td> 
+                            <form action="{{ url_for('remove_from_cart') }}" method="post">
+                                <input type="hidden" name="class_id" value="{{ class.class_id }}">
+                                <button type="submit" class="hover:bg-gray-200 transition duration-200 rounded p-2">
+                                    <img src="{{ url_for('static', filename='images/remove.svg') }}" alt="Remove from Cart" style="height: 2.0rem; width: 3.0rem;">
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </thead>    
+            </table>
+        </div>    
         <br>
+        <div class="flex flex-col items-center justify-center">
         <form action="{{ url_for('register_courses') }}" method="post">
             <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Register for All Courses</button>
@@ -56,11 +62,13 @@
         <a href="{{ url_for('view_courses') }}">
             <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Back to Courses</button>
-        </a>
+        </a><br><br>
         <a href="{{ url_for('registered_classes') }}">
             <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Registered Courses</button>
         </a>
-    </main>
+        </div>
+        </main>
+    </div>    
     {% include 'additional_info.html' %}    
 {% endblock %}

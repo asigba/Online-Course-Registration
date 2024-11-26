@@ -1,8 +1,8 @@
 {% extends "navbar_base.html" %} 
 
 {% block content %}
-    <div class="relative top-30 right-20 shadow-none">
-        <main class="ml-64 p-8 text-center">
+    <div class="flex flex-col items-center justify-center p-8 top-30 right-20 shadow-none">
+        <main class=" w-full text-center px-12">
             <h2 class="text-3xl md:text-4xl font-extrabold">
                 Available courses: 
             </h2><br>
@@ -17,106 +17,99 @@
             {% endwith %}
         
             <!-- This form is used to filter the available courses -->
-            <form method="GET" action="{{ url_for('view_courses') }}">
-                <label for="semester">Semester: </label>
-                <select name="semester" id="semester">
-                    <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
-                    {% for sem in semesters %}
-                        <option value="{{ sem }}" {% if request.args.get('semester') == sem %}selected{% endif %}>{{ sem }}</option>
-                    {% endfor %}
-                </select>
-            
-                <label for="location" style="margin-left: 30px;">Location: </label>
-                <select name="location" id="location">
-                    <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
-                    {% for loc in locations %}
-                        <option value="{{ loc }}" {% if request.args.get('location') == loc %}selected{% endif %}>{{ loc }}</option>
-                    {% endfor %}
-                </select>
-            
-                <label for="catalog" style="margin-left: 30px;">Catalog: </label>
-                <select name="catalog" id="catalog">
-                    <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
-                    {% for cat in catalogs %}
-                        <option value="{{ cat }}" {% if request.args.get('catalog') == cat %}selected{% endif %}>{{ cat }}</option>
-                    {% endfor %}
-                </select>
-            
-                <label for="professor" style="margin-left: 30px;">Professor: </label>
-                <select name="professor" id="professor">
-                    <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
-                    {% for prof in professors %}
-                        <option value="{{ prof }}" {% if request.args.get('professor') == prof %}selected{% endif %}>{{ prof }}</option>
-                    {% endfor %}
-                </select>
+            <div class="flex justify-center items-center min-h-screen">
+                <form method="GET" action="{{ url_for('view_courses') }}" class="flex flex-wrap items-center gap-4">
+                    <label for="semester" class="block mb-2 font-medium text-gray-900 dark:text-white"> Semester: </label>
+                    <select name="semester" id="semester" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
+                    block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
+                        {% for sem in semesters %}
+                            <option value="{{ sem }}" {% if request.args.get('semester') == sem %}selected{% endif %}>{{ sem }}</option>
+                        {% endfor %}
+                    </select>
+                   
+                    <label for="location" class="block mb-2 font-medium text-gray-900 dark:text-white">Location: </label>
+                    <select name="location" id="location" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
+                    block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
+                        {% for loc in locations %}
+                            <option value="{{ loc }}" {% if request.args.get('location') == loc %}selected{% endif %}>{{ loc }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <label for="catalog" class="block mb-2 font-medium text-gray-900 dark:text-white">Catalog: </label>
+                    <select name="catalog" id="catalog" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
+                    block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
+                        {% for cat in catalogs %}
+                            <option value="{{ cat }}" {% if request.args.get('catalog') == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                 
+                    <label for="professor" class="block mb-2 font-medium text-gray-900 dark:text-white">Professor: </label>
+                    <select name="professor" id="professor" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
+                    block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
+                        {% for prof in professors %}
+                            <option value="{{ prof }}" {% if request.args.get('professor') == prof %}selected{% endif %}>{{ prof }}</option>
+                        {% endfor %}
+                    </select>
 
-                <label for="hide_courses_registered" style="margin-left: 30px;">Hide Courses Already Registered For: </label>
-                <select name="hide_courses_registered" id="hide_courses_registered">
-                    <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>False</option>
-                    <option value="True" {% if request.args.get('hide_courses_registered') == "True" %}selected{% endif %}>True</option>
-                </select>
-            
-                <button type="submit" style="margin-left: 30px;" class="text-white hover:text-black bg-black hover:bg-white 
-                font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Filter</button>
+                    <label for="hide_courses_registered" class="block mb-2 font-medium text-gray-900 dark:text-white">Hide Courses Registered: </label>
+                    <select name="hide_courses_registered" id="hide_courses_registered" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
+                    block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
 
-            </form>
-        <br>
-
-        <a href="{{ url_for('view_cart') }}">
-            <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
-            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">View Cart</button>
-        </a>
-        <a href="{{url_for('landing')}}">
-            <button type="submit" class="text-white hover:text-black bg-black hover:bg-white 
-            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Return to Landing
-            </button>
-        </a>
-
-        <a href="{{url_for('view_courses')}}">
-            <button type="submit" class="text-white hover:text-black bg-black hover:bg-white 
-            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Clear Search/Filters
-            </button>
-        </a>
-        <br>
+                        <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>False</option>
+                        <option value="True" {% if request.args.get('hide_courses_registered') == "True" %}selected{% endif %}>True</option>
+                    </select>
+                    
+                    <button type="submit" style="margin-left: 30px;" class="text-white hover:text-black bg-black hover:bg-white 
+                    font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Filter</button>
+                    
+                </form>
+            </div><br>
+            <a href="{{url_for('view_courses')}}">
+                <button type="submit" class="text-white hover:text-black bg-black hover:bg-white 
+                font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Reset Filter
+                </button>
+            </a><br><br> 
 
         <!-- This table displays the filtered courses -->
-        <div class="relative shadow-md sm:rounded-lg" style="width: 90%; margin: 0 auto; overflow-x: hidden;">
-        <table class="px-4 py-3 w-full text-sm text-left rtl:text-right text-black-500 dark:text-gray-400 border border-gray-400">
-            <thead class="text-xs text-gray-700 uppercase dark:text-gray-400 border border-gray-400">
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table class="w-full text-sm text-left rtl:text-right text-black dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
-                        <th scope="col" class="px-4 py-2 border border-gray-400">Course ID</th>
-                        <th scope="col" class="px-2 py-2 border border-gray-400">Catalog</th>
-                        <th scope="col" class="px-2 py-2 border border-gray-400">Course Number</th>
-                        <th scope="col" class="px-10 py-2 border border-gray-400">Course Name</th>
-                        <th scope="col" class="px-4 py-2 border border-gray-400">Max Seats</th>
-                        <th scope="col" class="px-2 py-2 border border-gray-400">Credits</th>
-                        <th scope="col" class="px-10 py-2 border border-gray-400">Semesters Offered</th>
-                        <th scope="col" class="px-4 py-2 border border-gray-400">Professors</th>
-                        <th scope="col" class="px-12 py-2 border border-gray-400">Locations</th>
+                        <th scope="col" class="px-4 py-2 border-b border-gray-400">Course ID</th>
+                        <th scope="col" class="px-2 py-2 border-b border-gray-400">Catalog</th>
+                        <th scope="col" class="px-2 py-2 border-b border-gray-400">Course Number</th>
+                        <th scope="col" class="px-10 py-2 border-b border-gray-400">Course Name</th>
+                        <th scope="col" class="px-4 py-2 border-b border-gray-400">Max Seats</th>
+                        <th scope="col" class="px-2 py-2 border-b border-gray-400">Credits</th>
+                        <th scope="col" class="px-10 py-2 border-b border-gray-400">Semesters Offered</th>
+                        <th scope="col" class="px-4 py-2 border-b border-gray-400">Professors</th>
+                        <th scope="col" class="px-12 py-2 border-b border-gray-400">Locations</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for course in courses %}
-                    <tr class="bg-white border-b  hover:bg-gray-50">
-                        <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white border border-gray-400">
+                    <tr class="bg-white border-b hover:bg-gray-50 dark:border-gray-700">
+                        <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white border-b border-gray-400">
                             <a href="{{ url_for('course_details', course_id=course.course_id) }}">{{ course.course_id }}</a>
                         </th>
-                        <td class="px-2 py-3 border border-gray-400">{{ course.catalog }}</td>
-                        <td class="px-2 py-3 border border-gray-400">{{ course.course_number }}</td>
-                        <td class="px-10 py-3 border border-gray-400">{{ course.course_name }}</td>
-                        <td class="px-4 py-3 border border-gray-400">{{ course.max_seats }}</td>
-                        <td class="px-2 py-3 border border-gray-400">{{ course.credits_awarded }}</td>
-                        <td class="px-10 py-3 border border-gray-400">{{ course.semesters_offered | join(', ') }}</td> 
-                        <td class="px-4 py-3 border border-gray-400">{{ course.faculty | join(', ') }}</td> 
-                        <td class="px-12 py-3 border border-gray-400">{{ course.locations_offered | join(', ') }}</td>                 
+                        <td class="px-2 py-2 border-b border-gray-400">{{ course.catalog }}</td>
+                        <td class="px-2 py-2 border-b border-gray-400">{{ course.course_number }}</td>
+                        <td class="px-10 py-2 border-b border-gray-400">{{ course.course_name }}</td>
+                        <td class="px-4 py-2 border-b border-gray-400">{{ course.max_seats }}</td>
+                        <td class="px-2 py-2 border-b border-gray-400">{{ course.credits_awarded }}</td>
+                        <td class="px-10 py-2 border-b border-gray-400">{{ course.semesters_offered | join(', ') }}</td> 
+                        <td class="px-4 py-2 border-b border-gray-400">{{ course.faculty | join(', ') }}</td> 
+                        <td class="px-12 py-2 border-b border-gray-400">{{ course.locations_offered | join(', ') }}</td>                 
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
             <br>
-
-            
-        </div>
+        </div>    
         </main> 
     </div>
     {% include 'additional_info.html' %}
