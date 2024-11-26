@@ -37,4 +37,4 @@ src = [
 ]
 
 [project.scripts]
-cmsc495 = "src.app:main"
+ocr = "src.app:main"
