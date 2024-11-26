@@ -53,16 +53,32 @@
                 {% endfor %}
             </table>
         {% endif %}
+        <br>
+        <br>&nbsp;&nbsp;&nbsp;
+        <form action="{{ url_for('registered_classes') }}" method="POST">
+            <input type="hidden" name="filter" value="True">
+            <button type="submit" class="text-white hover:text-black bg-black hover:bg-white 
+                    font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">
+                Filter Ended Courses
+            </button>
+        </form>&nbsp;&nbsp;&nbsp;
+        <form action="{{ url_for('registered_classes') }}" method="POST">
+            <input type="hidden" name="reset" value="True">
+            <button type="submit" class="text-white hover:text-black bg-black hover:bg-white 
+                    font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">
+                Reset Filter
+            </button>
+        </form><br>
         <br>&nbsp;&nbsp;&nbsp;
         <a href="{{ url_for('registration_log') }}">
             <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">View Registration Logs</button>
-        </a>
+        </a><br>
         <br>&nbsp;&nbsp;&nbsp;
         <a href="{{ url_for('view_courses') }}">
             <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
             font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Back to Courses</button>
-        </a>
+        </a><br><br>
     </main>
     {% include 'additional_info.html' %}
 {% endblock %}

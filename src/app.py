@@ -83,7 +83,7 @@ class User(db.Model, UserMixin):
         Returns:
             None
         """
-        return f'{self.username}'
+        return f'{self.student.first_name.title()} {self.student.last_name.title()}'
     
     @staticmethod
     def hash_password(password):
@@ -270,7 +270,8 @@ class Student(db.Model):
                 flash(f"Class {class_selected} added to cart!", "success")
             except:
                 pass
-            
+
+    '''
     def remove_course_from_cart(self, class_selected):
         """Removes a class from the cart
         Args:
@@ -296,7 +297,8 @@ class Student(db.Model):
         self.cart = []
         flag_modified(self, "cart")
         db.session.commit()
-
+    '''
+    
     def register_cart_courses(self):
         if not self.cart:
             flash("Your cart is empty. No courses to register.", "warning")
@@ -707,12 +709,16 @@ class ChangePasswordForm(FlaskForm):
     def validate_password_complexity(self, password_field):
         updated_password = password_field.data
         if not search(r'[A-Z]', updated_password):
+            flash("Password must contain at least one uppercase letter.", "error")
             raise ValidationError('Password must contain at least one uppercase letter.')
         if not search(r'[a-z]', updated_password):
+            flash("Password must contain at least one lowercase letter.", "error")
             raise ValidationError('Password must contain at least one lowercase letter.')
         if not search(r'\d', updated_password):
+            flash("Password must contain at least one digit.", "error")
             raise ValidationError('Password must contain at least one digit.')
         if not search(r'[!@#$%^&*(),.?":{}|<>]', updated_password):
+            flash('Password must contain at least one special character from this list: !@#$%^&*(),.?":{}|<>', "error")
             raise ValidationError('Password must contain at least one special character from this list: !@#$%^&*(),.?":{}|<>')
         # Save New Password for comparion
         self.updated_password = updated_password
@@ -779,9 +785,10 @@ def index():
 @app.route('/landing', methods=['GET', 'POST'])
 @login_required
 def landing():
-    user = request.args.get('user')
-    id = request.args.get('id')
-    return render_template('landing.html', user=user, id=id)
+    # Replaced these because they allow user info to be spoofed
+    #user = request.args.get('user')
+    #id = request.args.get('id')
+    return render_template('landing.html', user=current_user, id=current_user.student.student_id)
 
 @app.route('/courses', methods=['GET', 'POST'])
 @login_required
@@ -1101,13 +1108,20 @@ def drop_course():
     
     return redirect(url_for('registered_classes'))
 
-@app.route('/registered')
+@app.route('/registered', methods=['GET', 'POST'])
 @login_required
 def registered_classes():
     student = current_user.student
     # Fetch course objects for all course IDs in registered_classes
     registered_classes = Class.query.filter(Class.class_id.in_(student.registered_classes)).all()
-    return render_template('registered_classes.html', registered_classes=registered_classes, Semester=Semester)
+    filter_selection = request.form.get('filter', 'False')
+    reset_selection = request.form.get('reset', 'False')
+
+    if filter_selection == 'True' and reset_selection == 'False':
+        for current_class in registered_classes[:]:
+            if current_class.get_semester_status() == Semester.ENDED:
+                registered_classes.remove(current_class)
+    return render_template('registered_classes.html', registered_classes=registered_classes, Semester=Semester, filter=filter_selection)
 
 @app.route('/log')
 @login_required
