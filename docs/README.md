@@ -30,6 +30,7 @@ python3 src/app.py
 # Step 4 - Option 3:
 #pip install build
 #python3 -m build
+<MAKE_NEW_VENV>
 pip install cmsc495project*.whl
 sudo cmsc495
 ```
@@ -38,17 +39,15 @@ sudo cmsc495
 
     /cmsc495project
     │
+    ├── .vscode
+    │   └── launch.json         # enables sudo via VSCode
+    |
     ├── /database
     │   └── database.db         # this file and parent directory will be created automatic if non-existent
     │
     ├── /docs
     │   └── README.md
     │
-    ├── node_modules
-    │   └── <many_files>   
-    |
-    ├── .vscode
-    │   └── launch.json         # enables sudo via VSCode   
     |
     ├── /src
     │   ├── app.py              # the main application
@@ -65,8 +64,10 @@ sudo cmsc495
     │   │   ├── index.html
     │   │   ├── landing.html
     │   │   ├── login.html
+    |   |   ├── navbar_base.html    
     │   │   ├── register.html
-    │   │   ├── registerd_courses.html
+    │   │   ├── registered_classes.html
+    |   |   ├── registration_log.html    
     │   │   ├── view_cart.html
     │   │   └── view_courses.html
     │   │    
@@ -93,6 +94,10 @@ sudo cmsc495
     │   └── test_app.py         # 'python -m unittest discover tests'
     │  
     ├── initial_course_data.json
+    |
+    ├── initial_semester_dates.json
+    |
+    ├── initial_student_user_data.json
     |
     ├── requirements.txt
     │  
@@ -146,32 +151,31 @@ select * from classes;
             UNIQUE (semester_name)
     );
     CREATE TABLE students (
-            id INTEGER NOT NULL,
-            student_id INTEGER NOT NULL,
-            first_name VARCHAR(30) NOT NULL,
-            last_name VARCHAR(30) NOT NULL,
-            updated_at DATETIME,
-            student_email VARCHAR(64) NOT NULL,
-            phone_number VARCHAR(10) NOT NULL,
-            current_enrollments JSON,
-            past_enrollments JSON,
-            cart JSON,
-            registered_courses JSON,
-            PRIMARY KEY (id),
-            FOREIGN KEY(id) REFERENCES users (id),
-            UNIQUE (student_id)
+            id INTEGER NOT NULL, 
+	    student_id INTEGER NOT NULL, 
+	    first_name VARCHAR(30) NOT NULL, 
+	    last_name VARCHAR(30) NOT NULL, 
+	    student_email VARCHAR(64) NOT NULL, 
+	    phone_number VARCHAR(10) NOT NULL, 
+	    cart JSON, 
+	    registered_classes JSON, 
+	    course_transactions JSON, 
+	    created_at DATETIME NOT NULL, 
+	    updated_at DATETIME, 
+	    PRIMARY KEY (id), 
+	    FOREIGN KEY(id) REFERENCES users (id), 
+	    UNIQUE (student_id)
     );
     CREATE TABLE classes (
-            class_id INTEGER NOT NULL,
-            course_id VARCHAR(7),
-            course_name VARCHAR(250),
-            current_enrollments JSON,
-            location VARCHAR(64) NOT NULL,
-            semester VARCHAR(8) NOT NULL,
-            professor VARCHAR(64) NOT NULL,
-            credits_awarded INTEGER NOT NULL,
-            available_seats INTEGER NOT NULL,
-            PRIMARY KEY (class_id),
+            class_id INTEGER NOT NULL, 
+            course_id VARCHAR(7), 
+            course_name VARCHAR(250), 
+            location VARCHAR(64) NOT NULL, 
+            semester VARCHAR(8) NOT NULL, 
+            professor VARCHAR(64) NOT NULL, 
+            credits_awarded INTEGER NOT NULL, 
+            available_seats INTEGER NOT NULL, 
+            PRIMARY KEY (class_id), 
             FOREIGN KEY(course_id) REFERENCES courses (course_id)
     );
 

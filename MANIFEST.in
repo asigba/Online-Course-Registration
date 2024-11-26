@@ -1,0 +1,4 @@
+recursive-include docs *
+recursive-include images *
+recursive-include src *
+recursive-include tests *
