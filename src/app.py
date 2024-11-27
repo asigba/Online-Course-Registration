@@ -793,6 +793,15 @@ def init_database(database_file_path, app, db, course):
 
 # ROUTES...
 
+@app.context_processor
+def inject_user_and_id():
+    if current_user.is_authenticated:
+        return {
+            'user': current_user,
+            'id': getattr(current_user.student, 'student_id', None)
+        }
+    return {}
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html')
@@ -803,7 +812,8 @@ def landing():
     # Replaced these because they allow user info to be spoofed
     #user = request.args.get('user')
     #id = request.args.get('id')
-    return render_template('landing.html', user=current_user, id=current_user.student.student_id)
+    #return render_template('landing.html', user=current_user, id=current_user.student.student_id)
+    return render_template('landing.html')
 
 @app.route('/courses', methods=['GET', 'POST'])
 @login_required

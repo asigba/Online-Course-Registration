@@ -37,7 +37,7 @@
                             <option value="{{ loc }}" {% if request.args.get('location') == loc %}selected{% endif %}>{{ loc }}</option>
                         {% endfor %}
                     </select>
-                
+                    &nbsp;&nbsp;&nbsp;
                     <label for="semester" class="block mb-2 font-medium text-gray-900 dark:text-white"> Semester: </label>
                     <select name="semester" id="semester" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -46,7 +46,7 @@
                             <option value="{{ sem }}" {% if request.args.get('semester') == sem %}selected{% endif %}>{{ sem }}</option>
                         {% endfor %}
                     </select>
-                
+                    &nbsp;&nbsp;&nbsp;
                     <label for="professor" class="block mb-2 font-medium text-gray-900 dark:text-white">Professor: </label>
                     <select name="professor" id="professor" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -55,9 +55,24 @@
                             <option value="{{ prof }}" {% if request.args.get('professor') == prof %}selected{% endif %}>{{ prof }}</option>
                         {% endfor %}
                     </select>
+                    &nbsp;&nbsp;&nbsp;
+                    <label for="show_all_classes" class="block mb-2 font-medium text-gray-900 dark:text-white">Show Closed Classes: </label>
+                    <select name="show_all_classes" id="show_all_classes" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
+                    block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="False" {% if request.args.get('show_all_classes') == "False" %}selected{% endif %}>False</option>
+                        <option value="True" {% if request.args.get('show_all_classes') == "True" %}selected{% endif %}>True</option>
+                    </select>
+                    &nbsp;&nbsp;&nbsp;
                     <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
                     font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Filter</button>
                 </form>
+                &nbsp;&nbsp;&nbsp;
+                <a href="{{url_for('course_details', course_id=course.course_id)}}">
+                    <input type="hidden" name="reset" value="True">
+                    <button type="submit" class="text-white hover:text-black bg-black hover:bg-white 
+                    font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Reset Filter
+                    </button>
+                </a><br><br> 
             </div><br>
 
             <!--Title for Table-->
