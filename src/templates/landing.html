@@ -9,16 +9,11 @@
             {% else %}
                 Welcome!
             {% endif %}
-        </h2>
-        {% if user %}
-           <br> <h3 class="text-xl mt-2">Student ID is: {{ id }}.</h3>
-        {% endif %}
+        </h2>   
         <br>
         <div class="flex justify-center gap-8 mt-4">
             <a href="{{url_for('view_courses')}}" class="text-white hover:text-black bg-black hover:bg-white 
-            font-medium text-sm px-14 py-3 border-2 border-black shadow rounded transition duration-200">View Courses</a>
-            <a href="{{url_for('registered_classes')}}" class="text-white hover:text-black bg-black hover:bg-white 
-            font-medium text-sm px-14 py-3 border-2 border-black shadow rounded transition duration-200">Registered Courses</a>
+            font-medium text-sm px-14 py-3 border-2 border-black shadow rounded transition duration-200">View Courses</a>          
         </div>
         <div class="flex justify-center gap-8 mt-4">
             <img src="{{ url_for('static', filename='images/banner.png') }}" alt="banner">
