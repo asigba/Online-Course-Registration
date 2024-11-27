@@ -1,25 +1,30 @@
 {% extends "navbar_base.html" %} 
 
 {% block content %}
-    <div class="flex flex-col items-center justify-center p-8 top-30 right-20 shadow-none">
-        <main class=" w-full text-center px-12">
-            <h2 class="text-3xl md:text-4xl font-extrabold">
-                Available courses: 
-            </h2><br>
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <ul>
-                        {% for category, message in messages %}
-                            <li class="{{ category }}">{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endwith %}
-        
+    <div class="flex flex-col items-center justify-center p-8">
+        <main class="w-full text-center px-12">
+
+            <!--Title and Message Diplay-->
+            <div>
+                <h2 class="text-3xl md:text-4xl font-extrabold">
+                    Available courses: 
+                </h2><br>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <ul>
+                            {% for category, message in messages %}
+                                <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+            </div><br>
+
             <!-- This form is used to filter the available courses -->
             <div class="flex justify-center items-center min-h-screen">
                 <form method="GET" action="{{ url_for('view_courses') }}" class="flex flex-wrap items-center gap-4">
-                    <label for="semester" class="block mb-2 font-medium text-gray-900 dark:text-white"> Semester: </label>
+                    <label for="semester" class="block mb-2 font-medium text-gray-900 dark:text-white"> 
+                        Semester: </label>&nbsp;&nbsp;&nbsp;
                     <select name="semester" id="semester" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
@@ -28,7 +33,8 @@
                         {% endfor %}
                     </select>
                     &nbsp;&nbsp;&nbsp;
-                    <label for="location" class="block mb-2 font-medium text-gray-900 dark:text-white">Location: </label>
+                    <label for="location" class="block mb-2 font-medium text-gray-900 dark:text-white">
+                        Location: </label>&nbsp;&nbsp;&nbsp;
                     <select name="location" id="location" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
@@ -37,7 +43,8 @@
                         {% endfor %}
                     </select>
                     &nbsp;&nbsp;&nbsp;
-                    <label for="catalog" class="block mb-2 font-medium text-gray-900 dark:text-white">Catalog: </label>
+                    <label for="catalog" class="block mb-2 font-medium text-gray-900 dark:text-white">
+                        Catalog: </label>&nbsp;&nbsp;&nbsp;
                     <select name="catalog" id="catalog" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
@@ -46,7 +53,8 @@
                         {% endfor %}
                     </select>
                     &nbsp;&nbsp;&nbsp;
-                    <label for="professor" class="block mb-2 font-medium text-gray-900 dark:text-white">Professor: </label>
+                    <label for="professor" class="block mb-2 font-medium text-gray-900 dark:text-white">
+                        Professor: </label>&nbsp;&nbsp;&nbsp;
                     <select name="professor" id="professor" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>All</option>
@@ -55,10 +63,10 @@
                         {% endfor %}
                     </select>
                     &nbsp;&nbsp;&nbsp;
-                    <label for="hide_courses_registered" class="block mb-2 font-medium text-gray-900 dark:text-white">Hide Courses Registered: </label>
+                    <label for="hide_courses_registered" class="block mb-2 font-medium text-gray-900 dark:text-white">
+                        Hide Courses Registered: </label>&nbsp;&nbsp;&nbsp;
                     <select name="hide_courses_registered" id="hide_courses_registered" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-
                         <option value="" {% if request.args.get('reset') == 'True' %}selected{% endif %}>False</option>
                         <option value="True" {% if request.args.get('hide_courses_registered') == "True" %}selected{% endif %}>True</option>
                     </select>
@@ -68,48 +76,53 @@
                     
                 </form>
             </div><br>
-            <a href="{{url_for('view_courses')}}">
-                <button type="submit" class="text-white hover:text-black bg-black hover:bg-white 
-                font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Reset Filter
-                </button>
-            </a><br><br> 
 
-        <!-- This table displays the filtered courses -->
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-            <table class="w-full text-sm text-left rtl:text-right text-black dark:text-gray-400">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" class="px-4 py-2 border-b border-gray-400">Course ID</th>
-                        <th scope="col" class="px-2 py-2 border-b border-gray-400">Catalog</th>
-                        <th scope="col" class="px-2 py-2 border-b border-gray-400">Course Number</th>
-                        <th scope="col" class="px-10 py-2 border-b border-gray-400">Course Name</th>
-                        <th scope="col" class="px-4 py-2 border-b border-gray-400">Max Seats</th>
-                        <th scope="col" class="px-2 py-2 border-b border-gray-400">Credits</th>
-                        <th scope="col" class="px-10 py-2 border-b border-gray-400">Semesters Offered</th>
-                        <th scope="col" class="px-4 py-2 border-b border-gray-400">Professors</th>
-                        <th scope="col" class="px-12 py-2 border-b border-gray-400">Locations</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for course in courses %}
-                    <tr class="bg-white border-b hover:bg-gray-50 dark:border-gray-700">
-                        <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white border-b border-gray-400">
-                            <a href="{{ url_for('course_details', course_id=course.course_id) }}">{{ course.course_id }}</a>
-                        </th>
-                        <td class="px-2 py-2 border-b border-gray-400">{{ course.catalog }}</td>
-                        <td class="px-2 py-2 border-b border-gray-400">{{ course.course_number }}</td>
-                        <td class="px-10 py-2 border-b border-gray-400">{{ course.course_name }}</td>
-                        <td class="px-4 py-2 border-b border-gray-400">{{ course.max_seats }}</td>
-                        <td class="px-2 py-2 border-b border-gray-400">{{ course.credits_awarded }}</td>
-                        <td class="px-10 py-2 border-b border-gray-400">{{ course.semesters_offered | join(', ') }}</td> 
-                        <td class="px-4 py-2 border-b border-gray-400">{{ course.faculty | join(', ') }}</td> 
-                        <td class="px-12 py-2 border-b border-gray-400">{{ course.locations_offered | join(', ') }}</td>                 
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <br>
-        </div>    
+            <!--Reset Filter-->
+            <div class="flex justify-center items-center min-h-screen">
+                <a href="{{url_for('view_courses')}}">
+                    <button type="submit" class="text-white hover:text-black bg-black hover:bg-white 
+                    font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Reset Filter
+                    </button>
+                </a>
+            </div><br><br>
+
+            <!-- This table displays the filtered courses -->
+            <div class="flex justify-center items-center sm:rounded-lg">
+                <table class="text-sm text-left rtl:text-right text-black dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th scope="col" class="px-4 py-2 border-b border-gray-400">Course ID</th>
+                            <th scope="col" class="px-2 py-2 border-b border-gray-400">Catalog</th>
+                            <th scope="col" class="px-2 py-2 border-b border-gray-400">Course Number</th>
+                            <th scope="col" class="px-10 py-2 border-b border-gray-400">Course Name</th>
+                            <th scope="col" class="px-4 py-2 border-b border-gray-400">Max Seats</th>
+                            <th scope="col" class="px-2 py-2 border-b border-gray-400">Credits</th>
+                            <th scope="col" class="px-10 py-2 border-b border-gray-400">Semesters Offered</th>
+                            <th scope="col" class="px-4 py-2 border-b border-gray-400">Professors</th>
+                            <th scope="col" class="px-12 py-2 border-b border-gray-400">Locations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                        <tr class="bg-white border-b hover:bg-gray-50 dark:border-gray-700">
+                            <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white border-b border-gray-400">
+                                <a href="{{ url_for('course_details', course_id=course.course_id) }}">{{ course.course_id }}</a>
+                            </th>
+                            <td class="px-2 py-2 border-b border-gray-400">{{ course.catalog }}</td>
+                            <td class="px-2 py-2 border-b border-gray-400">{{ course.course_number }}</td>
+                            <td class="px-10 py-2 border-b border-gray-400">{{ course.course_name }}</td>
+                            <td class="px-4 py-2 border-b border-gray-400">{{ course.max_seats }}</td>
+                            <td class="px-2 py-2 border-b border-gray-400">{{ course.credits_awarded }}</td>
+                            <td class="px-10 py-2 border-b border-gray-400">{{ course.semesters_offered | join(', ') }}</td> 
+                            <td class="px-4 py-2 border-b border-gray-400">{{ course.faculty | join(', ') }}</td> 
+                            <td class="px-12 py-2 border-b border-gray-400">{{ course.locations_offered | join(', ') }}</td>                 
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br>
+            </div>    
+
         </main> 
     </div>
     {% include 'additional_info.html' %}

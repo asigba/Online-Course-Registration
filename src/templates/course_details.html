@@ -5,24 +5,26 @@
         <main class="w-full text-center px-12">
             
             <!-- This section provides all of the details for the course -->
-            <h2 class="text-3xl md:text-3xl font-extrabold;" style=" font-weight: bold; font-size: x-large;">
-                This is course  {{ course.course_id }} - {{ course.course_name }}: 
-            </h2>
-            <ul>
-                <li style="text-align: center;"><strong>Catalog:</strong> {{ course.catalog }}</li>
-                <li style="text-align: center;"><strong>Course Number:</strong> {{ course.course_number }}</li>
-                <li style="text-align: center;"><strong>Course Name:</strong> {{ course.course_name }}</li>
-                <li style="text-align: center;"><strong>Description:</strong> {{ course.description }}</li>
-                <li style="text-align: center;"><strong>Max Seats:</strong> {{ course.max_seats }}</li>
-                <li style="text-align: center;"><strong>Credits Awarded:</strong> {{ course.credits_awarded }}</li>
-                <li style="text-align: center;"><strong>Semesters Offered:</strong> {{ course.semesters_offered | join(', ') }}</li>
-                <li style="text-align: center;"><strong>Locations Offered:</strong> {{ course.locations_offered | join(', ') }}</li>
-                <li style="text-align: center;"><strong>Prerequisites:</strong> {{ course.prereq }}</li>
-                <li style="text-align: center;"><strong>Faculty:</strong> {{ course.faculty | join(', ') }}</li>
-                <li style="text-align: center;"><strong>Required Technology:</strong> {{ course.required_technology }}</li>
-                <li style="text-align: center;"><strong>Reporting Instructions:</strong> {{ course.reporting_instructions }}</li>
-                <br>
-            </ul>
+            <div>
+                <h2 class="text-3xl md:text-3xl font-extrabold;" style=" font-weight: bold; font-size: x-large;">
+                    This is course  {{ course.course_id }} - {{ course.course_name }}: 
+                </h2>
+                <ul>
+                    <li style="text-align: center;"><strong>Catalog:</strong> {{ course.catalog }}</li>
+                    <li style="text-align: center;"><strong>Course Number:</strong> {{ course.course_number }}</li>
+                    <li style="text-align: center;"><strong>Course Name:</strong> {{ course.course_name }}</li>
+                    <li style="text-align: center;"><strong>Description:</strong> {{ course.description }}</li>
+                    <li style="text-align: center;"><strong>Max Seats:</strong> {{ course.max_seats }}</li>
+                    <li style="text-align: center;"><strong>Credits Awarded:</strong> {{ course.credits_awarded }}</li>
+                    <li style="text-align: center;"><strong>Semesters Offered:</strong> {{ course.semesters_offered | join(', ') }}</li>
+                    <li style="text-align: center;"><strong>Locations Offered:</strong> {{ course.locations_offered | join(', ') }}</li>
+                    <li style="text-align: center;"><strong>Prerequisites:</strong> {{ course.prereq }}</li>
+                    <li style="text-align: center;"><strong>Faculty:</strong> {{ course.faculty | join(', ') }}</li>
+                    <li style="text-align: center;"><strong>Required Technology:</strong> {{ course.required_technology }}</li>
+                    <li style="text-align: center;"><strong>Reporting Instructions:</strong> {{ course.reporting_instructions }}</li>
+                    <br>
+                </ul>
+            </div>
 
             <!-- This form is used to filter the available classes -->
             <div class="flex justify-center items-center min-h-screen">
@@ -56,13 +58,14 @@
                     <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
                     font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Filter</button>
                 </form>
-            </div>    
-            <br>
+            </div><br>
+
+            <!--Title for Table-->
             <h2 style="font-weight: bold; font-size: large; ">Available Classes</h2>
 
             <!-- This table displays the filtered classes -->
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <table class="w-full text-sm text-left rtl:text-right text-black dark:text-gray-400">
+            <div class="flex justify-center items-center sm:rounded-lg">
+                <table class="text-sm text-left rtl:text-right text-black dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th scope="col" class="px-1 py-2 border-b border-gray-400">Class ID</th>
@@ -103,9 +106,9 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>    
+            </div><br>
 
-            <br>
+            <!--Buttons after Table-->
             <div class="relative overflow-x-auto w-full flex justify-center items-center min-h-screen">
                 <a href="{{url_for('view_courses')}}" >
                     <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 

@@ -3,7 +3,9 @@
 
 {% block content %}
     <div class="flex flex-col items-center justify-center p-8 top-30 shadow-none">
-        <main class=" w-full text-center px-12">
+        <main class="items-center flex text-center px-12">
+
+            <!--Cart Title and Messages Display-->
             <div">
             <h2 class="text-3xl md:text-4xl font-extrabold">
                 Your Cart</h2>
@@ -19,8 +21,10 @@
                 {% if not cart_courses %}
                     <p>Your cart is empty.</p>
                 {% else %}
-        </div><br>
-        <div class="flex justify-center items-center sm:rounded-lg">
+            </div><br>
+
+            <!--table that displays cart items-->
+            <div class="flex justify-center items-center sm:rounded-lg">
             <table class="text-sm text-left rtl:text-right text-black dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
@@ -50,24 +54,37 @@
                     {% endfor %}
                 </thead>    
             </table>
-        </div>    
-        <br>
-        <div class="flex flex-col items-center justify-center">
-        <form action="{{ url_for('register_courses') }}" method="post">
-            <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
-            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Register for All Courses</button>
-        </form>
-        <br>
-        {% endif %}
-        <a href="{{ url_for('view_courses') }}">
-            <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
-            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Back to Courses</button>
-        </a><br><br>
-        <a href="{{ url_for('registered_classes') }}">
-            <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
-            font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Registered Courses</button>
-        </a>
-        </div>
+            </div><br>
+
+            <!--table for Menu buttons-->
+            <div class="flex justify-center items-center sm:rounded-lg">
+            <table class="text-sm text-left rtl:text-right text-black dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-4 py-2 border-b border-gray-400">
+                            <form action="{{ url_for('register_courses') }}" method="post">
+                                <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
+                                font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Register for All Courses</button>
+                            </form>
+                            {% endif %}
+                        </th>
+                        <th scope="col" class="px-4 py-2 border-b border-gray-400">
+                            <a href="{{ url_for('view_courses') }}">
+                                <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
+                                font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Back to Courses</button>
+                            </a>
+                        </th>
+                        <th scope="col" class="px-4 py-2 border-b border-gray-400">
+                            <a href="{{ url_for('registered_classes') }}">
+                                <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
+                                font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">Registered Courses</button>
+                            </a>
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+            </div><br>
+            
         </main>
     </div>    
     {% include 'additional_info.html' %}    
