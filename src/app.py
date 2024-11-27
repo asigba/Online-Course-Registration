@@ -32,7 +32,6 @@ def init_application():
     # Application
     app = Flask(__name__, template_folder=templates_path)
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{database_file_path}"
-    print(f"Database is at: {database_file_path}")
     app.config['SECRET_KEY'] = urandom(24)
     #app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SESSION_TYPE'] = 'redis'
@@ -56,6 +55,7 @@ def init_application():
     return database_file_path, database_path, app, db, bcrypt, login_mgr, flask_session, init_data_path
 
 database_file_path, database_path, app, db, bcrypt, login_mgr, flask_session, init_data_path = init_application()
+print(f"Database is at: {database_file_path}")
 
 @login_mgr.user_loader
 def load_user(id):
@@ -916,32 +916,36 @@ def view_courses():
         query=search_query
     )
 
-@app.route('/course/<course_id>')
+@app.route('/course/<course_id>', methods=['GET', 'POST'])
 @login_required
 def course_details(course_id):
     
+    if 'reset' in request.args:
+        # Redirect to the same route without query parameters
+        return redirect(url_for('registration_log'))
+
     # Set Filter Values Selected
     selected_location = request.args.get('location', '')
     selected_semester = request.args.get('semester', '')
     selected_professor = request.args.get('professor', '')
-    show_all_classes_bool = request.args.get('show_all_classes', '')
+    show_all_classes_bool = request.args.get('show_all_classes', 'False')
 
     # Course Selected
     course = Course.get_course(course_id)
     
     # Get All Classes of the Selected Course First
     all_classes = Class.query.filter_by(course_id=course_id).order_by(asc(Class.class_id))
-    upcoming_classes = []
+    closed_classes = []
     display_classes = []
-    for current_class in all_classes:
+    for current_class in all_classes[:]:
         semester_status = current_class.get_semester_status()
-        if semester_status == Semester.UPCOMING:
-            upcoming_classes.append(current_class)
+        if semester_status != Semester.UPCOMING:
+            closed_classes.append(current_class.class_id)
 
-    if show_all_classes_bool:
+    if show_all_classes_bool == "True":
         display_classes = all_classes
     else:
-        display_classes = upcoming_classes
+        display_classes = all_classes.filter(Class.class_id.notin_(closed_classes)).order_by(asc(Class.class_id))
 
     # Filter Classes By Selections
     if selected_location:
@@ -961,12 +965,20 @@ def course_details(course_id):
     locations.sort()
     professors.sort()
 
+    if 'reset' in request.args:
+        # Redirect to the same route without query parameters
+        return redirect(url_for('course_details.html',
+                           course=course,
+                           all_classes=all_classes,
+                           locations=[loc[0] for loc in locations],
+                           semesters=[sem[0] for sem in semesters],
+                           professors=[prof[0] for prof in professors]
+        ))
+
     # Render
     return render_template('course_details.html',
                            course=course,
-                           all_classes=all_classes,
-                           upcoming_classes=upcoming_classes,
-                           display_classes=display_classes,
+                           all_classes=display_classes,
                            locations=[loc[0] for loc in locations],
                            semesters=[sem[0] for sem in semesters],
                            professors=[prof[0] for prof in professors])
