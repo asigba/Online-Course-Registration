@@ -26,7 +26,9 @@ def init_application():
     parent_directory = Path(__file__).resolve().parent.parent
     database_path = parent_directory / 'database'
     database_file_path = Path(f"{database_path}/database.db")
-    templates_path = 'templates'
+    #templates_path = 'templates'
+    templates_path = parent_directory / 'src' / 'templates'
+    init_data_path = parent_directory / 'src' / 'init_data'
     # Application
     app = Flask(__name__, template_folder=templates_path)
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{database_file_path}"
@@ -50,9 +52,10 @@ def init_application():
     # Flask Session
     flask_session = Session(app)
 
-    return database_file_path, database_path, app, db, bcrypt, login_mgr, flask_session
+    return database_file_path, database_path, app, db, bcrypt, login_mgr, flask_session, init_data_path
 
-database_file_path, database_path, app, db, bcrypt, login_mgr, flask_session = init_application()
+database_file_path, database_path, app, db, bcrypt, login_mgr, flask_session, init_data_path = init_application()
+print(f"Database is at: {database_file_path}")
 
 @login_mgr.user_loader
 def load_user(id):
@@ -83,7 +86,7 @@ class User(db.Model, UserMixin):
         Returns:
             None
         """
-        return f'{self.username}'
+        return f'{self.student.first_name.title()} {self.student.last_name.title()}'
     
     @staticmethod
     def hash_password(password):
@@ -91,9 +94,12 @@ class User(db.Model, UserMixin):
     
     @staticmethod
     def init_database_users():
-        json_file_path = 'initial_student_user_data.json'
-        with open(json_file_path, 'r') as student_user_data_file:
-            student_user_data = load(student_user_data_file)
+        try:
+            json_file_path = init_data_path / 'initial_student_user_data.json'
+            with open(json_file_path, 'r') as student_user_data_file:
+                student_user_data = load(student_user_data_file)
+        except:
+            pass
 
         if not student_user_data:
             return
@@ -148,9 +154,12 @@ class Student(db.Model):
     
     @staticmethod
     def init_database_students():
-        json_file_path = 'initial_student_user_data.json'
-        with open(json_file_path, 'r') as student_user_data_file:
-            student_user_data = load(student_user_data_file)
+        try:
+            json_file_path = init_data_path / 'initial_student_user_data.json'
+            with open(json_file_path, 'r') as student_user_data_file:
+                student_user_data = load(student_user_data_file)
+        except:
+            pass
 
         if not student_user_data:
             return
@@ -270,7 +279,8 @@ class Student(db.Model):
                 flash(f"Class {class_selected} added to cart!", "success")
             except:
                 pass
-            
+
+    '''
     def remove_course_from_cart(self, class_selected):
         """Removes a class from the cart
         Args:
@@ -296,7 +306,8 @@ class Student(db.Model):
         self.cart = []
         flag_modified(self, "cart")
         db.session.commit()
-
+    '''
+    
     def register_cart_courses(self):
         if not self.cart:
             flash("Your cart is empty. No courses to register.", "warning")
@@ -354,7 +365,6 @@ class Student(db.Model):
         transaction = Transaction(self, current_class, action)
         self.add_transaction_to_log(transaction.to_log_string())
 
-    
     def print_all_transactions(self):
         for transaction_dump in self.course_transactions:
             transaction = loads(transaction_dump)
@@ -420,9 +430,12 @@ class Course(db.Model):
 
     @staticmethod
     def init_database_courses():
-        json_file_path = 'initial_course_data.json'
-        with open(json_file_path, 'r') as course_data_file:
-            courses_data = load(course_data_file)
+        try:
+            json_file_path = init_data_path / 'initial_course_data.json'
+            with open(json_file_path, 'r') as course_data_file:
+                courses_data = load(course_data_file)
+        except:
+            pass
 
         if not courses_data:
             return
@@ -562,9 +575,12 @@ class Semester(db.Model):
 
     @staticmethod
     def init_database_semesters():
-        json_file_path = 'initial_semester_dates.json'
-        with open(json_file_path, 'r') as semester_data_file:
-            semesters_data_data = load(semester_data_file)
+        try:
+            json_file_path = init_data_path / 'initial_semester_dates.json'
+            with open(json_file_path, 'r') as semester_data_file:
+                semesters_data_data = load(semester_data_file)
+        except:
+            pass
 
         if not semesters_data_data:
             return
@@ -708,12 +724,16 @@ class ChangePasswordForm(FlaskForm):
     def validate_password_complexity(self, password_field):
         updated_password = password_field.data
         if not search(r'[A-Z]', updated_password):
+            flash("Password must contain at least one uppercase letter.", "error")
             raise ValidationError('Password must contain at least one uppercase letter.')
         if not search(r'[a-z]', updated_password):
+            flash("Password must contain at least one lowercase letter.", "error")
             raise ValidationError('Password must contain at least one lowercase letter.')
         if not search(r'\d', updated_password):
+            flash("Password must contain at least one digit.", "error")
             raise ValidationError('Password must contain at least one digit.')
         if not search(r'[!@#$%^&*(),.?":{}|<>]', updated_password):
+            flash('Password must contain at least one special character from this list: !@#$%^&*(),.?":{}|<>', "error")
             raise ValidationError('Password must contain at least one special character from this list: !@#$%^&*(),.?":{}|<>')
         # Save New Password for comparion
         self.updated_password = updated_password
@@ -780,9 +800,10 @@ def index():
 @app.route('/landing', methods=['GET', 'POST'])
 @login_required
 def landing():
-    user = request.args.get('user')
-    id = request.args.get('id')
-    return render_template('landing.html', user=user, id=id)
+    # Replaced these because they allow user info to be spoofed
+    #user = request.args.get('user')
+    #id = request.args.get('id')
+    return render_template('landing.html', user=current_user, id=current_user.student.student_id)
 
 @app.route('/courses', methods=['GET', 'POST'])
 @login_required
@@ -895,32 +916,36 @@ def view_courses():
         query=search_query
     )
 
-@app.route('/course/<course_id>')
+@app.route('/course/<course_id>', methods=['GET', 'POST'])
 @login_required
 def course_details(course_id):
     
+    if 'reset' in request.args:
+        # Redirect to the same route without query parameters
+        return redirect(url_for('registration_log'))
+
     # Set Filter Values Selected
     selected_location = request.args.get('location', '')
     selected_semester = request.args.get('semester', '')
     selected_professor = request.args.get('professor', '')
-    show_all_classes_bool = request.args.get('show_all_classes', '')
+    show_all_classes_bool = request.args.get('show_all_classes', 'False')
 
     # Course Selected
     course = Course.get_course(course_id)
     
     # Get All Classes of the Selected Course First
     all_classes = Class.query.filter_by(course_id=course_id).order_by(asc(Class.class_id))
-    upcoming_classes = []
+    closed_classes = []
     display_classes = []
-    for current_class in all_classes:
+    for current_class in all_classes[:]:
         semester_status = current_class.get_semester_status()
-        if semester_status == Semester.UPCOMING:
-            upcoming_classes.append(current_class)
+        if semester_status != Semester.UPCOMING:
+            closed_classes.append(current_class.class_id)
 
-    if show_all_classes_bool:
+    if show_all_classes_bool == "True":
         display_classes = all_classes
     else:
-        display_classes = upcoming_classes
+        display_classes = all_classes.filter(Class.class_id.notin_(closed_classes)).order_by(asc(Class.class_id))
 
     # Filter Classes By Selections
     if selected_location:
@@ -940,12 +965,20 @@ def course_details(course_id):
     locations.sort()
     professors.sort()
 
+    if 'reset' in request.args:
+        # Redirect to the same route without query parameters
+        return redirect(url_for('course_details.html',
+                           course=course,
+                           all_classes=all_classes,
+                           locations=[loc[0] for loc in locations],
+                           semesters=[sem[0] for sem in semesters],
+                           professors=[prof[0] for prof in professors]
+        ))
+
     # Render
     return render_template('course_details.html',
                            course=course,
-                           all_classes=all_classes,
-                           upcoming_classes=upcoming_classes,
-                           display_classes=display_classes,
+                           all_classes=display_classes,
                            locations=[loc[0] for loc in locations],
                            semesters=[sem[0] for sem in semesters],
                            professors=[prof[0] for prof in professors])
@@ -981,7 +1014,7 @@ def login():
 def change_password():
     form = ChangePasswordForm()
     if form.validate_on_submit():
-        password_hash = User.hash_password(form.password.data)
+        password_hash = User.hash_password(form.new_password.data)
         # Setting new password
         current_user.password = password_hash
         db.session.commit()
@@ -1102,13 +1135,20 @@ def drop_course():
     
     return redirect(url_for('registered_classes'))
 
-@app.route('/registered')
+@app.route('/registered', methods=['GET', 'POST'])
 @login_required
 def registered_classes():
     student = current_user.student
     # Fetch course objects for all course IDs in registered_classes
     registered_classes = Class.query.filter(Class.class_id.in_(student.registered_classes)).all()
-    return render_template('registered_classes.html', registered_classes=registered_classes, Semester=Semester)
+    filter_selection = request.form.get('filter', 'False')
+    reset_selection = request.form.get('reset', 'False')
+
+    if filter_selection == 'True' and reset_selection == 'False':
+        for current_class in registered_classes[:]:
+            if current_class.get_semester_status() == Semester.ENDED:
+                registered_classes.remove(current_class)
+    return render_template('registered_classes.html', registered_classes=registered_classes, Semester=Semester, filter=filter_selection)
 
 @app.route('/log')
 @login_required

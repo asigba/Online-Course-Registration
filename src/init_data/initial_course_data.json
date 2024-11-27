@@ -34,7 +34,7 @@
         "description": "Introduction to programming fundamentals.",
         "max_seats": 25,
         "credits_awarded": 3,
-        "semesters_offered": ["Spring 2025", "Summer 2025", "Fall 2025"],
+        "semesters_offered": ["Fall 2024", "Fall 2025", "Spring 2024", "Spring 2025"],
         "locations_offered": ["Online", "Maryland"],
         "prereqs": [],
         "faculty": ["Prof. Luigi"],
@@ -348,5 +348,5 @@
         "faculty": ["Dr. Mario"],
         "required_technology": "Laptop",
         "reporting_instructions": "M, W, F at 12pm"
-    } 
+    }  
 ]
