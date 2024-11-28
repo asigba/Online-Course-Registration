@@ -24,15 +24,19 @@ pip install -r requirements.txt
 python3 src/app.py
 
 # Step 4 - Option 2:
-pip install Flask==3.0.3 Flask-Bcrypt==1.0.1 Flask-Login==0.6.3 Flask-SQLAlchemy==3.1.1 Flask-WTF==1.2.2 WTForms==3.2.1 beautifulsoup4==4.12.3 email-validator==2.2.0 Flask-Session==0.8.0 redis==5.2.0
+pip install Flask==3.0.3 Flask-Bcrypt==1.0.1 Flask-Login==0.6.3 Flask-SQLAlchemy==3.1.1 Flask-WTF==1.2.2 WTForms==3.2.1 beautifulsoup4==4.12.3 email-validator==2.2.0 Flask-Session==0.8.0 redis==5.2.0 gunicorn==23.0.0
 python3 src/app.py
 
 # Step 4 - Option 3:
 #pip install build
 #python3 -m build
 <MAKE_NEW_VENV>
-pip install cmsc495project*.whl
-sudo cmsc495
+pip install <*>.whl
+
+# Execute
+ocr                                               # Dev
+gunicorn -b 0.0.0.0:8080 "src.app:app"            # Dev
+gunicorn -b 0.0.0.0:8080 "src.app:main()"         # Prod
 ```
 
 # Package Directory Structure

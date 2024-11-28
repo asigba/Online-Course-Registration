@@ -18,6 +18,19 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "sudo": true
+        },
+        {
+            "name": "Gunicorn: Run App",
+            "type": "python",
+            "request": "launch",
+            "program": "gunicorn",
+            "args": [
+                "-b",
+                "0.0.0.0:8080",
+                "src.app:main()"
+            ],
+            "console": "integratedTerminal"//,
+            //"pythonPath": "${workspaceFolder}/../.venv495/bin/python"
         }
     ]
 }

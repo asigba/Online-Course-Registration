@@ -1200,7 +1200,12 @@ def main():
 
     # Using port tcp/8080 in testing.  Use port tcp/80 in prod (may require root). 
     # Note: This app does not use HTTPS - password is sent in cleartext across the wire
+    
+    # Dev
     app.run(host='0.0.0.0', port=8080, debug=True)
+
+    # Prod
+    #return app
 
 if __name__ == '__main__':
     main()
