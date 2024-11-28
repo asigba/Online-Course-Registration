@@ -27,9 +27,9 @@
             </div>
 
             <!-- This form is used to filter the available classes -->
-            <div class="flex justify-center items-center min-h-screen">
-                <form method="GET" action="{{ url_for('course_details', course_id=course.course_id) }}" class="flex flex-wrap items-center gap-4">
-                    <label for="location" class="block mb-2 font-medium text-gray-900 dark:text-white">Location:</label>
+            <div class="flex justify-center items-center">
+                <form method="GET" action="{{ url_for('course_details', course_id=course.course_id) }}" class="flex flex-wrap items-center gap-0">
+                    <label for="location" class="block mb-2 font-medium text-gray-900 dark:text-white">Location:</label>&nbsp;&nbsp;
                     <select name="location" id="location" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"> 
                         <option value="">All</option>
@@ -38,7 +38,7 @@
                         {% endfor %}
                     </select>
                     &nbsp;&nbsp;&nbsp;
-                    <label for="semester" class="block mb-2 font-medium text-gray-900 dark:text-white"> Semester: </label>
+                    <label for="semester" class="block mb-2 font-medium text-gray-900 dark:text-white"> Semester: </label>&nbsp;&nbsp;
                     <select name="semester" id="semester" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="">All</option>
@@ -47,7 +47,7 @@
                         {% endfor %}
                     </select>
                     &nbsp;&nbsp;&nbsp;
-                    <label for="professor" class="block mb-2 font-medium text-gray-900 dark:text-white">Professor: </label>
+                    <label for="professor" class="block mb-2 font-medium text-gray-900 dark:text-white">Professor: </label>&nbsp;&nbsp;
                     <select name="professor" id="professor" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="">All</option>
@@ -56,7 +56,7 @@
                         {% endfor %}
                     </select>
                     &nbsp;&nbsp;&nbsp;
-                    <label for="show_all_classes" class="block mb-2 font-medium text-gray-900 dark:text-white">Show Closed Classes: </label>
+                    <label for="show_all_classes" class="block mb-2 font-medium text-gray-900 dark:text-white">Show Closed Classes: </label>&nbsp;&nbsp;
                     <select name="show_all_classes" id="show_all_classes" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
                     block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="False" {% if request.args.get('show_all_classes') == "False" %}selected{% endif %}>False</option>
@@ -76,7 +76,7 @@
             </div><br>
 
             <!--Title for Table-->
-            <h2 style="font-weight: bold; font-size: large; ">Available Classes</h2>
+            <h2 style="font-weight: bold; font-size: large; ">Available Classes</h2><br>
 
             <!-- This table displays the filtered classes -->
             <div class="flex justify-center items-center sm:rounded-lg">
@@ -124,7 +124,7 @@
             </div><br>
 
             <!--Buttons after Table-->
-            <div class="relative overflow-x-auto w-full flex justify-center items-center min-h-screen">
+            <div class="relative overflow-x-auto w-full flex justify-center items-center">
                 <a href="{{url_for('view_courses')}}" >
                     <button type="submit"class="text-white hover:text-black bg-black hover:bg-white 
                     font-medium text-sm px-6 py-2 border-2 border-black shadow rounded transition duration-200">View Course List</button>
